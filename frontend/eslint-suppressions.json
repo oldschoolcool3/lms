@@ -1,0 +1,1110 @@
+{
+  "src/components/Assignment.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "prefer-const": {
+      "count": 4
+    }
+  },
+  "src/components/AudioBlock.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 3
+    }
+  },
+  "src/components/CommandPalette/CommandPalette.vue": {
+    "prefer-const": {
+      "count": 9
+    }
+  },
+  "src/components/CommandPalette/CommandPaletteGroup.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 2
+    }
+  },
+  "src/components/ContactUsEmail.vue": {
+    "@typescript-eslint/no-unsafe-function-type": {
+      "count": 1
+    }
+  },
+  "src/components/Controls/Autocomplete.vue": {
+    "prefer-const": {
+      "count": 8
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Controls/ChildTable.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "prefer-const": {
+      "count": 2
+    }
+  },
+  "src/components/Controls/Code.vue": {
+    "@typescript-eslint/no-unsafe-function-type": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/components/Controls/CodeEditor.vue": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "src/components/Controls/ColorSwatches.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Controls/IconPicker.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-useless-template-attributes": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/Controls/Rating.vue": {
+    "prefer-const": {
+      "count": 2
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/CourseCard.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 3
+    },
+    "vue/valid-v-for": {
+      "count": 1
+    }
+  },
+  "src/components/CreateOutline.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-valid-default-prop": {
+      "count": 1
+    }
+  },
+  "src/components/DiscussionReplies.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 5
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/Discussions.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/JobCard.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Layouts/MobileLayout.vue": {
+    "prefer-const": {
+      "count": 6
+    }
+  },
+  "src/components/LessonContent.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/Modals/AssessmentModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/components/Modals/ChapterModal.vue": {
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Modals/DiscussionModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Modals/EditCoverImage.vue": {
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-useless-template-attributes": {
+      "count": 1
+    }
+  },
+  "src/components/Modals/EditProfile.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 4
+    },
+    "vue/no-dupe-keys": {
+      "count": 1
+    },
+    "vue/no-mutating-props": {
+      "count": 1
+    }
+  },
+  "src/components/Modals/EvaluationModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 2
+    },
+    "vue/require-valid-default-prop": {
+      "count": 1
+    }
+  },
+  "src/components/Modals/Event.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 6
+    }
+  },
+  "src/components/Modals/ExplanationVideos.vue": {
+    "vue/return-in-computed-property": {
+      "count": 1
+    }
+  },
+  "src/components/Modals/FeedbackModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/components/Modals/JobApplicationModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Modals/LiveClassAttendance.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "@typescript-eslint/no-wrapper-object-types": {
+      "count": 2
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/Modals/LiveClassModal.vue": {
+    "prefer-const": {
+      "count": 2
+    }
+  },
+  "src/components/Modals/PageModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-dupe-keys": {
+      "count": 1
+    }
+  },
+  "src/components/Modals/Question.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 2
+    }
+  },
+  "src/components/Modals/QuizInVideo.vue": {
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/components/Modals/StudentModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Modals/VideoStatistics.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/Notes/InlineLessonMenu.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "prefer-const": {
+      "count": 2
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/Notes/Notes.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/NumberChartGraph.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/ProgressBar.vue": {
+    "vue/return-in-computed-property": {
+      "count": 1
+    }
+  },
+  "src/components/Quiz.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "prefer-const": {
+      "count": 12
+    },
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 4
+    }
+  },
+  "src/components/QuizBlock.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Settings/BadgeAssignments.vue": {
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/components/Settings/BadgeForm.vue": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/components/Settings/Badges.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Settings/Categories.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    }
+  },
+  "src/components/Settings/Coupons/CouponDetails.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/no-mutating-props": {
+      "count": 10
+    }
+  },
+  "src/components/Settings/Coupons/CouponItems.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/Settings/Coupons/CouponList.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 7
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Settings/EmailTemplates.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/components/Settings/GoogleMeetSettings.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/components/Settings/Members.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/Settings/PaymentGatewayDetails.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "prefer-const": {
+      "count": 9
+    }
+  },
+  "src/components/Settings/PaymentGateways.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/components/Settings/SettingFields.vue": {
+    "vue/no-mutating-props": {
+      "count": 8
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Settings/Settings.vue": {
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/Settings/Transactions/TransactionList.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/components/Settings/ZoomSettings.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/components/Sidebar/AppSidebar.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "prefer-const": {
+      "count": 9
+    },
+    "vue/require-v-for-key": {
+      "count": 3
+    }
+  },
+  "src/components/Sidebar/Apps.vue": {
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/Sidebar/Configuration.vue": {
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Sidebar/UserDropdown.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 4
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/StudentHeatmap.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/components/Tags.vue": {
+    "prefer-const": {
+      "count": 3
+    },
+    "vue/no-ref-as-operand": {
+      "count": 2
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/components/UnsplashImageBrowser.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-useless-template-attributes": {
+      "count": 1
+    }
+  },
+  "src/components/UpcomingEvaluations.vue": {
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    },
+    "vue/require-valid-default-prop": {
+      "count": 1
+    }
+  },
+  "src/components/UploadPlugin.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/components/VideoBlock.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 6
+    },
+    "vue/no-mutating-props": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/pages/AssignmentSubmission.vue": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/pages/AssignmentSubmissionList.vue": {
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/pages/Assignments.vue": {
+    "prefer-const": {
+      "count": 2
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/pages/Batches/BatchDetail.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 2
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/pages/Batches/BatchForm.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "prefer-const": {
+      "count": 5
+    }
+  },
+  "src/pages/Batches/BatchOverview.vue": {
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 1
+    }
+  },
+  "src/pages/Batches/Batches.vue": {
+    "prefer-const": {
+      "count": 4
+    },
+    "vue/valid-v-for": {
+      "count": 1
+    }
+  },
+  "src/pages/Batches/components/AdminBatchDashboard.vue": {
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 1
+    }
+  },
+  "src/pages/Batches/components/AnnouncementModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/pages/Batches/components/Announcements.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/pages/Batches/components/Assessments.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/pages/Batches/components/BatchCard.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 1
+    }
+  },
+  "src/pages/Batches/components/BatchCourses.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/pages/Batches/components/BatchDashboard.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 1
+    }
+  },
+  "src/pages/Batches/components/BatchFeedback.vue": {
+    "prefer-const": {
+      "count": 2
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/pages/Batches/components/BatchOverlay.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 6
+    }
+  },
+  "src/pages/Batches/components/BatchStudentProgress.vue": {
+    "vue/no-unused-vars": {
+      "count": 2
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/pages/Batches/components/LiveClass.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/pages/Billing.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "prefer-const": {
+      "count": 4
+    }
+  },
+  "src/pages/CertifiedParticipants.vue": {
+    "prefer-const": {
+      "count": 3
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/pages/Courses/CourseDashboard.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 3
+    },
+    "vue/require-v-for-key": {
+      "count": 2
+    },
+    "vue/valid-v-for": {
+      "count": 1
+    }
+  },
+  "src/pages/Courses/CourseEnrollmentModal.vue": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/pages/Courses/CourseImportModal.vue": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/pages/Courses/CoursePublishSettings.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/pages/Courses/Courses.vue": {
+    "prefer-const": {
+      "count": 4
+    },
+    "vue/valid-v-for": {
+      "count": 1
+    }
+  },
+  "src/pages/Courses/StudentCourseProgress.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 4
+    }
+  },
+  "src/pages/Home/AdminHome.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 2
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/pages/Home/Home.vue": {
+    "prefer-const": {
+      "count": 7
+    }
+  },
+  "src/pages/Home/Streak.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/pages/Home/StudentHome.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/pages/JobApplications.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 1
+    }
+  },
+  "src/pages/JobDetail.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/pages/JobForm.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/pages/Jobs.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/pages/Lesson.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 6
+    },
+    "prefer-const": {
+      "count": 10
+    },
+    "vue/no-ref-as-operand": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 1
+    }
+  },
+  "src/pages/LessonForm.vue": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "prefer-const": {
+      "count": 12
+    }
+  },
+  "src/pages/Notifications.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "prefer-const": {
+      "count": 2
+    },
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/pages/PersonaForm.vue": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/pages/Profile.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 5
+    }
+  },
+  "src/pages/ProfileAbout.vue": {
+    "prefer-const": {
+      "count": 4
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/pages/ProfileEvaluationSchedule.vue": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/pages/ProfileEvaluator.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/pages/ProfileRoles.vue": {
+    "prefer-const": {
+      "count": 2
+    }
+  },
+  "src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "prefer-const": {
+      "count": 5
+    }
+  },
+  "src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue": {
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 1
+    }
+  },
+  "src/pages/ProgrammingExercises/ProgrammingExercises.vue": {
+    "prefer-const": {
+      "count": 2
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/pages/ProgrammingExercises/types.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/pages/Programs/ProgramEnrollment.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/pages/Programs/ProgramForm.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 4
+    },
+    "vue/valid-v-for": {
+      "count": 3
+    }
+  },
+  "src/pages/Programs/Programs.vue": {
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/pages/Programs/StudentPrograms.vue": {
+    "vue/require-v-for-key": {
+      "count": 2
+    }
+  },
+  "src/pages/Programs/types.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/pages/QuizForm.vue": {
+    "prefer-const": {
+      "count": 1
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/pages/QuizSubmission.vue": {
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/pages/QuizSubmissionList.vue": {
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/pages/Quizzes.vue": {
+    "vue/no-unused-vars": {
+      "count": 1
+    },
+    "vue/valid-v-for": {
+      "count": 2
+    }
+  },
+  "src/pages/SCORMChapter.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    }
+  },
+  "src/pages/Search/Search.vue": {
+    "vue/require-v-for-key": {
+      "count": 1
+    }
+  },
+  "src/router.js": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/tests/SettingFields.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    }
+  },
+  "src/translation.js": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/utils/assignment.js": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/utils/code.ts": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/utils/composables.js": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/utils/index.js": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-useless-escape": {
+      "count": 5
+    }
+  },
+  "src/utils/markdownParser.js": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-useless-escape": {
+      "count": 4
+    }
+  },
+  "src/utils/program.ts": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/utils/quiz.js": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    }
+  },
+  "src/utils/upload.js": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  }
+}

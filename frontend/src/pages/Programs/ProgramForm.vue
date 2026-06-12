@@ -179,8 +179,7 @@
 						{
 							label: __('Add'),
 							variant: 'solid',
-							onClick: ({ close }: { close: () => void }) =>
-								currentForm == 'course' ? addCourse(close) : addMember(close),
+							onClick: onAddAction,
 						},
 					],
 				}"
@@ -470,6 +469,9 @@ const addMember = (close: () => void) => {
 		toast.warning(__('Member already added to program'))
 	}
 }
+
+const onAddAction = ({ close }: { close: () => void }) =>
+	currentForm.value == 'course' ? addCourse(close) : addMember(close)
 
 const updateCounts = async (
 	type: 'member' | 'course',

@@ -34,16 +34,32 @@
       ]
     },
     "lint": {
-      "command": "npx prettier --check src",
+      "command": "yarn lint",
       "options": { "cwd": "frontend" },
       "cache": true,
       "inputs": [
         "{projectRoot}/src/**/*",
+        "{projectRoot}/eslint.config.js",
+        "{projectRoot}/eslint-suppressions.json",
         "{projectRoot}/.prettierrc.json",
         "{projectRoot}/.prettierignore",
         "{projectRoot}/package.json",
         "{projectRoot}/yarn.lock",
         "{workspaceRoot}/.editorconfig"
+      ]
+    },
+    "typecheck": {
+      "command": "yarn typecheck",
+      "options": { "cwd": "frontend" },
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/src/**/*",
+        "{projectRoot}/tsconfig.json",
+        "{projectRoot}/tsconfig.node.json",
+        "{projectRoot}/typecheck-baseline.json",
+        "{projectRoot}/package.json",
+        "{projectRoot}/yarn.lock",
+        "{workspaceRoot}/scripts/frontend-typecheck.mjs"
       ]
     }
   }

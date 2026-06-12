@@ -5,12 +5,15 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "strict": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "checkJs": false,
     "jsx": "preserve",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
     "lib": ["ESNext", "DOM"],
-    "types": ["./globals"],
+    "types": [],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
