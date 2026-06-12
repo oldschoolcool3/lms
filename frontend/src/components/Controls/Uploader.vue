@@ -7,7 +7,7 @@
 		<FileUploader
 			:fileTypes="[fileType]"
 			:validateFile="(file: File) => validateFile(file, true, type)"
-			@success="(file: { file_url: string }) => saveFile(file)"
+			@success="saveFile"
 			@failure="onUploadFailure"
 		>
 			<template v-slot="{ uploading, progress, openFileSelector }">

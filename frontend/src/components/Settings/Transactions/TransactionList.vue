@@ -39,9 +39,7 @@
 				:options="{
 					showTooltip: false,
 					selectable: false,
-					onRowClick: (row: { [key: string]: any }) => {
-						openForm(row)
-					},
+					onRowClick: openForm,
 				}"
 			>
 				<ListHeader

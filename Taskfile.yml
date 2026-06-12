@@ -38,6 +38,11 @@ tasks:
     cmds:
       - npx nx run-many -t lint
 
+  typecheck:
+    desc: Type-check the frontend (vue-tsc, ratcheted against a baseline)
+    cmds:
+      - npx nx run-many -t typecheck
+
   precommit:
     desc: Run all pre-commit hooks against the full tree
     cmds:

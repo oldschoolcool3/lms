@@ -26,6 +26,7 @@ Tasks are defined in the root `Taskfile.yml` plus two split files,
 | `task build` | Build all projects via `npx nx run-many -t build` | A bench — `frontend:build` resolves `sites/common_site_config.json`; outside a bench use `bench build --app lms` |
 | `task test` | Run all tests via `npx nx run-many -t test` | Backend tests need a bench (see below); frontend Vitest does not |
 | `task lint` | Lint all projects via `npx nx run-many -t lint` | None beyond install |
+| `task typecheck` | Type-check the SPA via `npx nx run-many -t typecheck` (vue-tsc, ratcheted) | None beyond install |
 | `task precommit` | Run all pre-commit hooks against the full tree (`uvx pre-commit run --all-files`) | `uv` installed (hooks run via `uvx`) |
 | `task test:e2e` | Run Cypress end-to-end tests (`npx cypress run --e2e`) | A running site — see `cypress.config.js` |
 
@@ -67,7 +68,7 @@ The script exits with an error if the `bench` CLI is not on `PATH` or if
 | `task dev:frontend` | Start the Vite dev server (`yarn dev` in `frontend/`) | A running bench site to proxy to |
 | `task build:frontend` | Build the SPA into `lms/public/frontend` (`npx nx run frontend:build`) | A bench — `src/socket.js` imports `sites/common_site_config.json`; outside a bench use `bench build --app lms` |
 | `task test:frontend` | Run Vitest unit tests (`npx nx run frontend:test`) | None beyond install |
-| `task lint:frontend` | Prettier check on `frontend/src` (`npx nx run frontend:lint`) | None beyond install |
+| `task lint:frontend` | ESLint (flat config) + prettier check on `frontend/src` (`npx nx run frontend:lint`) | None beyond install |
 | `task format:frontend` | Prettier write on `frontend/src` | None beyond install |
 
 ## How tasks relate to Nx

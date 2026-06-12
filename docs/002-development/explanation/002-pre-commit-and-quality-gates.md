@@ -13,8 +13,8 @@ Quality is enforced at four levels, each catching what the previous one missed:
 
 1. **Editor** -- ruff and prettier both read checked-in config (`pyproject.toml` for ruff; the root `.prettierrc.json` for repo-wide files and `frontend/.prettierrc.json` for the SPA), so editor integrations agree with every later gate.
 2. **Pre-commit hooks** -- `.pre-commit-config.yaml` runs on staged files before anything enters git history. Install once with `uvx pre-commit install` (see [Set up pre-commit hooks](../how-to-guides/002-set-up-pre-commit-hooks.md)).
-3. **Nx caching** -- `task lint` runs the `backend:lint` (ruff) and `frontend:lint` (prettier `--check`) targets through Nx, so unchanged projects return cached results instantly (see [Nx monorepo architecture](001-nx-monorepo-architecture.md)).
-4. **CI** -- three GitHub Actions workflows enforce the lint/test gates described here: `.github/workflows/linters.yml` re-runs the full pre-commit suite, the frappe semgrep ruleset, and a Tailwind RTL semgrep scan (`.github/semgrep/tailwind-rtl.yml`); `ci.yml` runs server tests inside a provisioned Frappe bench; `frontend-tests.yml` runs Vitest in `frontend/`. Pull requests are additionally gated by `ui-tests.yml` (Cypress UI tests) and `semantic.yml` (PR-title validation).
+3. **Nx caching** -- `task lint` runs the `backend:lint` (ruff) and `frontend:lint` (ESLint flat config + prettier `--check`) targets through Nx, and `task typecheck` runs `frontend:typecheck` (vue-tsc), so unchanged projects return cached results instantly (see [Nx monorepo architecture](001-nx-monorepo-architecture.md)).
+4. **CI** -- three GitHub Actions workflows enforce the lint/test gates described here: `.github/workflows/linters.yml` runs a frontend ESLint + type-check job, re-runs the full pre-commit suite, the frappe semgrep ruleset, and a Tailwind RTL semgrep scan (`.github/semgrep/tailwind-rtl.yml`); `ci.yml` runs server tests inside a provisioned Frappe bench; `frontend-tests.yml` runs Vitest in `frontend/`. Pull requests are additionally gated by `ui-tests.yml` (Cypress UI tests) and `semantic.yml` (PR-title validation).
 
 A developer who skips the local hooks still hits the same checks in `linters.yml` -- pre-commit is a convenience for fast feedback, not the only enforcement point.
 
@@ -46,7 +46,21 @@ Uses the `rbubley/mirrors-prettier` mirror (the official mirror is archived) to 
 
 ### Legacy desk JS (`eslint`)
 
-ESLint runs only on plain JavaScript (`types_or: [javascript]`) with `--quiet`, using the permissive root `.eslintrc`. It exists for the legacy Frappe desk scripts -- the Vue SPA is formatted by prettier and type-checked separately, and the exclusions (dist bundles, `cypress/`, vendored libs, Jinja templates, boilerplate) mirror prettier's.
+ESLint runs only on plain JavaScript (`types_or: [javascript]`) with `--quiet`, using the permissive root `.eslintrc`. It exists for the legacy Frappe desk scripts; the Vue SPA carries its own, much stricter ESLint (see below), and the exclusions (dist bundles, `cypress/`, vendored libs, Jinja templates, boilerplate) mirror prettier's. The two never overlap -- ESLint 8 here reads `.eslintrc` and ignores the SPA's flat `eslint.config.js`.
+
+## SPA lint and type-check (`frontend:lint`, `frontend:typecheck`)
+
+The Vue SPA (`frontend/`) is gated separately from the pre-commit suite, because it needs the modern toolchain (ESLint 9 flat config, typescript-eslint, `vue-tsc`) and its own dependency tree:
+
+- **`frontend:lint`** runs `eslint .` (flat config in `frontend/eslint.config.js`: typescript-eslint + eslint-plugin-vue, formatting deferred to prettier) followed by `prettier --check src`.
+- **`frontend:typecheck`** runs `vue-tsc --noEmit` over the whole program. Because `frappe-ui` ships its types as raw Vue source, it is treated as an untyped boundary (`frontend/src/types/frappe-ui-shim.d.ts`) so the checker doesn't descend into a dependency it can't fix.
+
+Both gates are **ratcheted** rather than retrofitted. The SPA predates any type-checking, so it carries a backlog of pre-existing findings in upstream-derived components; fixing them all at once would be exactly the upstream-churning diff this fork avoids. Instead:
+
+- ESLint grandfathers existing violations in `frontend/eslint-suppressions.json` (ESLint's native bulk-suppressions) and fails only on **new** ones.
+- `vue-tsc` output is diffed against `frontend/typecheck-baseline.json` by `scripts/frontend-typecheck.mjs`, which fails only on **new** type errors.
+
+New and changed code is held to the full standard; the backlog is burned down incrementally (Track A, PR-A3). Regenerate the ledgers after fixing a batch with `cd frontend && yarn lint:fix` then `eslint . --prune-suppressions` / `yarn typecheck:update`.
 
 ### YAML and Markdown (`yamllint`, `markdownlint-cli2`)
 
@@ -68,7 +82,8 @@ Every hook above is scoped deliberately. This repository tracks upstream `frappe
 
 ```bash
 task precommit   # uvx pre-commit run --all-files
-task lint        # Nx-cached ruff + prettier across both projects
+task lint        # Nx-cached ruff + (ESLint + prettier) across both projects
+task typecheck   # Nx-cached vue-tsc over the SPA (ratcheted)
 ```
 
 See [Task command reference](../reference/002-task-commands.md) for the full command list and [Run tasks with Nx](../how-to-guides/001-run-tasks-with-nx.md) for affected-only runs.
