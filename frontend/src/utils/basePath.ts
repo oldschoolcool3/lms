@@ -1,8 +1,8 @@
-export function getLmsBasePath() {
+export function getLmsBasePath(): string {
 	return window.lms_path || 'lms'
 }
 
-export function getLmsRoute(path = '') {
+export function getLmsRoute(path = ''): string {
 	const base = getLmsBasePath()
 	if (!path) {
 		return base

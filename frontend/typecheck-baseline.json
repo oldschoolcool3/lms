@@ -1,5 +1,5 @@
 {
-  "total": 172,
+  "total": 170,
   "signatures": {
     "src/components/CommandPalette/CommandPaletteGroup.vue | TS2339 | Property 'route' does not exist on type '{ title: string; icon?: any; isActive?: boolean | undefined; modified?: string | undefined; }'.": 1,
     "src/components/ContactUsEmail.vue | TS7006 | Parameter 'val' implicitly has an 'any' type.": 1,
@@ -37,7 +37,6 @@
     "src/components/Settings/Coupons/Coupons.vue | TS2322 | Type '{ name: string; enabled: boolean; code: string; discount_type: \"Percentage\" | \"Fixed Amount\"; percentage_discount?: number | undefined; fixed_amount_discount?: number | undefined; ... 4 more ...; applicable_items: { ...; }[]; } | null' is not assignable to type 'Coupon'.": 1,
     "src/components/Settings/EmailTemplates.vue | TS2304 | Cannot find name 'cleanError'.": 1,
     "src/components/Settings/EmailTemplates.vue | TS2322 | Type 'null' is not assignable to type 'string | undefined'.": 1,
-    "src/components/Settings/EmailTemplates.vue | TS2339 | Property 'read_only_mode' does not exist on type 'Window & typeof globalThis'.": 1,
     "src/components/Settings/EmailTemplates.vue | TS7006 | Parameter 'err' implicitly has an 'any' type.": 1,
     "src/components/Settings/EmailTemplates.vue | TS7006 | Parameter 'row' implicitly has an 'any' type.": 1,
     "src/components/Settings/EmailTemplates.vue | TS7006 | Parameter 'selections' implicitly has an 'any' type.": 1,
@@ -91,7 +90,6 @@
     "src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue | TS2322 | Type 'null' is not assignable to type 'string | undefined'.": 1,
     "src/pages/ProgrammingExercises/ProgrammingExercises.vue | TS2339 | Property '$dialog' does not exist on type '(ComponentCustomProperties & Record<string, any>) | undefined'.": 1,
     "src/pages/ProgrammingExercises/ProgrammingExercises.vue | TS2339 | Property 'favicon' does not exist on type '{}'.": 1,
-    "src/pages/ProgrammingExercises/ProgrammingExercises.vue | TS2339 | Property 'read_only_mode' does not exist on type 'Window & typeof globalThis'.": 1,
     "src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue | TS2304 | Cannot find name 'LiveCodeSession'.": 1,
     "src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue | TS2322 | Type 'string' is not assignable to type '\"Passed\" | \"Failed\"'.": 1,
     "src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue | TS2339 | Property 'favicon' does not exist on type '{}'.": 1,
