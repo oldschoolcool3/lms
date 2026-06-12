@@ -49,7 +49,7 @@
 							showTooltip: false,
 							onRowClick: (row: any) => {
 								redirectToAssessment(row)
-							}
+							},
 						}"
 					>
 						<ListHeader
@@ -91,7 +91,7 @@
 							showTooltip: false,
 							onRowClick: (row: any) => {
 								redirectToCourse(row)
-							}
+							},
 						}"
 					>
 						<ListHeader

@@ -11,8 +11,8 @@
 						uploading
 							? __('Uploading {0}%', [progress])
 							: image_url
-							? __('Change')
-							: __('Upload')
+								? __('Change')
+								: __('Upload')
 					"
 					@click="openFileSelector"
 				/>

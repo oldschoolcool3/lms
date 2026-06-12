@@ -180,9 +180,7 @@
 							label: __('Add'),
 							variant: 'solid',
 							onClick: ({ close }: { close: () => void }) =>
-								currentForm == 'course'
-									? addCourse(close)
-									: addMember(close),
+								currentForm == 'course' ? addCourse(close) : addMember(close),
 						},
 					],
 				}"
@@ -204,7 +202,10 @@
 								ignore_user_type: 1,
 							}"
 							:label="__('Program Member')"
-							:onCreate="(value: string, close: () => void) => openSettings('Members', close)"
+							:onCreate="
+								(value: string, close: () => void) =>
+									openSettings('Members', close)
+							"
 						/>
 					</div>
 				</template>

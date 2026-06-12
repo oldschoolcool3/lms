@@ -28,7 +28,7 @@
 				controls
 				width="100%"
 				controlsList="nodownload"
-				oncontextmenu="return false;"
+				oncontextmenu="return false"
 			>
 				<source :src="getId(block)" type="video/mp4" />
 			</video>

@@ -145,10 +145,10 @@
 												row.name.startsWith('Just')
 													? 'red'
 													: row.name.startsWith('In')
-													? 'amber'
-													: row.name.startsWith('Adv')
-													? 'blue'
-													: 'green'
+														? 'amber'
+														: row.name.startsWith('Adv')
+															? 'blue'
+															: 'green'
 											][400],
 									}"
 								></div>

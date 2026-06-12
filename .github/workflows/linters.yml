@@ -62,3 +62,21 @@ jobs:
 
       - name: Run RTL Semgrep rules
         run: semgrep scan --config ./.github/semgrep/tailwind-rtl.yml
+
+  gitleaks:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The pre-commit gitleaks hook only scans the staged diff, which is
+      # empty in CI — this job scans the full working tree instead. Version
+      # pinned to match the gitleaks rev in .pre-commit-config.yaml.
+      - name: Run gitleaks (working tree)
+        env:
+          GITLEAKS_VERSION: 8.30.1
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz gitleaks
+          ./gitleaks dir . --redact --no-banner

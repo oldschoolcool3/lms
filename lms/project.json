@@ -1,0 +1,30 @@
+{
+  "name": "backend",
+  "projectType": "application",
+  "targets": {
+    "lint": {
+      "command": "uvx ruff@0.13.3 check lms",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/**/*.py",
+        "{workspaceRoot}/pyproject.toml"
+      ]
+    },
+    "format": {
+      "command": "uvx ruff@0.13.3 format lms",
+      "cache": false
+    },
+    "format-check": {
+      "command": "uvx ruff@0.13.3 format --check lms",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/**/*.py",
+        "{workspaceRoot}/pyproject.toml"
+      ]
+    },
+    "test": {
+      "command": "bash scripts/test-backend.sh",
+      "cache": false
+    }
+  }
+}

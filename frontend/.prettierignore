@@ -1,0 +1,4 @@
+# Generated files — overwritten by builds/tooling, never hand-formatted
+src/utils/frappe-ui-colors.json
+auto-imports.d.ts
+components.d.ts

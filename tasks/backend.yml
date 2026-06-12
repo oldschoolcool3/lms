@@ -1,0 +1,21 @@
+version: '3'
+
+# Backend (Frappe app under lms/) tasks.
+# Server tests need a bench + site — scripts/test-backend.sh documents the
+# BENCH_DIR / SITE environment variables.
+
+tasks:
+  lint:backend:
+    desc: Ruff lint the Frappe app
+    cmds:
+      - npx nx run backend:lint
+
+  format:backend:
+    desc: Ruff format the Frappe app (writes changes)
+    cmds:
+      - npx nx run backend:format
+
+  test:backend:
+    desc: "Run server tests inside a bench (env: BENCH_DIR, SITE)"
+    cmds:
+      - bash scripts/test-backend.sh {{.CLI_ARGS}}

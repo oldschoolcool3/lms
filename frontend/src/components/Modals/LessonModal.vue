@@ -100,7 +100,7 @@ watch(
 )
 
 const errorMessage = (err: { messages?: string[] } | string): string =>
-	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
+	typeof err === 'string' ? err : (err.messages?.[0] ?? 'Error')
 
 const insertLesson = createResource({
 	url: 'frappe.client.insert',

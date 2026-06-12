@@ -1,3 +1,13 @@
+---
+title: Install with bench
+description: How to set up the LMS app locally on a Frappe bench for development.
+type: how-to
+module: null
+tags: [bench, installation, frappe, setup, development]
+---
+
+# Install with bench
+
 To setup the repository locally follow the steps mentioned below:
 
 1. Install bench and setup a frappe-bench directory by following the [Installation Steps](https://frappeframework.com/docs/user/en/installation).

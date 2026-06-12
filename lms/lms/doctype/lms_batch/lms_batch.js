@@ -98,11 +98,11 @@ const add_timetable_rows = (frm, timetable) => {
 		child.end_time = row.end_time
 			? row.end_time
 			: row.duration
-			? moment
-					.utc(row.start_time, "HH:mm")
-					.add(row.duration, "hour")
-					.format("HH:mm")
-			: null;
+				? moment
+						.utc(row.start_time, "HH:mm")
+						.add(row.duration, "hour")
+						.format("HH:mm")
+				: null;
 		child.duration = row.duration;
 		child.milestone = row.milestone;
 	});

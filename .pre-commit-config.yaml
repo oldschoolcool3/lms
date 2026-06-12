@@ -1,46 +1,67 @@
-exclude: 'node_modules|.git'
+default_install_hook_types: [pre-commit, commit-msg]
 default_stages: [pre-commit]
 fail_fast: false
+# Anchored: an unanchored 'node_modules|.git' would silently exclude all of
+# .github/, .gitignore, etc. from every hook (the `.` matches any character).
+exclude: '^(node_modules/|\.git/)|/node_modules/'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
-        files: "lms.*"
-        exclude: ".*json$|.*txt$|.*csv|.*md|.*svg"
-      - id: check-yaml
-      - id: check-merge-conflict
-      - id: check-ast
+        exclude: '\.(json|txt|csv|md|svg|patch|po|pot)$'
+      - id: end-of-file-fixer
+        exclude: '\.(json|txt|csv|md|svg|patch|po|pot|min\.js|min\.css)$|^lms/public/js/lib/'
       - id: check-json
+        # tsconfig*.json files use JSONC (comments are allowed by TypeScript)
+        # and would fail strict JSON parsing. TS compiler validates them.
+        exclude: ^(.*/)?tsconfig.*\.json$
+      - id: check-yaml
+        args: [--allow-multiple-documents]
       - id: check-toml
+      - id: check-ast
       - id: debug-statements
+      - id: detect-private-key
+      - id: check-added-large-files
+        # 1MB threshold — lockfiles and screenshots routinely exceed 500KB.
+        args: [--maxkb=1024]
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: no-commit-to-branch
+        args: [--branch, main, --branch, develop]
+        stages: [pre-commit]
+
+  # Secret scanning — reads .gitleaks.toml from the repo root automatically.
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.1
+    rev: v0.13.3
     hooks:
       - id: ruff
-        name: "Run ruff import sorter"
-        args: ["--select=I", "--fix"]
-      - id: ruff
         name: "Run ruff linter"
+        args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
         name: "Run ruff formatter"
 
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.7.1
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.6.2
     hooks:
       - id: prettier
-        types_or: [javascript, vue]
-        # Ignore any files that might contain jinja / bundles
+        types_or: [javascript, ts, vue]
+        # Ignore generated files and any files that might contain jinja / bundles
         exclude: |
             (?x)^(
                 lms/public/dist/.*|
-                .*node_modules.*|
                 .*boilerplate.*|
                 lms/www/website_script.js|
                 lms/templates/includes/.*|
-                lms/public/js/lib/.*
+                lms/public/js/lib/.*|
+                frontend/auto-imports\.d\.ts|
+                frontend/components\.d\.ts
             )$
 
   - repo: https://github.com/pre-commit/mirrors-eslint
@@ -60,7 +81,51 @@ repos:
                 lms/public/js/lib/.*
             )$
 
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        args: [-c=.yamllint.yaml]
+        # GitHub Actions workflows legitimately use the truthy `on:` key.
+        exclude: ^\.github/workflows/.*$
+
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.17.2
+    hooks:
+      - id: markdownlint-cli2
+        # Exclude AI rule/command files (not user-facing documentation),
+        # lms/ app content templates (notification bodies etc., not docs),
+        # and .github/ issue/PR templates
+        exclude: ^(\.claude/|lms/|\.github/)
+
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.22.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        # commitlint.config.js uses parserPreset
+        # 'conventional-changelog-conventionalcommits' — it must be installed
+        # top-level in the hook env or commitlint crashes with
+        # ERR_MODULE_NOT_FOUND on every commit.
+        additional_dependencies: ['conventional-changelog-conventionalcommits']
+
+  - repo: local
+    hooks:
+      - id: block-merge-artifacts
+        name: Block unresolved merge artifacts (.rej files and conflict markers)
+        language: system
+        entry: >-
+          bash -c 'if command -v rg &>/dev/null
+          && rg -l "^(<{7}|={7}|>{7})" --glob "!*.md" . 2>/dev/null | grep -q .;
+          then echo "Unresolved merge markers found"; exit 1; fi;
+          if find . -name "*.rej" -not -path "./.git/*" -not -path "./node_modules/*" | grep -q .;
+          then echo ".rej files present"; exit 1; fi'
+        pass_filenames: false
+
 ci:
-    autoupdate_schedule: weekly
-    skip: []
-    submodules: false
+  autoupdate_schedule: weekly
+  # pre-commit.ci only (GitHub Actions is unaffected): gitleaks needs a Go
+  # build; no-commit-to-branch would fail PRs opened from a fork branch
+  # that happens to be named develop or main.
+  skip: [gitleaks, no-commit-to-branch]
+  submodules: false

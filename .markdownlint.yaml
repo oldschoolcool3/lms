@@ -1,0 +1,49 @@
+default: true
+
+# Line length — prose and code examples legitimately exceed 80 chars
+MD013: false
+
+# Inline HTML — used in README and docs for tables, details/summary, centering
+MD033: false
+
+# First line must be a top-level heading — not required for all files
+MD041: false
+
+# Blanks around headings/fences/lists — pure style; existing docs are inconsistent
+MD022: false
+MD031: false
+MD032: false
+
+# Hard tabs — this repo's editorconfig mandates tabs, including in markdown
+MD010: false
+
+# Multiple consecutive blank lines / indented code blocks / $ prompts —
+# upstream README style; not worth diverging from frappe/lms over
+MD012: false
+MD046: false
+MD014: false
+
+# Trailing punctuation in headings
+MD026: false
+
+# Multiple top-level headings — some docs intentionally use multiple H1s
+MD025: false
+
+# Emphasis used instead of heading — bold as inline callouts is a common pattern
+MD036: false
+
+# Fenced code blocks without language — generic output/diff blocks omit it
+MD040: false
+
+# Duplicate headings — release-notes-style docs reuse headings by design
+MD024: false
+
+# Unordered list style and ordered list prefix — pre-existing docs use mixed styles
+MD004: false
+MD029: false
+
+# Bare URLs — README and reference docs use plain URLs in code/table context
+MD034: false
+
+# Blanks around tables — pre-existing docs don't consistently add them
+MD058: false

@@ -1,0 +1,34 @@
+version: '3'
+
+# Frontend (Vue 3 SPA under frontend/) tasks.
+
+tasks:
+  dev:frontend:
+    desc: Start the Vite dev server (proxies to a running bench site)
+    dir: frontend
+    cmds:
+      - yarn dev
+
+  build:frontend:
+    # Runs upstream `yarn build`; src/socket.js imports
+    # ../../../../sites/common_site_config.json, which only resolves inside a
+    # bench. Outside one, build with `bench build --app lms`.
+    desc: "Build the SPA into lms/public/frontend (needs a bench)"
+    cmds:
+      - npx nx run frontend:build
+
+  test:frontend:
+    desc: Run Vitest unit tests
+    cmds:
+      - npx nx run frontend:test
+
+  lint:frontend:
+    desc: Prettier check on frontend/src
+    cmds:
+      - npx nx run frontend:lint
+
+  format:frontend:
+    desc: Prettier write on frontend/src
+    dir: frontend
+    cmds:
+      - npx prettier --write src

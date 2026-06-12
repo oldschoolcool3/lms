@@ -1,6 +1,8 @@
 import { ref } from 'vue'
 
-const theme = ref<'light' | 'dark'>(localStorage.getItem('theme') as 'light' | 'dark' || 'light')
+const theme = ref<'light' | 'dark'>(
+	(localStorage.getItem('theme') as 'light' | 'dark') || 'light'
+)
 
 const toggleTheme = () => {
 	const newTheme: 'light' | 'dark' = theme.value === 'dark' ? 'light' : 'dark'

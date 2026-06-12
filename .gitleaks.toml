@@ -1,0 +1,25 @@
+# Gitleaks configuration
+# Extends the upstream default ruleset with project-specific allowlists.
+# Docs: https://github.com/gitleaks/gitleaks#configuration
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Project-wide allowlist for docs, tests, demo data, and lockfiles"
+
+paths = [
+  '''docs/.*''',
+  '''\.claude/.*''',
+  '''cypress/fixtures/.*''',
+  '''lms/demo/.*''',
+  '''lms/fixtures/.*''',
+  '''.*test_.*\.py''',
+  '''.*\.test\.(ts|js)''',
+  '''yarn\.lock''',
+  '''frontend/yarn\.lock''',
+  # Local-only noise for `gitleaks dir` scans (absent in CI checkouts)
+  '''.*node_modules/.*''',
+  '''\.nx/.*''',
+  '''\.venv/.*''',
+]

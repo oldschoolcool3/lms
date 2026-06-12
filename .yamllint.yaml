@@ -1,0 +1,22 @@
+extends: default
+
+rules:
+  line-length:
+    max: 120
+    level: warning
+
+  truthy:
+    # Only allow explicit true/false booleans — catches on/yes/no/off gotchas.
+    # check-keys: true also flags YAML keys that are truthy literals (e.g. `on:`).
+    allowed-values: ['true', 'false']
+    check-keys: true
+    level: error
+
+  document-start: disable   # Not all YAML files need a --- prefix
+
+  comments:
+    min-spaces-from-content: 1
+
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 1

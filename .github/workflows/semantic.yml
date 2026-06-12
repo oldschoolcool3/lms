@@ -1,19 +1,36 @@
 name: Semantic Pull Request
 
 on:
-  push:
-    branches: [ main ]
-  pull_request: {}
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: read
 
 jobs:
-  # This workflow contains a single job called "build"
   semantic:
     name: Validate PR title
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - uses: zeke/semantic-pull-requests@main
+      # zeke/semantic-pull-requests is unmaintained (its @main no longer ships
+      # an action manifest, so the job errors at setup). amannn/action-semantic-
+      # pull-request is the maintained equivalent. The `types` below mirror
+      # commitlint.config.js so this PR-title gate and the commit-title gate
+      # (linters.yml commit-lint job) accept exactly the same set.
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            build
+            chore
+            ci
+            docs
+            feat
+            fix
+            perf
+            refactor
+            revert
+            style
+            test
+            deprecate

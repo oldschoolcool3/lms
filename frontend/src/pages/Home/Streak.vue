@@ -15,8 +15,8 @@
 								streakInfo.data?.current_streak < 1
 									? __('You can do better,')
 									: streakInfo.data?.current_streak < 10
-									? __('Keep going,')
-									: __('You rock,')
+										? __('Keep going,')
+										: __('You rock,')
 							}}
 							{{ __(' you are on a') }}
 						</div>
