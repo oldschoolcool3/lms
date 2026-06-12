@@ -1,0 +1,62 @@
+name: Nx Affected
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop, main-hotfix]
+  workflow_dispatch:
+
+jobs:
+  affected:
+    name: Nx Affected (lint, typecheck, test)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so nx-set-shas can compute the affected base.
+          fetch-depth: 0
+
+      # Derives NX_BASE / NX_HEAD: the PR merge-base, or the last successful
+      # commit on push. Everything else runs `nx affected` against that range.
+      - uses: nrwl/nx-set-shas@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          check-latest: true
+
+      # backend:lint runs `uvx ruff`, which needs uv on PATH.
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Cache yarn
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock', 'frontend/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cache Nx
+        uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: nx-${{ runner.os }}-${{ hashFiles('yarn.lock', 'frontend/yarn.lock') }}-${{ github.sha }}
+          restore-keys: |
+            nx-${{ runner.os }}-${{ hashFiles('yarn.lock', 'frontend/yarn.lock') }}-
+            nx-${{ runner.os }}-
+
+      # Root install; the postinstall hook installs frontend/ deps too.
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Lint (backend ruff + frontend ESLint/Prettier) and typecheck (frontend
+      # vue-tsc) for affected projects only, with Nx caching.
+      - name: nx affected -t lint typecheck
+        run: npx nx affected -t lint typecheck --base=$NX_BASE --head=$NX_HEAD
+
+      # Frontend unit tests (Vitest). The backend `test` target needs a Frappe
+      # bench, so it's excluded here and covered by ci.yml (Server Tests).
+      - name: nx affected -t test
+        run: npx nx affected -t test --base=$NX_BASE --head=$NX_HEAD --exclude=backend
