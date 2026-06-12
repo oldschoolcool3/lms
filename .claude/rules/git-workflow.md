@@ -1,8 +1,13 @@
 # Git Workflow
 
-- Default branch: `develop` (PRs target it; `main` is the release branch —
-  releases flow via semantic-release / Mergify, see `.releaserc` and
-  `.mergify.yml`)
+- **`develop` is our canonical line / default branch** — all PRs target it
+  (this is "our main"; see `docs/002-development/explanation/003-branching-and-release-model.md`).
+- **`main` is the stable release line** — `develop` promotes into it, and
+  `on_release.yml` runs semantic-release there (version bump + GitHub release +
+  container build). `main` does not exist yet; create it when ready to cut the
+  first release.
+- Releases and the container image build from **our fork** (`oldschoolcool3/lms`),
+  never upstream `frappe/lms` — the release workflows were repointed for this.
 - Conventional commits, enforced by commitlint (`commitlint.config.js`):
   `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `build`, `ci`,
   `style`, `revert`, `deprecate`

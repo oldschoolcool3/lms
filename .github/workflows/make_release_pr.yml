@@ -1,7 +1,11 @@
 name: Create weekly release
 on:
-  schedule:
-    - cron: '30 3 * * 3'
+  # Weekly cadence is dormant until we opt into the upstream-style
+  # main-hotfix -> main release flow (needs the main-hotfix + main branches and
+  # a RELEASE_TOKEN secret). Re-enable the cron when ready; run manually until
+  # then via workflow_dispatch.
+  # schedule:
+  #   - cron: '30 3 * * 3'
   workflow_dispatch:
 
 jobs:
@@ -15,7 +19,7 @@ jobs:
       - uses: octokit/request-action@v2.x
         with:
           route: POST /repos/{owner}/{repo}/pulls
-          owner: frappe
+          owner: oldschoolcool3
           repo: lms
           title: |-
             "chore: merge 'main-hotfix' into 'main'"

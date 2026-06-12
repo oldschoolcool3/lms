@@ -38,7 +38,10 @@ jobs:
 
       - name: Set Branch
         run: |
-          export APPS_JSON='[{"url": "https://github.com/frappe/payments","branch": "version-15"},{"url": "https://github.com/frappe/lms","branch": "main"}]'
+          # Build the container from OUR fork's lms, not upstream frappe/lms,
+          # so the released image contains our code. frappe/payments is a
+          # genuine upstream dependency app and stays as-is.
+          export APPS_JSON='[{"url": "https://github.com/frappe/payments","branch": "version-15"},{"url": "https://github.com/oldschoolcool3/lms","branch": "main"}]'
           echo "APPS_JSON_BASE64=$(echo $APPS_JSON | base64 -w 0)" >> $GITHUB_ENV
           echo "FRAPPE_BRANCH=version-16" >> $GITHUB_ENV
 
