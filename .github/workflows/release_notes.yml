@@ -27,13 +27,13 @@ jobs:
     steps:
     - name: Update notes
       run: |
-        NEW_NOTES=$(gh api --method POST -H "Accept: application/vnd.github+json"  /repos/frappe/lms/releases/generate-notes  -f tag_name=$RELEASE_TAG \
+        NEW_NOTES=$(gh api --method POST -H "Accept: application/vnd.github+json"  /repos/oldschoolcool3/lms/releases/generate-notes  -f tag_name=$RELEASE_TAG \
           | jq -r '.body' \
           | sed -E '/^\* (chore|ci|test|docs|style)/d' \
           | sed -E 's/by @mergify //'
         )
-        RELEASE_ID=$(gh api -H "Accept: application/vnd.github+json" /repos/frappe/lms/releases/tags/$RELEASE_TAG | jq -r '.id')
-        gh api --method PATCH -H "Accept: application/vnd.github+json" /repos/frappe/lms/releases/$RELEASE_ID -f body="$NEW_NOTES"
+        RELEASE_ID=$(gh api -H "Accept: application/vnd.github+json" /repos/oldschoolcool3/lms/releases/tags/$RELEASE_TAG | jq -r '.id')
+        gh api --method PATCH -H "Accept: application/vnd.github+json" /repos/oldschoolcool3/lms/releases/$RELEASE_ID -f body="$NEW_NOTES"
       env:
         GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         RELEASE_TAG: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}

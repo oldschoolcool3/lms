@@ -104,6 +104,8 @@ frontend/src/
   `docs/README.md` for the index
 - Fork strategy and feature roadmap: `docs/000-overview/explanation/`
 - Development tooling (Nx, pre-commit, installs): `docs/002-development/`
+- Branching & release model (`develop` = our main, `main` = release line):
+  `docs/002-development/explanation/003-branching-and-release-model.md`
 - Upstream product docs: <https://docs.frappe.io/learning>
 
 ## Keeping these instructions honest
