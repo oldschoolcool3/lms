@@ -57,13 +57,18 @@ if (result.error) {
 const ERROR_RE = /^(.+?)\((\d+),(\d+)\): error (TS\d+): (.*)$/;
 const output = `${result.stdout || ""}\n${result.stderr || ""}`;
 
+// Some messages (e.g. TS2306) embed absolute paths. Strip the checkout root so
+// signatures are identical locally and on CI (/home/runner/work/...).
+const stripRoot = (s) =>
+	s.split(`${frontendDir}/`).join("").split(`${repoRoot}/`).join("");
+
 /** signature -> { count, lines: string[] } */
 const current = new Map();
 for (const line of output.split("\n")) {
 	const m = ERROR_RE.exec(line);
 	if (!m) continue;
 	const [, file, , , code, message] = m;
-	const signature = `${file} | ${code} | ${message}`;
+	const signature = `${stripRoot(file)} | ${code} | ${stripRoot(message)}`;
 	const entry = current.get(signature) || { count: 0, lines: [] };
 	entry.count += 1;
 	entry.lines.push(line);

@@ -95,7 +95,7 @@
     "src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue | TS2304 | Cannot find name 'LiveCodeSession'.": 1,
     "src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue | TS2322 | Type 'string' is not assignable to type '\"Passed\" | \"Failed\"'.": 1,
     "src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue | TS2339 | Property 'favicon' does not exist on type '{}'.": 1,
-    "src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue | TS2306 | File '/home/mike/projects/lms/.claude/worktrees/track-A/frontend/src/pages/ProgrammingExercises/types.ts' is not a module.": 1,
+    "src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue | TS2306 | File 'src/pages/ProgrammingExercises/types.ts' is not a module.": 1,
     "src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue | TS2339 | Property 'favicon' does not exist on type '{}'.": 1,
     "src/pages/Programs/ProgramDetail.vue | TS2339 | Property 'favicon' does not exist on type '{}'.": 1,
     "src/pages/Programs/ProgramForm.vue | TS18047 | 'app' is possibly 'null'.": 1,
