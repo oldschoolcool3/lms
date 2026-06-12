@@ -1,0 +1,49 @@
+version: '3'
+
+# Root Taskfile — orchestrator only. Per-domain tasks live under tasks/*.yml
+# and are loaded with `flatten: true` so every task name appears at the
+# root namespace (e.g. `task test:frontend`, not `task frontend:test:frontend`).
+#
+# Per-domain split files:
+#   tasks/backend.yml   — lint:backend, format:backend, test:backend
+#   tasks/frontend.yml  — dev:frontend, test:frontend, lint:frontend, format:frontend, build:frontend
+
+includes:
+  backend:
+    taskfile: ./tasks/backend.yml
+    flatten: true
+  frontend:
+    taskfile: ./tasks/frontend.yml
+    flatten: true
+
+tasks:
+  # Top-level convenience targets — run across all projects via Nx.
+  install:
+    desc: Install all dependencies (root + frontend via postinstall)
+    cmds:
+      - yarn install
+
+  build:
+    desc: "Build all projects (frontend Vite build; needs a bench — prefer `bench build --app lms`)"
+    cmds:
+      - npx nx run-many -t build
+
+  test:
+    desc: Run all tests (backend needs a bench — see tasks/backend.yml)
+    cmds:
+      - npx nx run-many -t test
+
+  lint:
+    desc: Lint all projects
+    cmds:
+      - npx nx run-many -t lint
+
+  precommit:
+    desc: Run all pre-commit hooks against the full tree
+    cmds:
+      - uvx pre-commit run --all-files
+
+  test:e2e:
+    desc: "Run Cypress end-to-end tests (needs a running site; see cypress.config.js)"
+    cmds:
+      - npx cypress run --e2e

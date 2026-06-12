@@ -167,6 +167,19 @@ To setup the repository locally follow the steps mentioned below:
 	```
 1. Now open the URL `http://learning.test:8000/lms` in your browser, you should see the app running
 
+### Repository tooling
+
+This fork adds an [Nx](https://nx.dev/)-orchestrated task setup and a
+[Diataxis](https://diataxis.fr/)-structured `docs/` tree. Start with
+[docs/README.md](docs/README.md), then:
+
+```sh
+task install          # install dependencies (yarn via corepack)
+task --list           # all available tasks
+task lint             # ruff + prettier across the repo (cached via Nx)
+uvx pre-commit install   # enable the git hooks
+```
+
 ## Learn and connect
 
 - [Telegram Public Group](https://t.me/frappelms)

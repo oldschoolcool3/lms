@@ -12,7 +12,7 @@
 					: {
 							backgroundImage: gradientColor,
 							backgroundBlendMode: 'screen',
-					  }
+						}
 			"
 		>
 			<!-- <div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
@@ -40,8 +40,8 @@
 					course.title.length > 32
 						? 'text-lg'
 						: course.title.length > 20
-						? 'text-xl'
-						: 'text-2xl'
+							? 'text-xl'
+							: 'text-2xl'
 				"
 			>
 				{{ course.title }}

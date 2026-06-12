@@ -18,11 +18,11 @@
 				:columns="columns"
 				rowKey="name"
 				:options="{
-                    showTooltip: false,
-                    onRowClick: (row: BadgeAssignment) => {
+					showTooltip: false,
+					onRowClick: (row: BadgeAssignment) => {
 						openForm(row.name)
 					},
-                }"
+				}"
 			>
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"

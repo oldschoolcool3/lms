@@ -216,7 +216,7 @@ function enrollStudent() {
 			}, 1000)
 		})
 		.catch((err: { messages?: string[] } | string) => {
-			const msg = typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
+			const msg = typeof err === 'string' ? err : (err.messages?.[0] ?? 'Error')
 			toast.warning(__(msg))
 			console.error(err)
 		})

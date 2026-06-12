@@ -4,7 +4,7 @@ on:
   pull_request:
   workflow_dispatch:
   push:
-    branches: 
+    branches:
       - main
       - develop
       - main-hotfix
@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 jobs:
-  
+
   test:
     name: UI Tests (Cypress) - ${{ matrix.containers }}
     runs-on: ubuntu-latest

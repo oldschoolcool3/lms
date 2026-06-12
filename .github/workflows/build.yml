@@ -35,7 +35,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Set Branch
         run: |
           export APPS_JSON='[{"url": "https://github.com/frappe/payments","branch": "version-15"},{"url": "https://github.com/frappe/lms","branch": "main"}]'

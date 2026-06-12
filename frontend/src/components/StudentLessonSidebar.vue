@@ -59,7 +59,7 @@
 											chapterNumber: lesson.number.split('-')[0],
 											lessonNumber: lesson.number.split('-')[1],
 										},
-								  }
+									}
 						"
 						class="flex items-center gap-3 rounded ps-9 pe-3 py-2 text-sm text-ink-gray-8 hover:bg-surface-gray-2"
 						:class="[
@@ -70,10 +70,10 @@
 						]"
 						@click="
 							inlineSelect &&
-								emit('select-lesson', {
-									chapterNumber: lesson.number.split('-')[0],
-									lessonNumber: lesson.number.split('-')[1],
-								})
+							emit('select-lesson', {
+								chapterNumber: lesson.number.split('-')[0],
+								lessonNumber: lesson.number.split('-')[1],
+							})
 						"
 					>
 						<component

@@ -70,7 +70,7 @@ function submitReview(close: () => void) {
 			hasReviewed.value?.reload()
 		},
 		onError(err: { messages?: string[] } | string) {
-			const msg = typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
+			const msg = typeof err === 'string' ? err : (err.messages?.[0] ?? 'Error')
 			toast.error(msg)
 		},
 	})

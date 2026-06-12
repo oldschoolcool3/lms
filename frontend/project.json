@@ -1,0 +1,50 @@
+{
+  "name": "frontend",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "command": "yarn dev",
+      "options": { "cwd": "frontend" }
+    },
+    "build": {
+      "command": "yarn build",
+      "options": { "cwd": "frontend" },
+      "cache": true,
+      "inputs": [
+        "production",
+        "{projectRoot}/index.html",
+        "{projectRoot}/vite.config.js",
+        "{projectRoot}/tailwind.config.js",
+        "{projectRoot}/postcss.config.js",
+        "{projectRoot}/tsconfig.json",
+        "{projectRoot}/tsconfig.node.json"
+      ],
+      "outputs": [
+        "{workspaceRoot}/lms/public/frontend",
+        "{workspaceRoot}/lms/www/_lms.html"
+      ]
+    },
+    "test": {
+      "command": "yarn test",
+      "options": { "cwd": "frontend" },
+      "cache": true,
+      "inputs": [
+        "default",
+        "{projectRoot}/vitest.config.ts"
+      ]
+    },
+    "lint": {
+      "command": "npx prettier --check src",
+      "options": { "cwd": "frontend" },
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/src/**/*",
+        "{projectRoot}/.prettierrc.json",
+        "{projectRoot}/.prettierignore",
+        "{projectRoot}/package.json",
+        "{projectRoot}/yarn.lock",
+        "{workspaceRoot}/.editorconfig"
+      ]
+    }
+  }
+}

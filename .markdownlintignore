@@ -1,0 +1,5 @@
+node_modules
+frappe-ui
+license.txt
+# App content templates (notification bodies etc.), not documentation
+lms/

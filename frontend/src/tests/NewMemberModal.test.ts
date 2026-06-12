@@ -134,9 +134,7 @@ describe('NewMemberModal — add mode', () => {
 		const w = mountModal()
 		await open(w)
 		callMock.mockResolvedValueOnce({ name: 'jane@doe.com' }) // insert
-		await w
-			.get('[data-testid="field-Email"]')
-			.setValue('jane@doe.com')
+		await w.get('[data-testid="field-Email"]').setValue('jane@doe.com')
 		await w.get('[data-testid="role-Moderator"]').trigger('click')
 		await clickAction(w, 'Add')
 

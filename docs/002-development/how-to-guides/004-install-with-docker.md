@@ -1,3 +1,13 @@
+---
+title: Install with Docker
+description: How to run the LMS app locally with docker-compose, including demo data and teardown.
+type: how-to
+module: null
+tags: [docker, docker-compose, installation, setup, development]
+---
+
+# Install with Docker
+
 **Step 1:** Clone the repo
 
 ```

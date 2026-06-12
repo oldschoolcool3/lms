@@ -1,0 +1,6 @@
+docs/
+cypress/
+docker/
+frappe-ui/
+.github/
+.claude/

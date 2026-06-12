@@ -41,8 +41,8 @@
 								uploading
 									? `${__('Uploading')} ${progress}%`
 									: modelValue
-									? __('Replace')
-									: __('Upload')
+										? __('Replace')
+										: __('Upload')
 							}}
 						</Button>
 						<Button

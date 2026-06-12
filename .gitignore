@@ -10,6 +10,10 @@ __pycache__/
 *$py.class
 node_modules
 package-lock.json
+yarn-error.log
+.nx/
+.claude/worktrees/
+.ruff_cache/
 lms/public/frontend
 lms/www/lms.html
 lms/www/_lms.html

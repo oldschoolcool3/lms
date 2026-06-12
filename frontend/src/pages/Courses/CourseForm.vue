@@ -170,7 +170,8 @@ const updateCourse = (): void => {
 				courseResource.reload()
 			},
 			onError(err: { messages?: string[] } | string) {
-				const msg = typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
+				const msg =
+					typeof err === 'string' ? err : (err.messages?.[0] ?? 'Error')
 				toast.error(msg)
 				console.error(err)
 			},
