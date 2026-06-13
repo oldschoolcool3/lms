@@ -769,7 +769,8 @@ def guest_access_allowed():
     return True
 
 
-@frappe.whitelist(allow_guest=True)
+# Guest-safe (reviewed): hardened - guests get published courses only.
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
 def get_courses(filters: dict = None, start: int = 0) -> list:
     """Returns the list of courses."""
@@ -778,6 +779,11 @@ def get_courses(filters: dict = None, start: int = 0) -> list:
 
     if not filters:
         filters = {}
+
+    # Guests may only ever see published courses: overwrite any client-supplied
+    # `published` filter so a guest cannot enumerate unpublished course metadata.
+    if frappe.session.user == "Guest":
+        filters["published"] = 1
 
     filters, or_filters, show_featured = update_course_filters(filters)
     fields = get_course_fields()
@@ -1139,7 +1145,8 @@ def build_outline(chapters: list, lesson_rows: list, files_by_name: dict, comple
     return outline
 
 
-@frappe.whitelist(allow_guest=True)
+# Guest-safe (reviewed): hardened - instructor-only fields stripped for non-instructors.
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
 def get_lesson(course: str, chapter: int, lesson: int) -> dict:
     if not guest_access_allowed():
@@ -1242,6 +1249,13 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
     # through the access-gated serve_resource endpoint.
     lesson_details.content = rewrite_private_media(lesson_details.content)
     lesson_details.instructor_content = rewrite_private_media(lesson_details.instructor_content)
+
+    # instructor_notes/content are author-only. The gate above (instructor_only=False)
+    # also admits enrolled students and preview guests, so strip these fields unless
+    # the viewer is an instructor/moderator.
+    if not can_access_lesson(lesson_name, instructor_only=True):
+        lesson_details.instructor_notes = None
+        lesson_details.instructor_content = None
 
     return lesson_details
 
