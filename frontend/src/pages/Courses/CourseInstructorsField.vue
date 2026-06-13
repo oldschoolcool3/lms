@@ -57,11 +57,13 @@ import MultiLink from '@/components/Controls/MultiLink.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import type { CourseFormContext, Resource } from '@/types/api'
 
+// Index signature keeps this assignable to MultiLink's SelectOption prop type.
 interface InstructorOption {
 	label: string
 	value: string
 	image: string
 	description: string
+	[key: string]: unknown
 }
 interface RawUserHit {
 	label?: string

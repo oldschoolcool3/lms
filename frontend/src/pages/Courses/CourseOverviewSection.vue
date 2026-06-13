@@ -24,7 +24,7 @@
 					:id="descriptionId"
 					:content="doc.description"
 					@change="
-						(val) => {
+						(val: string) => {
 							doc.description = val
 							markDirty()
 						}
@@ -91,7 +91,9 @@ import type { CourseFormContext } from '@/types/api'
 const { resource, relatedCourses, meta, markDirty } =
 	inject<CourseFormContext>('courseForm')!
 const router = useRouter()
-const doc = computed(() => resource.doc)
+// This section only renders behind CourseForm's loaded-doc gate
+// (SkeletonLoader v-if="!courseResource.doc"), so the doc is present here.
+const doc = computed(() => resource.doc!)
 const descriptionId = useId()
 
 function goToCreateCourse(close: () => void) {

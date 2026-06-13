@@ -143,11 +143,13 @@ import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { cleanError, sanitizeHTML, createLMSCategory } from '@/utils'
 import type { Resource } from '@/types/api'
 
+// Index signature keeps this assignable to MultiLink's SelectOption prop type.
 interface InstructorOption {
 	label: string
 	value: string
 	image: string
 	description: string
+	[key: string]: unknown
 }
 interface RawUserHit {
 	label?: string
@@ -175,7 +177,8 @@ type Course = {
 	description: string
 	instructors: string[]
 	category?: string
-	image?: string
+	// Uploader's v-model is `string | null`; `null` is the "no image" sentinel.
+	image: string | null
 }
 
 const course = ref<Course>({
@@ -184,7 +187,7 @@ const course = ref<Course>({
 	description: '',
 	instructors: [],
 	category: undefined,
-	image: undefined,
+	image: null,
 })
 
 const INSTRUCTOR_ROLES = ['Course Creator', 'Batch Evaluator']
@@ -281,11 +284,12 @@ function openMemberModal(close: () => void) {
 	showMemberModal.value = true
 }
 
-const createCategory = (name: string, done: () => void) => {
-	createLMSCategory(name).then((categoryName: string) => {
+const createCategory = (name: string | null, done?: () => void) => {
+	if (!name) return
+	createLMSCategory(name).then((categoryName: string | undefined) => {
 		if (!categoryName) return
 		course.value.category = categoryName
-		done()
+		done?.()
 	})
 }
 

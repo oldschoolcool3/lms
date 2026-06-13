@@ -55,15 +55,17 @@ import { Button, call, Dialog, FormControl, toast } from 'frappe-ui'
 import { ref } from 'vue'
 import { openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
+import type { CourseDetails, Resource } from '@/types/api'
 
 const show = defineModel<boolean>({ required: true, default: false })
-const student = ref<string | null>(null)
-const students = defineModel<any[]>('students')
-const payment = ref<string | null>(null)
+// Link's v-model is `string | undefined`; `undefined` is the "unselected" sentinel.
+const student = ref<string | undefined>(undefined)
+const students = defineModel<Resource<unknown> | undefined>('students')
+const payment = ref<string | undefined>(undefined)
 const purchasedCertificate = ref<boolean>(false)
 
 const props = defineProps<{
-	course: any
+	course: Resource<CourseDetails | null>
 }>()
 
 const enrollStudent = (close: () => void) => {
