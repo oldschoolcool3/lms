@@ -10,26 +10,26 @@ from lms.lms.utils import has_moderator_role
 
 
 class LMSCertificateEvaluation(Document):
-	def validate(self):
-		self.validate_rating()
+    def validate(self):
+        self.validate_rating()
 
-	def validate_rating(self):
-		if self.status not in ["Pending", "In Progress"] and self.rating == 0:
-			frappe.throw(_("Rating cannot be 0"))
+    def validate_rating(self):
+        if self.status not in ["Pending", "In Progress"] and self.rating == 0:
+            frappe.throw(_("Rating cannot be 0"))
 
 
 def has_website_permission(doc, ptype, user, verbose=False):
-	if has_moderator_role() or doc.member == frappe.session.user:
-		return True
-	return False
+    if has_moderator_role() or doc.member == frappe.session.user:
+        return True
+    return False
 
 
 @frappe.whitelist()
 def create_lms_certificate(source_name: str, target_doc: dict = None):
-	doc = get_mapped_doc(
-		"LMS Certificate Evaluation",
-		source_name,
-		{"LMS Certificate Evaluation": {"doctype": "LMS Certificate"}},
-		target_doc,
-	)
-	return doc
+    doc = get_mapped_doc(
+        "LMS Certificate Evaluation",
+        source_name,
+        {"LMS Certificate Evaluation": {"doctype": "LMS Certificate"}},
+        target_doc,
+    )
+    return doc

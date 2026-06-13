@@ -2,7 +2,7 @@
 # See license.txt
 
 # import frappe
-from frappe.tests import IntegrationTestCase, UnitTestCase
+from frappe.tests import UnitTestCase
 
 # On IntegrationTestCase, the doctype test records and all
 # link-field test record depdendencies are recursively loaded
@@ -12,9 +12,9 @@ IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
 class TestLMSProgram(UnitTestCase):
-	"""
-	Unit tests for LMSProgram.
-	Use this class for testing individual functions and methods.
-	"""
+    """
+    Unit tests for LMSProgram.
+    Use this class for testing individual functions and methods.
+    """
 
-	pass
+    pass

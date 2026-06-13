@@ -1,7 +1,5 @@
 import frappe
 
-from . import __version__ as app_version
-
 app_name = "frappe_lms"
 app_title = "Learning"
 app_publisher = "Frappe"
@@ -16,10 +14,10 @@ required_apps = ["frappe/payments"]
 
 
 def get_lms_path():
-	path = "lms"
-	if frappe.conf and frappe.conf.get("lms_path"):
-		path = frappe.conf.get("lms_path")
-	return path.strip("/")
+    path = "lms"
+    if frappe.conf and frappe.conf.get("lms_path"):
+        path = frappe.conf.get("lms_path")
+    return path.strip("/")
 
 
 # Includes in <head>
@@ -76,7 +74,7 @@ after_sync = "lms.install.after_sync"
 before_uninstall = "lms.install.before_uninstall"
 setup_wizard_complete = "lms.demo.demo_data.create_demo_data"
 after_migrate = [
-	"lms.sqlite.build_index_in_background",
+    "lms.sqlite.build_index_in_background",
 ]
 
 # Desk Notifications
@@ -90,16 +88,16 @@ after_migrate = [
 # Permissions evaluated in scripted ways
 
 permission_query_conditions = {
-	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.get_permission_query_conditions",
+    "LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.get_permission_query_conditions",
 }
 
 has_permission = {
-	"LMS Live Class": "lms.lms.doctype.lms_live_class.lms_live_class.has_permission",
-	"LMS Batch": "lms.lms.doctype.lms_batch.lms_batch.has_permission",
-	"LMS Program": "lms.lms.doctype.lms_program.lms_program.has_permission",
-	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_permission",
-	"Course Lesson": "lms.lms.doctype.course_lesson.course_lesson.has_permission",
-	"File": "lms.lms.permissions.file_has_permission",
+    "LMS Live Class": "lms.lms.doctype.lms_live_class.lms_live_class.has_permission",
+    "LMS Batch": "lms.lms.doctype.lms_batch.lms_batch.has_permission",
+    "LMS Program": "lms.lms.doctype.lms_program.lms_program.has_permission",
+    "LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_permission",
+    "Course Lesson": "lms.lms.doctype.course_lesson.course_lesson.has_permission",
+    "File": "lms.lms.permissions.file_has_permission",
 }
 
 # DocType Class
@@ -107,7 +105,7 @@ has_permission = {
 # Override standard doctype classes
 
 override_doctype_class = {
-	"Web Template": "lms.overrides.web_template.CustomWebTemplate",
+    "Web Template": "lms.overrides.web_template.CustomWebTemplate",
 }
 
 # Document Events
@@ -115,41 +113,41 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
-	"*": {
-		"on_change": [
-			"lms.lms.doctype.lms_badge.lms_badge.process_badges",
-		]
-	},
-	"Discussion Reply": {
-		"after_insert": "lms.lms.utils.handle_notifications",
-		"validate": "lms.lms.utils.validate_discussion_reply",
-	},
-	"Notification Log": {"on_change": "lms.lms.utils.publish_notifications"},
-	"User": {
-		"validate": "lms.lms.user.validate_username_duplicates",
-		"before_insert": "lms.lms.user.add_lms_student_role",
-	},
+    "*": {
+        "on_change": [
+            "lms.lms.doctype.lms_badge.lms_badge.process_badges",
+        ]
+    },
+    "Discussion Reply": {
+        "after_insert": "lms.lms.utils.handle_notifications",
+        "validate": "lms.lms.utils.validate_discussion_reply",
+    },
+    "Notification Log": {"on_change": "lms.lms.utils.publish_notifications"},
+    "User": {
+        "validate": "lms.lms.user.validate_username_duplicates",
+        "before_insert": "lms.lms.user.add_lms_student_role",
+    },
 }
 
 # Scheduled Tasks
 # ---------------
 scheduler_events = {
-	"all": [
-		"lms.sqlite.build_index_in_background",
-	],
-	"hourly": [
-		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals",
-		"lms.lms.doctype.lms_course.lms_course.update_course_statistics",
-		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.mark_eval_as_completed",
-		"lms.lms.doctype.lms_live_class.lms_live_class.update_attendance",
-	],
-	"daily": [
-		"lms.job.doctype.job_opportunity.job_opportunity.update_job_openings",
-		"lms.lms.doctype.lms_payment.lms_payment.send_payment_reminder",
-		"lms.lms.doctype.lms_batch.lms_batch.send_batch_start_reminder",
-		"lms.lms.doctype.lms_live_class.lms_live_class.send_live_class_reminder",
-		"lms.lms.doctype.lms_course.lms_course.send_notification_for_published_courses",
-	],
+    "all": [
+        "lms.sqlite.build_index_in_background",
+    ],
+    "hourly": [
+        "lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals",
+        "lms.lms.doctype.lms_course.lms_course.update_course_statistics",
+        "lms.lms.doctype.lms_certificate_request.lms_certificate_request.mark_eval_as_completed",
+        "lms.lms.doctype.lms_live_class.lms_live_class.update_attendance",
+    ],
+    "daily": [
+        "lms.job.doctype.job_opportunity.job_opportunity.update_job_openings",
+        "lms.lms.doctype.lms_payment.lms_payment.send_payment_reminder",
+        "lms.lms.doctype.lms_batch.lms_batch.send_batch_start_reminder",
+        "lms.lms.doctype.lms_live_class.lms_live_class.send_live_class_reminder",
+        "lms.lms.doctype.lms_course.lms_course.send_notification_for_published_courses",
+    ],
 }
 
 fixtures = ["Custom Field", "Function", "Industry", "LMS Category"]
@@ -163,7 +161,7 @@ fixtures = ["Custom Field", "Function", "Industry", "LMS Category"]
 # ------------------------------
 #
 override_whitelisted_methods = {
-	# "frappe.desk.search.get_names_for_mentions": "lms.lms.utils.get_names_for_mentions",
+    # "frappe.desk.search.get_names_for_mentions": "lms.lms.utils.get_names_for_mentions",
 }
 #
 # each overriding function accepts a `data` argument;
@@ -179,56 +177,56 @@ override_whitelisted_methods = {
 
 # Add all simple route rules here
 website_route_rules = [
-	{"from_route": f"/{get_lms_path()}/<path:app_path>", "to_route": "_lms"},
-	{"from_route": f"/{get_lms_path()}", "to_route": "_lms"},
-	{
-		"from_route": "/courses/<course_name>/<certificate_id>",
-		"to_route": "certificate",
-	},
+    {"from_route": f"/{get_lms_path()}/<path:app_path>", "to_route": "_lms"},
+    {"from_route": f"/{get_lms_path()}", "to_route": "_lms"},
+    {
+        "from_route": "/courses/<course_name>/<certificate_id>",
+        "to_route": "certificate",
+    },
 ]
 
 website_redirects = [
-	{"source": "/update-profile", "target": "/edit-profile"},
-	{"source": "/courses", "target": f"/{get_lms_path()}/courses"},
-	{
-		"source": r"^/courses/.*$",
-		"target": f"/{get_lms_path()}/courses",
-	},
-	{"source": "/batches", "target": f"/{get_lms_path()}/batches"},
-	{
-		"source": r"/batches/(.*)",
-		"target": f"/{get_lms_path()}/batches",
-		"match_with_query_string": True,
-	},
-	{"source": "/job-openings", "target": f"/{get_lms_path()}/job-openings"},
-	{
-		"source": r"/job-openings/(.*)",
-		"target": f"/{get_lms_path()}/job-openings",
-		"match_with_query_string": True,
-	},
-	{"source": "/statistics", "target": f"/{get_lms_path()}/statistics"},
-	{"source": "_lms", "target": f"/{get_lms_path()}"},
+    {"source": "/update-profile", "target": "/edit-profile"},
+    {"source": "/courses", "target": f"/{get_lms_path()}/courses"},
+    {
+        "source": r"^/courses/.*$",
+        "target": f"/{get_lms_path()}/courses",
+    },
+    {"source": "/batches", "target": f"/{get_lms_path()}/batches"},
+    {
+        "source": r"/batches/(.*)",
+        "target": f"/{get_lms_path()}/batches",
+        "match_with_query_string": True,
+    },
+    {"source": "/job-openings", "target": f"/{get_lms_path()}/job-openings"},
+    {
+        "source": r"/job-openings/(.*)",
+        "target": f"/{get_lms_path()}/job-openings",
+        "match_with_query_string": True,
+    },
+    {"source": "/statistics", "target": f"/{get_lms_path()}/statistics"},
+    {"source": "_lms", "target": f"/{get_lms_path()}"},
 ]
 
 update_website_context = [
-	"lms.widgets.update_website_context",
+    "lms.widgets.update_website_context",
 ]
 
 jinja = {
-	"methods": [
-		"lms.lms.utils.get_lesson_count",
-		"lms.lms.utils.get_instructors",
-		"lms.lms.utils.get_lesson_index",
-		"lms.lms.utils.get_lesson_url",
-		"lms.lms.utils.get_lms_route",
-		"lms.lms.utils.is_instructor",
-		"lms.lms.utils.get_palette",
-	],
-	"filters": [],
+    "methods": [
+        "lms.lms.utils.get_lesson_count",
+        "lms.lms.utils.get_instructors",
+        "lms.lms.utils.get_lesson_index",
+        "lms.lms.utils.get_lesson_url",
+        "lms.lms.utils.get_lms_route",
+        "lms.lms.utils.is_instructor",
+        "lms.lms.utils.get_palette",
+    ],
+    "filters": [],
 }
 
 extend_bootinfo = [
-	"lms.lms.utils.extend_bootinfo",
+    "lms.lms.utils.extend_bootinfo",
 ]
 ## Specify the additional tabs to be included in the user profile page.
 ## Each entry must be a subclass of lms.lms.plugins.ProfileTab
@@ -244,24 +242,26 @@ extend_bootinfo = [
 # ]
 
 has_website_permission = {
-	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_website_permission",
-	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_website_permission",
+    "LMS Certificate Evaluation": (
+        "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_website_permission"
+    ),
+    "LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_website_permission",
 }
 
 ## Markdown Macros for Lessons
 lms_markdown_macro_renderers = {
-	"Exercise": "lms.plugins.exercise_renderer",
-	"Quiz": "lms.plugins.quiz_renderer",
-	"YouTubeVideo": "lms.plugins.youtube_video_renderer",
-	"Video": "lms.plugins.video_renderer",
-	"Assignment": "lms.plugins.assignment_renderer",
-	"Embed": "lms.plugins.embed_renderer",
-	"Audio": "lms.plugins.audio_renderer",
-	"PDF": "lms.plugins.pdf_renderer",
+    "Exercise": "lms.plugins.exercise_renderer",
+    "Quiz": "lms.plugins.quiz_renderer",
+    "YouTubeVideo": "lms.plugins.youtube_video_renderer",
+    "Video": "lms.plugins.video_renderer",
+    "Assignment": "lms.plugins.assignment_renderer",
+    "Embed": "lms.plugins.embed_renderer",
+    "Audio": "lms.plugins.audio_renderer",
+    "PDF": "lms.plugins.pdf_renderer",
 }
 
 page_renderer = [
-	"lms.page_renderers.SCORMRenderer",
+    "lms.page_renderers.SCORMRenderer",
 ]
 
 # set this to "/" to have profiles on the top-level
@@ -274,13 +274,13 @@ on_login = "lms.lms.user.on_login"
 get_site_info = "lms.activation.get_site_info"
 
 add_to_apps_screen = [
-	{
-		"name": "lms",
-		"logo": "/assets/lms/frontend/learning.svg",
-		"title": "Learning",
-		"route": f"/{get_lms_path()}",
-		"has_permission": "lms.lms.api.check_app_permission",
-	}
+    {
+        "name": "lms",
+        "logo": "/assets/lms/frontend/learning.svg",
+        "title": "Learning",
+        "route": f"/{get_lms_path()}",
+        "has_permission": "lms.lms.api.check_app_permission",
+    }
 ]
 
 sqlite_search = ["lms.sqlite.LearningSearch"]

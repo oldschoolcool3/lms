@@ -12,18 +12,18 @@ IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
 class UnitTestLMSBatchEnrollment(UnitTestCase):
-	"""
-	Unit tests for LMSBatchEnrollment.
-	Use this class for testing individual functions and methods.
-	"""
+    """
+    Unit tests for LMSBatchEnrollment.
+    Use this class for testing individual functions and methods.
+    """
 
-	pass
+    pass
 
 
 class IntegrationTestLMSBatchEnrollment(IntegrationTestCase):
-	"""
-	Integration tests for LMSBatchEnrollment.
-	Use this class for testing interactions between multiple components.
-	"""
+    """
+    Integration tests for LMSBatchEnrollment.
+    Use this class for testing interactions between multiple components.
+    """
 
-	pass
+    pass
