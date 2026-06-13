@@ -67,7 +67,7 @@
 							<FormControl
 								v-model="appliedCoupon"
 								:disabled="orderSummary.data.discount_amount > 0"
-								@input="appliedCoupon = $event.target.value.toUpperCase()"
+								@input="onCouponInput"
 								@keydown.enter="applyCouponCode"
 								placeholder="COUPON2025"
 								autocomplete="off"
@@ -141,7 +141,7 @@
 							<Link
 								doctype="Country"
 								:value="billingDetails.country"
-								@change="(option) => changeCurrency(option)"
+								@change="changeCurrency"
 								:label="__('Country')"
 								:required="!!fieldMeta.country?.reqd"
 							/>
@@ -158,7 +158,7 @@
 							<Link
 								doctype="LMS Source"
 								:value="billingDetails.source"
-								@change="(option) => (billingDetails.source = option)"
+								@change="changeSource"
 								:label="__('Where did you hear about us?')"
 								:required="!!fieldMeta.source?.reqd"
 							/>
@@ -234,7 +234,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Button,
 	createResource,
@@ -251,8 +251,29 @@ import NotPermitted from '@/components/NotPermitted.vue'
 import { X } from 'lucide-vue-next'
 import { useTelemetry } from 'frappe-ui/frappe'
 import { getLmsRoute } from '@/utils/basePath'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
+interface BillingDetails {
+	billing_name?: string
+	address_line1?: string
+	address_line2?: string
+	city?: string
+	state?: string
+	country?: string
+	pincode?: string
+	phone?: string
+	source?: string
+	gstin?: string
+	pan?: string
+	member_consent?: boolean
+}
+
+interface BillingFieldMeta {
+	reqd?: boolean | 0 | 1
+	default?: string
+}
+
+const user = inject<SessionUser>('$user')!
 const { brand } = sessionStore()
 const showConsentWarning = ref(false)
 const { capture } = useTelemetry()
@@ -283,7 +304,10 @@ const access = createResource({
 		billing_type: props.type,
 		name: props.name,
 	},
-	onSuccess(data) {
+	onSuccess(data: {
+		billing_field_meta?: Record<string, BillingFieldMeta>
+		address?: BillingDetails
+	}) {
 		Object.assign(fieldMeta, data.billing_field_meta || {})
 		setBillingDetails(data.address)
 		orderSummary.submit()
@@ -292,7 +316,7 @@ const access = createResource({
 
 const orderSummary = createResource({
 	url: 'lms.lms.utils.get_order_summary',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
 			docname: props.name,
@@ -300,18 +324,18 @@ const orderSummary = createResource({
 			coupon: appliedCoupon.value,
 		}
 	},
-	onError(err) {
+	onError(err: { messages?: string[] }) {
 		showError(err)
 	},
 })
 
-const appliedCoupon = ref(null)
-const billingDetails = reactive({})
-const fieldMeta = reactive({})
+const appliedCoupon = ref<string | null>(null)
+const billingDetails = reactive<BillingDetails>({})
+const fieldMeta = reactive<Record<string, BillingFieldMeta>>({})
 
-const getDefault = (fieldname) => fieldMeta[fieldname]?.default || ''
+const getDefault = (fieldname: string) => fieldMeta[fieldname]?.default || ''
 
-const setBillingDetails = (data) => {
+const setBillingDetails = (data: BillingDetails | null | undefined) => {
 	billingDetails.billing_name = data?.billing_name || getDefault('billing_name')
 	billingDetails.address_line1 =
 		data?.address_line1 || getDefault('address_line1')
@@ -329,7 +353,7 @@ const setBillingDetails = (data) => {
 
 const paymentLink = createResource({
 	url: 'lms.lms.payments.get_payment_link',
-	makeParams(values) {
+	makeParams() {
 		let data = {
 			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
 			docname: props.name,
@@ -356,11 +380,11 @@ const generatePaymentLink = () => {
 				}
 				return validateAddress()
 			},
-			onSuccess(data) {
+			onSuccess(data: string) {
 				capture('checkout_initiated', { type: props.type })
 				window.location.href = data
 			},
-			onError(err) {
+			onError(err: { messages?: string[] }) {
 				toast.error(err.messages?.[0] || err)
 			},
 		}
@@ -381,7 +405,7 @@ function removeCoupon() {
 }
 
 const validateAddress = () => {
-	let billingFields = [
+	let billingFields: (keyof BillingDetails)[] = [
 		'billing_name',
 		'address_line1',
 		'address_line2',
@@ -445,18 +469,26 @@ const validateAddress = () => {
 	]
 	if (
 		billingDetails.country == 'India' &&
-		!states.includes(billingDetails.state)
+		!states.includes(billingDetails.state ?? '')
 	)
 		return 'Please enter a valid state with correct spelling and the first letter capitalized.'
 }
 
-const showError = (err) => {
+const showError = (err: { messages?: string[] }) => {
 	toast.error(err.messages?.[0] || err)
 }
 
-const changeCurrency = (country) => {
+const changeCurrency = (country: string) => {
 	billingDetails.country = country
 	orderSummary.reload()
+}
+
+const onCouponInput = (event: Event) => {
+	appliedCoupon.value = (event.target as HTMLInputElement).value.toUpperCase()
+}
+
+const changeSource = (option: string) => {
+	billingDetails.source = option
 }
 
 const isZeroAmount = computed(() => {

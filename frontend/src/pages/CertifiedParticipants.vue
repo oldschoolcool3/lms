@@ -4,7 +4,7 @@
 			<Breadcrumbs :items="breadcrumbs" />
 		</template>
 		<template #right-header>
-			<router-link :to="{ name: 'Courses', query: { certification: true } }">
+			<router-link :to="{ name: 'Courses', query: { certification: 'true' } }">
 				<Button>
 					<template #prefix>
 						<GraduationCap class="size-4 stroke-1.5" />
@@ -133,7 +133,7 @@
 		</ListFooter>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Breadcrumbs,
 	Button,
@@ -152,16 +152,17 @@ import { useRouter } from 'vue-router'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import type { SessionUser } from '@/types/api'
 
-const filters = ref({})
+const filters = ref<Record<string, unknown>>({})
 const currentCategory = ref('')
 const nameFilter = ref('')
 const openToWork = ref(false)
 const hiring = ref(false)
 const { brand } = sessionStore()
 const memberCount = ref(0)
-const dayjs = inject('$dayjs')
-const user = inject('$user')
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
+const user = inject<SessionUser>('$user')!
 const router = useRouter()
 
 onMounted(() => {
@@ -192,7 +193,7 @@ const pageLength = computed({
 const getMemberCount = () => {
 	call('lms.lms.api.get_count_of_certified_members', {
 		filters: filters.value,
-	}).then((data) => {
+	}).then((data: number) => {
 		memberCount.value = data
 	})
 }
@@ -202,7 +203,7 @@ const categories = createListResource({
 	url: 'lms.lms.api.get_certification_categories',
 	cache: ['certification_categories'],
 	auto: user.data ? true : false,
-	transform(data) {
+	transform(data: { label: string; value: string }[]) {
 		data.unshift({ label: __(' '), value: ' ' })
 		return data
 	},
@@ -221,7 +222,7 @@ const updateParticipants = () => {
 
 const updateFilters = () => {
 	filters.value = {
-		...(currentCategory.value.trim('') && {
+		...(currentCategory.value.trim() && {
 			category: currentCategory.value,
 		}),
 		...(nameFilter.value && {
@@ -238,7 +239,7 @@ const updateFilters = () => {
 
 const setQueryParams = () => {
 	let queries = new URLSearchParams(location.search)
-	let filterKeys = {
+	let filterKeys: Record<string, string | boolean> = {
 		category: currentCategory.value,
 		name: nameFilter.value,
 		'open-to-work': openToWork.value,
@@ -247,7 +248,7 @@ const setQueryParams = () => {
 
 	Object.keys(filterKeys).forEach((key) => {
 		if (filterKeys[key] && hasValue(filterKeys[key])) {
-			queries.set(key, filterKeys[key])
+			queries.set(key, String(filterKeys[key]))
 		} else {
 			queries.delete(key)
 		}
@@ -259,7 +260,7 @@ const setQueryParams = () => {
 	)
 }
 
-const hasValue = (value) => {
+const hasValue = (value: unknown) => {
 	if (typeof value === 'string') {
 		return value.trim() !== ''
 	}

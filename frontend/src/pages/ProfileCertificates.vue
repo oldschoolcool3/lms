@@ -27,11 +27,11 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { createListResource } from 'frappe-ui'
 import { inject, onMounted } from 'vue'
 
-const dayjs = inject('$dayjs')
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
 const props = defineProps({
 	profile: {
 		type: Object,
@@ -54,7 +54,7 @@ const certificates = createListResource({
 	cache: ['certificates', props.profile.data?.name],
 })
 
-const openCertificate = (certificate) => {
+const openCertificate = (certificate: { name: string; template: string }) => {
 	window.open(
 		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 			certificate.name

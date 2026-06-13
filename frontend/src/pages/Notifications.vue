@@ -49,7 +49,7 @@
 						<Button
 							variant="ghost"
 							v-if="!log.read"
-							@click.stop="(e) => handleMarkAsRead(log.name)"
+							@click.stop="() => handleMarkAsRead(log.name)"
 						>
 							<template #icon>
 								<X class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
@@ -151,7 +151,7 @@
 		/>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Avatar,
 	Breadcrumbs,
@@ -169,18 +169,29 @@ import { Bell, Calendar, Clock, X } from 'lucide-vue-next'
 import { formatTime } from '@/utils/'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import type { SessionUser } from '@/types/api'
+import type { Socket } from 'socket.io-client'
+
+interface NotificationLog {
+	name: string
+	link?: string
+	subject: string
+	type?: string
+	document_type: string
+	document_details?: Record<string, unknown>
+}
 
 const { brand } = sessionStore()
-const dayjs = inject('$dayjs')
-const user = inject('$user')
-const socket = inject('$socket')
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
+const user = inject<SessionUser>('$user')!
+const socket = inject<Socket>('$socket')!
 const activeTab = ref('Unread')
 const router = useRouter()
 
 onMounted(() => {
 	if (!user.data) router.push({ name: 'Courses' })
 
-	socket.on('publish_lms_notifications', (data) => {
+	socket.on('publish_lms_notifications', () => {
 		unReadNotifications.reload()
 	})
 })
@@ -229,12 +240,12 @@ const refreshSidebarCount = () => {
 
 const markAsRead = createResource({
 	url: 'frappe.desk.doctype.notification_log.notification_log.mark_as_read',
-	makeParams(values) {
+	makeParams(values: { name: string }) {
 		return {
 			docname: values.name,
 		}
 	},
-	onSuccess(data) {
+	onSuccess() {
 		unReadNotifications.reload()
 		readNotifications.reload()
 		refreshSidebarCount()
@@ -243,18 +254,18 @@ const markAsRead = createResource({
 
 const markAllAsRead = createResource({
 	url: 'frappe.desk.doctype.notification_log.notification_log.mark_all_as_read',
-	onSuccess(data) {
+	onSuccess() {
 		unReadNotifications.reload()
 		readNotifications.reload()
 		refreshSidebarCount()
 	},
 })
 
-const handleMarkAsRead = (logName) => {
+const handleMarkAsRead = (logName: string) => {
 	markAsRead.submit({ name: logName })
 }
 
-const navigateToPage = (log) => {
+const navigateToPage = (log: NotificationLog) => {
 	if (!log.link) return
 	handleMarkAsRead(log.name)
 	let link = log.link.split('/')
@@ -286,7 +297,7 @@ const navigateToPage = (log) => {
 	}
 }
 
-const isMentionOrComment = (log) => {
+const isMentionOrComment = (log: NotificationLog) => {
 	if (log.type == 'Mention') {
 		return true
 	}
@@ -299,7 +310,7 @@ const isMentionOrComment = (log) => {
 	return false
 }
 
-const showDetails = (log) => {
+const showDetails = (log: NotificationLog) => {
 	return (
 		['LMS Course', 'LMS Batch'].includes(log.document_type) &&
 		log.document_details

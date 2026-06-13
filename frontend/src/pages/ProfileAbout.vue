@@ -118,7 +118,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { inject } from 'vue'
 import { createResource, Popover, Button } from 'frappe-ui'
 import { X, LinkedinIcon, Twitter } from 'lucide-vue-next'
@@ -126,10 +126,19 @@ import { sessionStore } from '@/stores/session'
 import { decodeEntities } from '@/utils'
 import DOMPurify from 'dompurify'
 import { getLmsRoute } from '@/utils/basePath'
+import type { SessionUser } from '@/types/api'
 
-const dayjs = inject('$dayjs')
-const user = inject('$user')
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
+const user = inject<SessionUser>('$user')!
 const { branding } = sessionStore()
+
+interface Badge {
+	badge: string
+	badge_image?: string
+	badge_description?: string
+	issued_on?: string
+	count: number
+}
 
 const props = defineProps({
 	profile: {
@@ -144,19 +153,19 @@ const badges = createResource({
 		member: props.profile.data.name,
 	},
 	auto: true,
-	transform(data) {
-		let finalBadges = []
+	transform(data: Badge[]) {
+		let finalBadges: Badge[] = []
 		let groupedBadges = Object.groupBy(data, ({ badge }) => badge)
 		for (let badge in groupedBadges) {
-			let badgeData = groupedBadges[badge][0]
-			badgeData.count = groupedBadges[badge].length
+			let badgeData = groupedBadges[badge]![0]
+			badgeData.count = groupedBadges[badge]!.length
 			finalBadges.push(badgeData)
 		}
 		return finalBadges
 	},
 })
 
-const shareOnSocial = (badge, medium) => {
+const shareOnSocial = (badge: Badge, medium: string) => {
 	let shareUrl
 	const url = encodeURIComponent(
 		`${window.location.origin}${getLmsRoute(

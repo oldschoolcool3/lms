@@ -33,7 +33,9 @@ export interface SessionUser {
 		is_evaluator?: boolean
 		is_student?: boolean
 		is_system_manager?: boolean
+		sitename?: string
 	}
+	reload(): Promise<unknown>
 }
 
 export interface CourseInstructorInfo extends UserInfo {

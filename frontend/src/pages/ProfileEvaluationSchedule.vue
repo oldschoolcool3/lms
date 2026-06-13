@@ -10,7 +10,7 @@
 					enableShortcuts: false,
 				}"
 				:events="evaluations.data"
-				@click="(event) => openEvent(event)"
+				@click="openEvent"
 			>
 				<template #header="{ currentMonthYear, decrement, increment }">
 					<div class="mb-2 flex justify-between">
@@ -36,15 +36,26 @@
 			</Calendar>
 		</div>
 	</div>
-	<Event v-model="showEvent" :event="currentEvent" />
+	<Event v-if="currentEvent" v-model="showEvent" :event="currentEvent" />
 </template>
-<script setup>
+<script setup lang="ts">
 import { Calendar, createListResource, Button } from 'frappe-ui'
 import { inject, ref } from 'vue'
 import Event from '@/components/Modals/Event.vue'
+import type { EventDetail } from '@/components/Modals/Event.vue'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
-const currentEvent = ref(null)
+interface EvaluationRequest {
+	name: string
+	member_name?: string
+	google_meet_link?: string
+	date?: string
+	start_time?: string
+	end_time?: string
+}
+
+const user = inject<SessionUser>('$user')!
+const currentEvent = ref<EventDetail | null>(null)
 const showEvent = ref(false)
 
 const props = defineProps({
@@ -79,9 +90,10 @@ const evaluations = createListResource({
 	orderBy: 'creation desc',
 	pageLength: 500,
 	cache: ['schedule', user.data?.name],
-	transform(data) {
+	transform(data: EvaluationRequest[]) {
 		return data.map((d) => {
-			let mappedData = Object.assign({}, d)
+			const mappedData = Object.assign({}, d) as EvaluationRequest &
+				Record<string, unknown>
 
 			mappedData.title = `${d.member_name}'s Evaluation`
 			mappedData.participant = d.member_name
@@ -98,8 +110,8 @@ const evaluations = createListResource({
 	},
 })
 
-const openEvent = (event) => {
-	currentEvent.value = event.calendarEvent
+const openEvent = (event: { calendarEvent: Record<string, unknown> }) => {
+	currentEvent.value = event.calendarEvent as unknown as EventDetail
 	showEvent.value = true
 }
 </script>

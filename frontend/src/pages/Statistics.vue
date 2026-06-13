@@ -132,7 +132,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	AxisChart,
 	Breadcrumbs,
@@ -170,7 +170,7 @@ const signupsChart = createResource({
 		chart_name: 'New Signups',
 	},
 	auto: true,
-	transform(data) {
+	transform(data: { date: string; count: number }[]) {
 		return data.map((item) => {
 			return {
 				date: new Date(item.date),
@@ -187,7 +187,7 @@ const enrollmentChart = createResource({
 		chart_name: 'Course Enrollments',
 	},
 	auto: true,
-	transform(data) {
+	transform(data: { date: string; count: number }[]) {
 		return data.map((item) => {
 			return {
 				date: new Date(item.date),
@@ -204,7 +204,7 @@ const certification = createResource({
 		chart_name: 'Certification',
 	},
 	auto: true,
-	transform(data) {
+	transform(data: { date: string; count: number }[]) {
 		return data.map((item) => {
 			return {
 				date: new Date(item.date),

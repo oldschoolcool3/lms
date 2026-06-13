@@ -167,6 +167,15 @@
 		</template>
 	</Dialog>
 </template>
+<script lang="ts">
+import type { LMSCertificateRequest } from '@/types/lms/LMSCertificateRequest'
+
+export interface EventDetail extends LMSCertificateRequest {
+	title?: string
+	venue?: string
+}
+</script>
+
 <script setup lang="ts">
 import {
 	Dialog,
@@ -196,12 +205,6 @@ import Rating from '@/components/Controls/Rating.vue'
 import Link from '@/components/Controls/Link.vue'
 import type { PropType } from 'vue'
 import type { SessionUser } from '@/types/api'
-import type { LMSCertificateRequest } from '@/types/lms/LMSCertificateRequest'
-
-interface EventDetail extends LMSCertificateRequest {
-	title?: string
-	venue?: string
-}
 
 interface Evaluation {
 	rating?: number

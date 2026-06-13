@@ -48,19 +48,23 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { Button, call, usePageMeta } from 'frappe-ui'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const router = useRouter()
 const { brand } = sessionStore()
 
-const persona = reactive({
+const persona = reactive<{
+	role: string | null
+	useCase: string | null
+}>({
 	role: null,
 	useCase: null,
 })
