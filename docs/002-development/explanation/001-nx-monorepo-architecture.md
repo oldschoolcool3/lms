@@ -18,7 +18,7 @@ The graph is deliberately flat: two projects, no cross-project `dependsOn` edges
 
 | Nx project | Directory | Targets | Notes |
 |------------|-----------|---------|-------|
-| `backend` | `lms/` | `lint`, `format`, `format-check`, `test` | All Python tooling runs via `uvx ruff`; `test` is uncached |
+| `backend` | `lms/` | `lint`, `format`, `format-check`, `test` | All Python tooling runs via `uv run --only-group lint ruff`; `test` is uncached |
 | `frontend` | `frontend/` | `serve`, `build`, `test`, `lint` | `serve`/`build`/`test` wrap yarn scripts; `lint` invokes Prettier directly |
 
 Each project declares its targets in a `project.json` (`lms/project.json`, `frontend/project.json`); workspace-wide defaults live in `nx.json`. The full field-by-field breakdown is in the [Nx configuration reference](../reference/001-nx-configuration.md).
@@ -34,7 +34,7 @@ The backend test command is `bash scripts/test-backend.sh`, which changes direct
 Three named inputs in `nx.json` drive cache keys:
 
 - **`default`** — everything under the project root, plus `sharedGlobals`.
-- **`sharedGlobals`** — the runtime output of `node --version`. A Node bump invalidates every cache whose inputs include `default` — `frontend:build` (via `production`) and `frontend:test`; targets that override their inputs — `backend:lint`, `backend:format-check`, and `frontend:lint` — are unaffected. (The backend pins its toolchain via `uvx ruff@<version>`, so the Python runtime is deliberately *not* a shared global — it would only over-invalidate the frontend caches.)
+- **`sharedGlobals`** — the runtime output of `node --version`. A Node bump invalidates every cache whose inputs include `default` — `frontend:build` (via `production`) and `frontend:test`; targets that override their inputs — `backend:lint`, `backend:format-check`, and `frontend:lint` — are unaffected. (The backend pins ruff via the `lint` dependency group in `pyproject.toml`, so the Python runtime is deliberately *not* a shared global — it would only over-invalidate the frontend caches.)
 - **`production`** — `default` minus test files (`*.test.*`, `*.spec.*`, `test_*.py`, `tests/**`). Build targets use it, so editing a test never forces a rebuild.
 
 Backend targets do not use `default` at all — `backend:lint` and `backend:format-check` hash only `lms/**/*.py` plus `pyproject.toml`. That narrowing matters because of what lands in `lms/` from the other project, which brings us to:

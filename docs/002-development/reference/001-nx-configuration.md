@@ -18,7 +18,7 @@ update this document in the same change.
 |-------|-------|---------|
 | `defaultBase` | `"develop"` | Branch used by `nx affected` for comparison |
 | `namedInputs.default` | `["{projectRoot}/**/*", "sharedGlobals"]` | All project files + shared globals |
-| `namedInputs.sharedGlobals` | `[{runtime: "node --version"}]` | A Node version change invalidates caches whose inputs include `default` (the Python toolchain is pinned via `uvx ruff@<version>`, so it is intentionally not a shared global) |
+| `namedInputs.sharedGlobals` | `[{runtime: "node --version"}]` | A Node version change invalidates caches whose inputs include `default` (the Python toolchain is pinned via the `lint` dependency group in `pyproject.toml`, so it is intentionally not a shared global) |
 | `namedInputs.production` | `["default", "!{projectRoot}/**/*.test.*", "!{projectRoot}/**/*.spec.*", "!{projectRoot}/**/test_*.py", "!{projectRoot}/**/tests/**"]` | Source files minus tests |
 | `targetDefaults.build` | `dependsOn: ["^build"], inputs: ["production"], cache: true` | Builds depend on upstream builds, use production inputs |
 | `targetDefaults.lint` | `inputs: ["default"], cache: true` | Lint uses all files, cached |
@@ -31,9 +31,9 @@ The Frappe app under `lms/`. All commands run with `cwd: {workspaceRoot}`.
 
 | Target | Command | Cached | Inputs | Outputs |
 |--------|---------|--------|--------|---------|
-| `lint` | `uvx ruff@0.13.3 check lms` | Yes | `{projectRoot}/**/*.py`, `{workspaceRoot}/pyproject.toml` | -- |
-| `format` | `uvx ruff@0.13.3 format lms` | No | -- | -- (writes in place) |
-| `format-check` | `uvx ruff@0.13.3 format --check lms` | Yes | `{projectRoot}/**/*.py`, `{workspaceRoot}/pyproject.toml` | -- |
+| `lint` | `uv run --only-group lint ruff check lms` | Yes | `{projectRoot}/**/*.py`, `{workspaceRoot}/pyproject.toml`, `uv.lock`, `.python-version` | -- |
+| `format` | `uv run --only-group lint ruff format lms` | No | -- | -- (writes in place) |
+| `format-check` | `uv run --only-group lint ruff format --check lms` | Yes | `{projectRoot}/**/*.py`, `{workspaceRoot}/pyproject.toml`, `uv.lock`, `.python-version` | -- |
 | `test` | `bash scripts/test-backend.sh` | No | -- | -- |
 
 `backend:test` is deliberately uncached: it runs the Frappe server test suite
