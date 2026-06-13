@@ -260,14 +260,6 @@
       "count": 10
     }
   },
-  "src/components/Settings/GoogleMeetSettings.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 2
-    }
-  },
   "src/components/Settings/Members.vue": {
     "@typescript-eslint/no-unused-vars": {
       "count": 2
@@ -310,14 +302,6 @@
       "count": 1
     },
     "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 2
-    }
-  },
-  "src/components/Settings/ZoomSettings.vue": {
-    "@typescript-eslint/no-unused-vars": {
       "count": 1
     },
     "vue/valid-v-for": {
