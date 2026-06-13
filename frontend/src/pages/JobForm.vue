@@ -47,7 +47,7 @@
 						</label>
 						<TextEditor
 							:content="job.description"
-							@change="(val) => (job.description = val)"
+							@change="onDescriptionChange"
 							:editable="true"
 							:fixedMenu="true"
 							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[20rem] max-h-[70vh] overflow-y-auto mb-4"
@@ -112,7 +112,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Badge,
 	Breadcrumbs,
@@ -137,12 +137,13 @@ import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { sanitizeHTML } from '@/utils'
 import Uploader from '@/components/Controls/Uploader.vue'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const router = useRouter()
 const { brand } = sessionStore()
 const isDirty = ref(false)
-const originalJobData = ref(null)
+const originalJobData = ref<Record<string, unknown> | null>(null)
 
 const props = defineProps({
 	jobName: {
@@ -179,7 +180,7 @@ const job = reactive({
 const jobDetails = createDocumentResource({
 	doctype: 'Job Opportunity',
 	name: props.jobName != 'new' ? props.jobName : undefined,
-	onError(err) {
+	onError(err: { messages?: string[] }) {
 		toast.error(err.messages?.[0] || err)
 		console.error(err)
 	},
@@ -207,7 +208,7 @@ watch(
 	job,
 	() => {
 		isDirty.value = Object.keys(job).some((key) => {
-			return job[key] != originalJobData.value?.[key]
+			return job[key as keyof typeof job] != originalJobData.value?.[key]
 		})
 	},
 	{ deep: true }
@@ -226,11 +227,10 @@ const createNewJob = () => {
 	call('frappe.client.insert', {
 		doc: {
 			doctype: 'Job Opportunity',
-			company_logo: job.company_logo,
 			...job,
 		},
 	})
-		.then((data) => {
+		.then((data: { name: string }) => {
 			router.push({
 				name: 'JobDetail',
 				params: {
@@ -238,7 +238,7 @@ const createNewJob = () => {
 				},
 			})
 		})
-		.catch((err) => {
+		.catch((err: { messages?: string[] }) => {
 			toast.error(err.messages?.[0] || err)
 			console.error(err)
 		})
@@ -247,11 +247,10 @@ const createNewJob = () => {
 const editJobDetails = () => {
 	jobDetails.setValue.submit(
 		{
-			company_logo: job.company_logo,
 			...job,
 		},
 		{
-			onSuccess(data) {
+			onSuccess() {
 				jobDetails.reload()
 				router.push({
 					name: 'JobDetail',
@@ -260,7 +259,7 @@ const editJobDetails = () => {
 					},
 				})
 			},
-			onError(err) {
+			onError(err: { messages?: string[] }) {
 				toast.error(err.messages?.[0] || err)
 				console.error(err)
 			},
@@ -270,13 +269,18 @@ const editJobDetails = () => {
 
 const validateJobFields = () => {
 	Object.keys(job).forEach((key) => {
-		if (typeof job[key] === 'string') {
-			job[key] = sanitizeHTML(job[key])
+		const k = key as keyof typeof job
+		if (typeof job[k] === 'string') {
+			job[k] = sanitizeHTML(job[k])
 		}
 	})
 }
 
-const keyboardShortcut = (e) => {
+const onDescriptionChange = (val: string) => {
+	job.description = val
+}
+
+const keyboardShortcut = (e: KeyboardEvent) => {
 	if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
 		e.preventDefault()
 		saveJob()

@@ -126,7 +126,7 @@
 					{
 						label: __('Send'),
 						variant: 'solid',
-						onClick: (close) => sendEmail(close),
+						onClick: sendEmail,
 					},
 				],
 			}"
@@ -150,7 +150,7 @@
 						</div>
 						<TextEditor
 							:content="emailForm.message"
-							@change="(val) => (emailForm.message = val)"
+							@change="onMessageChange"
 							:editable="true"
 							:fixedMenu="true"
 							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
@@ -162,7 +162,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
 	Avatar,
 	Button,
@@ -189,10 +189,29 @@ import { sessionStore } from '../stores/session'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
-const dayjs = inject('$dayjs')
+interface ApplicationUser {
+	name: string
+	user_image?: string
+	full_name?: string
+	email?: string
+}
+
+interface ApplicantRow {
+	name: string
+	user: string
+	creation: string
+	resume?: string
+	job_title?: string
+	user_image?: string
+	full_name?: string
+	email?: string
+	applied_on?: string
+}
+
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
 const { brand } = sessionStore()
 const showEmailModal = ref(false)
-const selectedApplicant = ref(null)
+const selectedApplicant = ref<ApplicantRow | null>(null)
 const search = ref('')
 const emailForm = reactive({
 	subject: '',
@@ -219,7 +238,7 @@ const applications = createListResource({
 const users = createResource({
 	url: 'lms.lms.api.get_application_users',
 	makeParams: () => ({
-		user_names: (applications.data || []).map((a) => a.user),
+		user_names: (applications.data || []).map((a: ApplicantRow) => a.user),
 	}),
 })
 
@@ -240,7 +259,7 @@ const totalApplications = createResource({
 	},
 	auto: true,
 	cache: ['totalApplications', props.job],
-	onError(err) {
+	onError(err: { messages?: string[] }) {
 		toast.error(err.messages?.[0] || err)
 		console.error('Error fetching total applications:', err)
 	},
@@ -263,21 +282,21 @@ watch(search, () => {
 
 const emailResource = createResource({
 	url: 'frappe.core.doctype.communication.email.make',
-	makeParams(values) {
+	makeParams() {
 		return {
-			recipients: selectedApplicant.value.email,
+			recipients: selectedApplicant.value!.email,
 			cc: emailForm.replyTo,
 			subject: emailForm.subject,
 			content: emailForm.message,
 			doctype: 'LMS Job Application',
-			name: selectedApplicant.value.name,
+			name: selectedApplicant.value!.name,
 			send_email: 1,
 			now: true,
 		}
 	},
 })
 
-const openEmailModal = (applicant) => {
+const openEmailModal = (applicant: ApplicantRow) => {
 	selectedApplicant.value = applicant
 	emailForm.subject = `Job Application for ${applications.data?.[0]?.job_title} - ${applicant.full_name}`
 	emailForm.replyTo = ''
@@ -285,7 +304,7 @@ const openEmailModal = (applicant) => {
 	showEmailModal.value = true
 }
 
-const sendEmail = (close) => {
+const sendEmail = (close: () => void) => {
 	emailResource.submit(
 		{},
 		{
@@ -301,24 +320,29 @@ const sendEmail = (close) => {
 				toast.success(__('Email sent successfully'))
 				close()
 			},
-			onError: (err) => {
+			onError: (err: { messages?: string[] }) => {
 				toast.error(err.messages?.[0] || err)
 			},
 		}
 	)
 }
 
-const downloadResume = (resumeUrl) => {
+const onMessageChange = (val: string) => {
+	emailForm.message = val
+}
+
+const downloadResume = (resumeUrl: string) => {
 	window.open(resumeUrl, '_blank')
 }
 
-const getActionOptions = (row) => {
+const getActionOptions = (row: ApplicantRow) => {
 	const options = []
 	if (row.resume) {
+		const resume = row.resume
 		options.push({
 			label: __('View Resume'),
 			icon: 'download',
-			onClick: () => downloadResume(row.resume),
+			onClick: () => downloadResume(resume),
 		})
 	}
 	options.push({
@@ -358,10 +382,12 @@ const applicationColumns = computed(() => {
 	]
 })
 
-const applicantRows = computed(() => {
+const applicantRows = computed<ApplicantRow[]>(() => {
 	if (!applications.data) return []
-	const userMap = Object.fromEntries((users.data || []).map((u) => [u.name, u]))
-	return applications.data.map((application) => {
+	const userMap: Record<string, ApplicationUser> = Object.fromEntries(
+		(users.data || []).map((u: ApplicationUser) => [u.name, u])
+	)
+	return applications.data.map((application: ApplicantRow) => {
 		const user = userMap[application.user] || {}
 		return {
 			...application,

@@ -13,13 +13,14 @@
 		/>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Breadcrumbs, createResource, usePageMeta } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
 import { sessionStore } from '../stores/session'
 import Assignment from '@/components/Assignment.vue'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const fromLesson = ref(false)
 const { brand } = sessionStore()
 

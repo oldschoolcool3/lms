@@ -765,7 +765,7 @@
   },
   "src/pages/JobApplications.vue": {
     "@typescript-eslint/no-unused-vars": {
-      "count": 2
+      "count": 1
     },
     "prefer-const": {
       "count": 1
@@ -780,17 +780,11 @@
     }
   },
   "src/pages/JobForm.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
     "prefer-const": {
       "count": 1
     }
   },
   "src/pages/Jobs.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    },
     "prefer-const": {
       "count": 1
     }

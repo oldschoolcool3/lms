@@ -72,7 +72,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Badge,
 	Breadcrumbs,
@@ -92,9 +92,19 @@ import { Pencil } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
-const dayjs = inject('$dayjs')
+interface SubmissionRow {
+	name: string
+	assignment: string
+	assignment_title?: string
+	member_name?: string
+	creation: string
+	status?: string
+}
+
+const user = inject<SessionUser>('$user')!
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
 const { brand } = sessionStore()
 const router = useRouter()
 const assignmentID = ref('')
@@ -105,14 +115,14 @@ onMounted(() => {
 	if (!user.data?.is_instructor && !user.data?.is_moderator) {
 		router.push({ name: 'Courses' })
 	}
-	assignmentID.value = router.currentRoute.value.query.assignmentID
-	member.value = router.currentRoute.value.query.member
-	status.value = router.currentRoute.value.query.status
+	assignmentID.value = router.currentRoute.value.query.assignmentID as string
+	member.value = router.currentRoute.value.query.member as string
+	status.value = router.currentRoute.value.query.status as string
 	reloadSubmissions()
 })
 
 const getAssignmentFilters = () => {
-	let filters = {}
+	let filters: Record<string, unknown> = {}
 	if (assignmentID.value) {
 		filters.assignment = assignmentID.value
 	}
@@ -136,7 +146,7 @@ const submissions = createListResource({
 		'status',
 	],
 	orderBy: 'creation desc',
-	transform(data) {
+	transform(data: SubmissionRow[]) {
 		return data.map((row) => {
 			return {
 				...row,
@@ -200,7 +210,7 @@ const statusOptions = computed(() => {
 	]
 })
 
-const getStatusTheme = (status) => {
+const getStatusTheme = (status: string) => {
 	if (status === 'Pass') {
 		return 'green'
 	} else if (status === 'Not Graded') {
