@@ -35,13 +35,13 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { Play, Pause, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button } from 'frappe-ui'
 
 const isPlaying = ref(false)
-const audio = ref(null)
+const audio = ref<HTMLAudioElement | null>(null)
 let isMuted = ref(false)
 let currentTime = ref(0)
 let duration = ref(0)
@@ -56,39 +56,39 @@ const props = defineProps({
 onMounted(() => {
 	setTimeout(() => {
 		audio.value = document.querySelector('audio')
-		audio.value.onloadedmetadata = () => {
-			duration.value = audio.value.duration
+		audio.value!.onloadedmetadata = () => {
+			duration.value = audio.value!.duration
 		}
-		audio.value.ontimeupdate = () => {
-			currentTime.value = audio.value.currentTime
+		audio.value!.ontimeupdate = () => {
+			currentTime.value = audio.value!.currentTime
 		}
 	}, 0)
 })
 
 const togglePlay = () => {
-	if (audio.value.paused) {
-		audio.value.play()
+	if (audio.value!.paused) {
+		audio.value!.play()
 		isPlaying.value = true
 	} else {
-		audio.value.pause()
+		audio.value!.pause()
 		isPlaying.value = false
 	}
 }
 
 const toggleMute = () => {
-	audio.value.muted = !audio.value.muted
-	isMuted.value = audio.value.muted
+	audio.value!.muted = !audio.value!.muted
+	isMuted.value = audio.value!.muted
 }
 
 const changeCurrentTime = () => {
-	audio.value.currentTime = currentTime.value
+	audio.value!.currentTime = currentTime.value
 }
 
 const handleAudioEnd = () => {
 	isPlaying.value = false
 }
 
-const formatTime = (time) => {
+const formatTime = (time: number) => {
 	const minutes = Math.floor(time / 60)
 	const seconds = Math.floor(time % 60)
 	return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
@@ -96,9 +96,9 @@ const formatTime = (time) => {
 
 watch(isPlaying, (newVal) => {
 	if (newVal) {
-		audio.value.play()
+		audio.value!.play()
 	} else {
-		audio.value.pause()
+		audio.value!.pause()
 	}
 })
 </script>

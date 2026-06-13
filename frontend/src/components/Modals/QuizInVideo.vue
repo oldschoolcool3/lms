@@ -119,13 +119,21 @@ import { formatTimestamp } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 
 type Quiz = {
+	// VideoBlock coerces stored timestamps to seconds (number) in place, so the
+	// shared quizzes array can hold either the raw "mm:ss" string or a number.
+	time: string | number
+	quiz: string
+}
+
+// The in-progress edit form always works with the raw "mm:ss" string.
+type QuizForm = {
 	time: string
 	quiz: string
 }
 
 const show = defineModel()
 const allQuizzes = ref<Quiz[]>([])
-const quiz = reactive<Quiz>({
+const quiz = reactive<QuizForm>({
 	time: '',
 	quiz: '',
 })

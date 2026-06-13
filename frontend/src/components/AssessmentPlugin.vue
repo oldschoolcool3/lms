@@ -61,7 +61,7 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Dialog } from 'frappe-ui'
 import Switch from '@/components/Controls/Switch.vue'
 import { nextTick, onMounted, ref } from 'vue'
@@ -70,8 +70,8 @@ import { getLmsRoute } from '@/utils/basePath'
 import Link from '@/components/Controls/Link.vue'
 
 const show = ref(false)
-const quiz = ref(null)
-const assignment = ref(null)
+const quiz = ref<string>()
+const assignment = ref<string>()
 const filterAssignmentsByCourse = ref(false)
 const route = useRoute()
 

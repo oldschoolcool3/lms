@@ -12,7 +12,7 @@
 				<span>
 					{{ index + 1 }}. <span class="font-semibold"> {{ quiz.quiz }} </span>
 				</span>
-				{{ __('at {0} minutes').format(formatTimestamp(quiz.time)) }}
+				{{ __('at {0} minutes').format(formatTimestamp(Number(quiz.time))) }}
 			</div>
 		</div>
 		<div
@@ -21,7 +21,6 @@
 			class="video-block relative group"
 		>
 			<video
-				@timeupdate="updateTime"
 				@ended="videoEnded"
 				@click="togglePlay"
 				oncontextmenu="return false"
@@ -155,8 +154,9 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue'
+import type { PropType } from 'vue'
 import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button, Dialog, Dropdown } from 'frappe-ui'
 import { formatSeconds, formatTimestamp } from '@/utils'
@@ -164,8 +164,13 @@ import { useSettings } from '@/stores/settings'
 import Play from '@/components/Icons/Play.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
 
-const videoRef = ref(null)
-const videoContainer = ref(null)
+interface VideoQuiz {
+	quiz: string
+	time: string | number
+}
+
+const videoRef = ref<HTMLVideoElement | null>(null)
+const videoContainer = ref<HTMLElement | null>(null)
 let playing = ref(false)
 let currentTime = ref(0)
 let duration = ref(0)
@@ -174,8 +179,8 @@ const showQuizModal = ref(false)
 const showQuiz = ref(false)
 const showQuizLoader = ref(false)
 const quizLoadTimer = ref(0)
-const currentQuiz = ref(null)
-const nextQuiz = ref({})
+const currentQuiz = ref<string | null>(null)
+const nextQuiz = ref<Partial<VideoQuiz>>({})
 const { settings } = useSettings()
 
 // Speed control states
@@ -202,7 +207,7 @@ const props = defineProps({
 		default: true,
 	},
 	quizzes: {
-		type: Array,
+		type: Array as PropType<VideoQuiz[]>,
 		default: () => [],
 	},
 	saveQuizzes: {
@@ -221,16 +226,15 @@ onMounted(() => {
 
 const updateCurrentTime = () => {
 	setTimeout(() => {
-		videoRef.value.onloadedmetadata = () => {
-			duration.value = videoRef.value.duration
+		videoRef.value!.onloadedmetadata = () => {
+			duration.value = videoRef.value!.duration
 		}
-		videoRef.value.ontimeupdate = () => {
+		videoRef.value!.ontimeupdate = () => {
 			currentTime.value = videoRef.value?.currentTime || currentTime.value
-			if (currentTime.value >= nextQuiz.value.time) {
-				videoRef.value.pause()
+			if (currentTime.value >= Number(nextQuiz.value.time)) {
+				videoRef.value!.pause()
 				playing.value = false
-				videoRef.value.onTimeupdate = null
-				currentQuiz.value = nextQuiz.value.quiz
+				currentQuiz.value = nextQuiz.value.quiz ?? null
 				quizLoadTimer.value = 7
 			}
 		}
@@ -254,8 +258,8 @@ const resumeVideo = (restart = false) => {
 	currentQuiz.value = null
 	updateCurrentTime()
 	setTimeout(() => {
-		videoRef.value.currentTime = restart ? 0 : currentTime.value
-		videoRef.value.play()
+		videoRef.value!.currentTime = restart ? 0 : currentTime.value
+		videoRef.value!.play()
 		playing.value = true
 		updateNextQuiz()
 	}, 0)
@@ -272,10 +276,10 @@ const updateNextQuiz = () => {
 		}
 	})
 
-	props.quizzes.sort((a, b) => a.time - b.time)
+	props.quizzes.sort((a, b) => Number(a.time) - Number(b.time))
 
 	const nextQuizIndex = props.quizzes.findIndex(
-		(quiz) => quiz.time > currentTime.value
+		(quiz) => Number(quiz.time) > currentTime.value
 	)
 	if (nextQuizIndex !== -1) {
 		nextQuiz.value = props.quizzes[nextQuizIndex]
@@ -289,12 +293,12 @@ const fileURL = computed(() => {
 })
 
 const playVideo = () => {
-	videoRef.value.play()
+	videoRef.value!.play()
 	playing.value = true
 }
 
 const pauseVideo = () => {
-	videoRef.value.pause()
+	videoRef.value!.pause()
 	playing.value = false
 }
 
@@ -311,17 +315,17 @@ const videoEnded = () => {
 }
 
 const toggleMute = () => {
-	videoRef.value.muted = !videoRef.value.muted
-	muted.value = videoRef.value.muted
+	videoRef.value!.muted = !videoRef.value!.muted
+	muted.value = videoRef.value!.muted
 }
 
 const changeCurrentTime = () => {
 	if (
 		settings.data?.prevent_skipping_videos &&
-		currentTime.value > videoRef.value.currentTime
+		currentTime.value > videoRef.value!.currentTime
 	)
 		return
-	videoRef.value.currentTime = currentTime.value
+	videoRef.value!.currentTime = currentTime.value
 	updateNextQuiz()
 }
 
@@ -329,18 +333,18 @@ const toggleFullscreen = () => {
 	if (document.fullscreenElement) {
 		document.exitFullscreen()
 	} else {
-		videoContainer.value.requestFullscreen()
+		videoContainer.value!.requestFullscreen()
 	}
 }
 
-const getQuizMarkerStyle = (time) => {
-	const percentage = ((time - 5) / Math.ceil(duration.value)) * 100
+const getQuizMarkerStyle = (time: string | number) => {
+	const percentage = ((Number(time) - 5) / Math.ceil(duration.value)) * 100
 	return {
 		insetInlineStart: `${percentage}%`,
 	}
 }
 
-const setPlaybackSpeed = (speed, label) => {
+const setPlaybackSpeed = (speed: number, label: string) => {
 	playbackSpeed.value = speed
 	playbackSpeedLabel.value = label
 	if (videoRef.value) {
