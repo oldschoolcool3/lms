@@ -31,6 +31,7 @@ import { onMounted, ref, computed, watch } from 'vue'
 import { Button } from 'frappe-ui'
 import { Codemirror } from 'vue-codemirror'
 import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
+import type { CompletionSource } from '@codemirror/autocomplete'
 import { LanguageSupport } from '@codemirror/language'
 import { EditorView } from '@codemirror/view'
 import { tomorrow } from 'thememirror'
@@ -44,7 +45,7 @@ const props = withDefaults(
 		autofocus?: boolean
 		showSaveButton?: boolean
 		showLineNumbers?: boolean
-		completions?: Function | null
+		completions?: CompletionSource | null
 		label?: string
 		showBorder?: boolean
 		required?: boolean
@@ -87,7 +88,9 @@ const emitEditorValue = () => {
 		}
 	} catch (e) {
 		console.error('Error while parsing JSON for editor', e)
-		errorMessage.value = `Invalid object/JSON: ${e.message}`
+		errorMessage.value = `Invalid object/JSON: ${
+			e instanceof Error ? e.message : String(e)
+		}`
 	}
 }
 
