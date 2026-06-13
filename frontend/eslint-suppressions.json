@@ -612,29 +612,6 @@
       "count": 1
     }
   },
-  "src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 4
-    }
-  },
-  "src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue": {
-    "vue/valid-v-for": {
-      "count": 1
-    }
-  },
-  "src/pages/ProgrammingExercises/ProgrammingExercises.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 2
-    }
-  },
-  "src/pages/ProgrammingExercises/types.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
   "src/pages/Programs/ProgramEnrollment.vue": {
     "@typescript-eslint/no-unused-vars": {
       "count": 4

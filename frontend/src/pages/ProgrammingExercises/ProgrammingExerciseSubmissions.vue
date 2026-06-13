@@ -69,6 +69,7 @@
 			<ListRows>
 				<router-link
 					v-for="row in submissions.data"
+					:key="row.name"
 					:to="{
 						name: 'ProgrammingExerciseSubmission',
 						params: {
@@ -212,7 +213,7 @@ const submissions = createListResource({
 		'modified',
 	],
 	orderBy: 'modified desc',
-	transform(data: ProgrammingExercise[]) {
+	transform(data: ProgrammingExerciseSubmission[]) {
 		return data.map((submission: ProgrammingExerciseSubmission) => {
 			return {
 				...submission,

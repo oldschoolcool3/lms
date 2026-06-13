@@ -10,7 +10,8 @@ export class Program {
 	data: any
 	api: any
 	readOnly: boolean
-	wrapper: HTMLDivElement
+	// Assigned in render() before any access; EditorJS calls render() first.
+	wrapper!: HTMLDivElement
 
 	constructor({
 		data,

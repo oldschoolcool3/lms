@@ -122,17 +122,21 @@ import {
 	TextEditor,
 	toast,
 } from 'frappe-ui'
-import {
+import type {
 	ProgrammingExercise,
 	ProgrammingExercises,
 	TestCase,
-} from '@/types/programming-exercise'
+} from '@/pages/ProgrammingExercises/types'
 import { ClipboardList, Play, Trash2 } from 'lucide-vue-next'
 import ChildTable from '@/components/Controls/ChildTable.vue'
 
+// The parent binds a frappe-ui `createResource` (the untyped resource boundary);
+// this component only needs to refresh it, so model the minimal surface used.
+type CountResource = { reload: () => void }
+
 const show = defineModel()
 const exercises = defineModel<ProgrammingExercises>('exercises')
-const totalExercises = defineModel<number>('totalExercises')
+const totalExercises = defineModel<CountResource>('totalExercises')
 const isDirty = ref(false)
 const originalTestCaseCount = ref(0)
 
@@ -257,7 +261,7 @@ const createNewExercise = (close: () => void) => {
 				close()
 				isDirty.value = false
 				exercises.value?.reload()
-				totalExercises.value.reload()
+				totalExercises.value?.reload()
 				toast.success(__('Programming Exercise created successfully'))
 			},
 			onError(err: any) {
@@ -270,8 +274,8 @@ const createNewExercise = (close: () => void) => {
 const updateExercise = (close: () => void) => {
 	exercises.value?.setValue.submit(
 		{
-			name: props.exerciseID,
 			...exercise.value,
+			name: props.exerciseID,
 		},
 		{
 			onSuccess() {

@@ -18,7 +18,8 @@
 		<template #body-content>
 			<div class="text-base">
 				<Link
-					v-model="exercise"
+					:model-value="exercise ?? undefined"
+					@update:model-value="exercise = $event"
 					doctype="LMS Programming Exercise"
 					:label="__('Select a Programming Exercise')"
 				/>
@@ -32,7 +33,7 @@ import { onMounted, nextTick, ref } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 
 const show = ref(false)
-const exercise = ref(null)
+const exercise = ref<string | null>(null)
 
 const props = defineProps({
 	onSave: {
