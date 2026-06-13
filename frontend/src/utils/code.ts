@@ -164,7 +164,7 @@ export class CodeBox {
 		)
 
 		codeAreaHolder.appendChild(this.codeArea)
-		!this.readOnly && codeAreaHolder.appendChild(languageSelect)
+		if (!this.readOnly) codeAreaHolder.appendChild(languageSelect)
 
 		return codeAreaHolder
 	}

@@ -99,25 +99,5 @@
     "vue/require-v-for-key": {
       "count": 1
     }
-  },
-  "src/pages/SCORMChapter.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 4
-    }
-  },
-  "src/pages/Search/Search.vue": {
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/tests/SettingFields.test.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 3
-    }
-  },
-  "src/utils/code.ts": {
-    "@typescript-eslint/no-unused-expressions": {
-      "count": 1
-    }
   }
 }

@@ -165,7 +165,7 @@ describe('SettingFields — defaults surface in the input when data is empty', (
 			},
 		])
 		const data = reactive<Record<string, unknown>>({})
-		const wrapper = mountFields(sections, data)
+		mountFields(sections, data)
 		await flushPromises()
 		await nextTick()
 
@@ -194,7 +194,7 @@ describe('SettingFields — defaults surface in the input when data is empty', (
 			},
 		])
 		const data = reactive<Record<string, unknown>>({})
-		const wrapper = mountFields(sections, data)
+		mountFields(sections, data)
 		await flushPromises()
 
 		const field = sections[0].columns[0].fields[0] as any
@@ -219,7 +219,7 @@ describe('SettingFields — defaults surface in the input when data is empty', (
 			},
 		])
 		const data = reactive<Record<string, unknown>>({})
-		const wrapper = mountFields(sections, data)
+		mountFields(sections, data)
 		await flushPromises()
 
 		const field = sections[0].columns[0].fields[0] as any

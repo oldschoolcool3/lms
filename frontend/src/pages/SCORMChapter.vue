@@ -81,7 +81,7 @@ const chapter = createDocumentResource({
 	name: props.chapterName,
 	auto: true,
 	cache: ['chapter', props.chapterName],
-	onSuccess(data: unknown) {
+	onSuccess(_data: unknown) {
 		progress.submit()
 	},
 })
@@ -165,7 +165,7 @@ const saveProgress = (scormDetails: ScormDetails | null = null) => {
 
 const progress = createResource({
 	url: 'frappe.client.get_value',
-	makeParams(values: unknown) {
+	makeParams(_values: unknown) {
 		return {
 			doctype: 'LMS Course Progress',
 			fieldname: ['status', 'scorm_content'],
@@ -177,7 +177,7 @@ const progress = createResource({
 			},
 		}
 	},
-	onSuccess(data: unknown) {
+	onSuccess(_data: unknown) {
 		readyToRender.value = true
 	},
 })
@@ -189,7 +189,7 @@ const enrollStudent = () => {
 			member: user.data?.name,
 		},
 		{
-			onSuccess(data: unknown) {
+			onSuccess(_data: unknown) {
 				window.location.reload()
 			},
 		}
