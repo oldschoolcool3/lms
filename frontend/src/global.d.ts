@@ -14,6 +14,10 @@ declare global {
 		read_only_mode?: boolean
 		// Set by Desktop/MobileLayout.vue; the app's scroll viewport.
 		scrollContainer?: HTMLElement
+		// Installed by translation.ts; the global `__()` translator.
+		__?: (text: string) => string
+		// Translation cache populated by translation.ts.
+		translatedMessages?: Record<string, string>
 	}
 }
 

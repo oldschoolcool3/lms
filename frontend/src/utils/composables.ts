@@ -1,4 +1,5 @@
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import type { Ref } from 'vue'
 
 export function useScreenSize() {
 	const size = reactive({
@@ -26,8 +27,21 @@ export function useScreenSize() {
 		isMobile,
 	}
 }
+
+interface SwipeState {
+	initialX: number | null
+	initialY: number | null
+	currentX: number | null
+	currentY: number | null
+	diffX: number | null
+	diffY: number | null
+	absDiffX: number | null
+	absDiffY: number | null
+	direction: 'left' | 'right' | 'up' | 'down' | null
+}
+
 export function useSwipe() {
-	const swipe = reactive({
+	const swipe = reactive<SwipeState>({
 		initialX: null,
 		initialY: null,
 		currentX: null,
@@ -39,7 +53,7 @@ export function useSwipe() {
 		direction: null,
 	})
 
-	const onTouchStart = (e) => {
+	const onTouchStart = (e: TouchEvent) => {
 		swipe.initialX = e.touches[0].clientX
 		swipe.initialY = e.touches[0].clientY
 		swipe.direction = null
@@ -49,27 +63,30 @@ export function useSwipe() {
 		swipe.absDiffY = null
 	}
 
-	const onTouchMove = (e) => {
-		swipe.currentX = e.touches[0].clientX
-		swipe.currentY = e.touches[0].clientY
+	const onTouchMove = (e: TouchEvent) => {
+		const currentX = e.touches[0].clientX
+		const currentY = e.touches[0].clientY
+		const diffX = (swipe.initialX ?? 0) - currentX
+		const diffY = (swipe.initialY ?? 0) - currentY
 
-		swipe.diffX = swipe.initialX - swipe.currentX
-		swipe.diffY = swipe.initialY - swipe.currentY
-
-		swipe.absDiffX = Math.abs(swipe.diffX)
-		swipe.absDiffY = Math.abs(swipe.diffY)
+		swipe.currentX = currentX
+		swipe.currentY = currentY
+		swipe.diffX = diffX
+		swipe.diffY = diffY
+		swipe.absDiffX = Math.abs(diffX)
+		swipe.absDiffY = Math.abs(diffY)
 	}
 
-	const onTouchEnd = (e) => {
-		let { diffX, diffY, absDiffX, absDiffY } = swipe
-		if (absDiffX > absDiffY) {
-			if (diffX > 0) {
+	const onTouchEnd = () => {
+		const { diffX, diffY, absDiffX, absDiffY } = swipe
+		if ((absDiffX ?? 0) > (absDiffY ?? 0)) {
+			if ((diffX ?? 0) > 0) {
 				swipe.direction = 'left'
 			} else {
 				swipe.direction = 'right'
 			}
 		} else {
-			if (diffY > 0) {
+			if ((diffY ?? 0) > 0) {
 				swipe.direction = 'up'
 			} else {
 				swipe.direction = 'down'
@@ -92,9 +109,9 @@ export function useSwipe() {
 	return swipe
 }
 
-export function useLocalStorage(key, initialValue) {
-	let value = ref(null)
-	let storedValue = localStorage.getItem(key)
+export function useLocalStorage<T>(key: string, initialValue: T): Ref<T> {
+	const value = ref<T | null>(null) as Ref<T>
+	const storedValue = localStorage.getItem(key)
 	value.value = storedValue ? JSON.parse(storedValue) : initialValue
 
 	watch(value, (newValue) => {
