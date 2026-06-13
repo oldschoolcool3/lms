@@ -132,7 +132,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Award, BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
@@ -156,7 +156,11 @@ const props = defineProps({
 const gradientColor = computed(() => {
 	let themeMode = theme.value === 'dark' ? 'darkMode' : 'lightMode'
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
-	let colorMap = colors[themeMode][color]
+	const palette = colors as unknown as Record<
+		string,
+		Record<string, Record<string, string>>
+	>
+	let colorMap = palette[themeMode][color]
 	return `linear-gradient(to top right, black, ${colorMap[400]})`
 })
 </script>
