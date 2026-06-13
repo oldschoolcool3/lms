@@ -213,8 +213,8 @@ const coverImage = createResource({
 })
 
 const setActiveTab = () => {
-	let fragments = route.path.split('/')
-	let sections = ['certificates', 'roles', 'slots', 'schedule']
+	const fragments = route.path.split('/')
+	const sections = ['certificates', 'roles', 'slots', 'schedule']
 	sections.forEach((section) => {
 		if (fragments.includes(section)) {
 			activeTab.value = convertToTitleCase(section)
@@ -225,7 +225,7 @@ const setActiveTab = () => {
 
 watchEffect(() => {
 	if (activeTab.value) {
-		let route: Record<string, { name: string }> = {
+		const route: Record<string, { name: string }> = {
 			About: { name: 'ProfileAbout' },
 			Certificates: { name: 'ProfileCertificates' },
 			Roles: { name: 'ProfileRoles' },
@@ -263,7 +263,7 @@ const isEvaluatorOrModerator = () => {
 }
 
 const getTabButtons = () => {
-	let buttons = [
+	const buttons = [
 		{ label: __('About'), value: 'About' },
 		{ label: __('Certificates'), value: 'Certificates' },
 	]
@@ -301,7 +301,7 @@ const onCoverImageSelect = (imageUrl: string) => {
 }
 
 const breadcrumbs = computed(() => {
-	let crumbs = [
+	const crumbs = [
 		{
 			label: __('People'),
 		},

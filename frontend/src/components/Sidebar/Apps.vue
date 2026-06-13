@@ -50,7 +50,7 @@ const apps = createResource({
 	cache: 'apps',
 	auto: true,
 	transform: (data: AppInfo[]) => {
-		let _apps = [
+		const _apps = [
 			{
 				name: 'frappe',
 				logo: '/assets/lms/images/desk.png',

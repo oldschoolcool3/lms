@@ -158,7 +158,7 @@ onMounted(() => {
 })
 
 const setFiltersFromQuery = () => {
-	let queries = new URLSearchParams(location.search)
+	const queries = new URLSearchParams(location.search)
 	title.value = queries.get('title') || ''
 	currentCategory.value = queries.get('category') || null
 	certification.value = queries.get('certification') || false
@@ -278,8 +278,8 @@ const updateStudentFilter = () => {
 }
 
 const setQueryParams = () => {
-	let queries = new URLSearchParams(location.search)
-	let filterKeys = {
+	const queries = new URLSearchParams(location.search)
+	const filterKeys = {
 		title: title.value,
 		category: currentCategory.value,
 		certification: certification.value,
@@ -320,7 +320,7 @@ watch(currentTab, () => {
 })
 
 const courseTabs = computed(() => {
-	let tabs = [
+	const tabs = [
 		{
 			label: __('Published'),
 			value: 'live',

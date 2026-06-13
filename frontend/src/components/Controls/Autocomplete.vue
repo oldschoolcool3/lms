@@ -245,7 +245,7 @@ const groups = computed((): AutocompleteGroup[] => {
 	const options = props.options as AutocompleteOption[]
 	if (!options || options.length == 0) return []
 
-	let groups = options[0]?.group ? options : [{ group: '', items: options }]
+	const groups = options[0]?.group ? options : [{ group: '', items: options }]
 
 	return groups
 		.map((group, i) => {
@@ -266,7 +266,7 @@ function filterOptions(options: AutocompleteOption[]) {
 		return options
 	}
 	return options.filter((option) => {
-		let searchTexts = [option.label, option.value]
+		const searchTexts = [option.label, option.value]
 		return searchTexts.some((text) =>
 			(text || '').toString().toLowerCase().includes(query.value.toLowerCase())
 		)
@@ -286,8 +286,8 @@ function optionLines(option: AutocompleteOption) {
 
 function displayValue(option: AutocompleteOption | string) {
 	if (typeof option === 'string') {
-		let allOptions = groups.value.flatMap((group) => group.items)
-		let selectedOption = allOptions.find((o) => o.value === option)
+		const allOptions = groups.value.flatMap((group) => group.items)
+		const selectedOption = allOptions.find((o) => o.value === option)
 		return selectedOption?.label || option
 	}
 	return option?.label
@@ -310,22 +310,22 @@ const textColor = computed(() => {
 })
 
 const inputClasses = computed(() => {
-	let sizeClasses = {
+	const sizeClasses = {
 		sm: 'text-base rounded h-7',
 		md: 'text-base rounded h-8',
 		lg: 'text-lg rounded-md h-10',
 		xl: 'text-xl rounded-md h-10',
 	}[props.size]
 
-	let paddingClasses = {
+	const paddingClasses = {
 		sm: 'py-1.5 px-2',
 		md: 'py-1.5 px-2.5',
 		lg: 'py-1.5 px-3',
 		xl: 'py-1.5 px-3',
 	}[props.size]
 
-	let variant = props.disabled ? 'disabled' : props.variant
-	let variantClasses = {
+	const variant = props.disabled ? 'disabled' : props.variant
+	const variantClasses = {
 		subtle:
 			'border border-[--surface-gray-2] bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 focus-within:bg-surface-white focus-within:border-outline-gray-4 focus-within:shadow-sm focus-within:ring-0 focus-within:ring-2 focus-within:ring-outline-gray-3',
 		outline:

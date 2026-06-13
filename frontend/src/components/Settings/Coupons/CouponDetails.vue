@@ -125,7 +125,7 @@ const editCoupon = () => {
 
 const createCoupon = () => {
 	if (couponItems.value) {
-		let rows = couponItems.value.saveItems()
+		const rows = couponItems.value.saveItems()
 		props.data.applicable_items = rows
 	}
 	props.coupons.insert.submit(

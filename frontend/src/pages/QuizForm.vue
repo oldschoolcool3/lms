@@ -386,14 +386,15 @@ const deleteQuestions = (selections: Set<string>, unselectAll: () => void) => {
 }
 
 const breadcrumbs = computed(() => {
-	let crumbs: { label: string; route: { name: string; params?: object } }[] = [
-		{
-			label: __('Quizzes'),
-			route: {
-				name: 'Quizzes',
+	const crumbs: { label: string; route: { name: string; params?: object } }[] =
+		[
+			{
+				label: __('Quizzes'),
+				route: {
+					name: 'Quizzes',
+				},
 			},
-		},
-	]
+		]
 
 	crumbs.push({
 		label: quizDetails.doc?.title,

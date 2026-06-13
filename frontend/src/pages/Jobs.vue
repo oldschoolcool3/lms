@@ -217,7 +217,7 @@ const jobCount = createResource({
 })
 
 const setFiltersFromURL = () => {
-	let queries = new URLSearchParams(location.search)
+	const queries = new URLSearchParams(location.search)
 	if (queries.has('type')) {
 		jobType.value = queries.get('type')
 	}

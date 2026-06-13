@@ -506,18 +506,18 @@ const updateCounts = async (
 }
 
 const updateOrder = async (e: DragEvent) => {
-	let sourceIdx = e.from.dataset.idx
-	let targetIdx = e.to.dataset.idx
+	const sourceIdx = e.from.dataset.idx
+	const targetIdx = e.to.dataset.idx
 
 	if (props.programName === 'new') {
-		let courses = program.value.program_courses
+		const courses = program.value.program_courses
 		courses.splice(targetIdx, 0, courses.splice(sourceIdx, 1)[0])
 		courses.forEach((course, index) => {
 			course.idx = index + 1
 		})
 		dirty.value = true
 	} else {
-		let courses = programCourses.data
+		const courses = programCourses.data
 		courses.splice(targetIdx, 0, courses.splice(sourceIdx, 1)[0])
 
 		for (const [index, course] of courses.entries()) {

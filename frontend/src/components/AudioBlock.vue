@@ -42,9 +42,9 @@ import { Button } from 'frappe-ui'
 
 const isPlaying = ref(false)
 const audio = ref<HTMLAudioElement | null>(null)
-let isMuted = ref(false)
-let currentTime = ref(0)
-let duration = ref(0)
+const isMuted = ref(false)
+const currentTime = ref(0)
+const duration = ref(0)
 
 const props = defineProps({
 	file: {

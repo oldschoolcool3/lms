@@ -311,7 +311,7 @@ const submitAssignment = () => {
 }
 
 const prepareSubmissionDoc = () => {
-	let doc: SubmissionDoc = {
+	const doc: SubmissionDoc = {
 		doctype: 'LMS Assignment Submission',
 		assignment: props.assignmentID,
 		member: user.data?.name,
@@ -325,7 +325,7 @@ const prepareSubmissionDoc = () => {
 }
 
 const addNewSubmission = () => {
-	let doc = prepareSubmissionDoc()
+	const doc = prepareSubmissionDoc()
 	if (!doc.assignment_attachment && !doc.answer) {
 		toast.error(
 			__('Please provide an answer or upload a file before submitting.')
@@ -357,7 +357,7 @@ const addNewSubmission = () => {
 }
 
 const updateSubmission = () => {
-	let evaluator =
+	const evaluator =
 		submissionResource.doc && submissionResource.doc.owner != user.data?.name
 			? user.data?.name
 			: null
@@ -406,7 +406,7 @@ const markLessonProgress = () => {
 	if (!pathname.includes('courses'))
 		pathname = window.parent.location.pathname.split('/')
 	if (pathname[2] != 'courses') return
-	let lessonIndex = (pathname.pop() ?? '').split('-')
+	const lessonIndex = (pathname.pop() ?? '').split('-')
 
 	if (lessonIndex.length == 2) {
 		call('lms.lms.api.mark_lesson_progress', {

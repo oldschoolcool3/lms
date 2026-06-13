@@ -152,7 +152,7 @@ const updateProfile = createResource({
 })
 
 const validateMandatoryFields = () => {
-	let missingFields = []
+	const missingFields = []
 	if (!profile.first_name) missingFields.push(__('First Name'))
 	if (!profile.last_name) missingFields.push(__('Last Name'))
 	if (!profile.image) missingFields.push(__('Profile Image'))
@@ -168,7 +168,7 @@ const validateMandatoryFields = () => {
 }
 
 const saveProfile = () => {
-	let missingMandatoryFields = validateMandatoryFields()
+	const missingMandatoryFields = validateMandatoryFields()
 	if (missingMandatoryFields) return
 	profile.bio = sanitizeHTML(profile.bio)
 	updateProfile.submit(
@@ -193,9 +193,9 @@ watch(
 	() => profile,
 	(newVal) => {
 		if (!props.profile.data) return
-		let keys = Object.keys(newVal) as (keyof typeof profile)[]
+		const keys = Object.keys(newVal) as (keyof typeof profile)[]
 		keys.splice(keys.indexOf('image'), 1)
-		for (let key of keys) {
+		for (const key of keys) {
 			if (newVal[key] !== props.profile.data[key]) {
 				isDirty.value = true
 				return

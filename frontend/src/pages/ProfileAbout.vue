@@ -154,10 +154,10 @@ const badges = createResource({
 	},
 	auto: true,
 	transform(data: Badge[]) {
-		let finalBadges: Badge[] = []
-		let groupedBadges = Object.groupBy(data, ({ badge }) => badge)
-		for (let badge in groupedBadges) {
-			let badgeData = groupedBadges[badge]![0]
+		const finalBadges: Badge[] = []
+		const groupedBadges = Object.groupBy(data, ({ badge }) => badge)
+		for (const badge in groupedBadges) {
+			const badgeData = groupedBadges[badge]![0]
 			badgeData.count = groupedBadges[badge]!.length
 			finalBadges.push(badgeData)
 		}

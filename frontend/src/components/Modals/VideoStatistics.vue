@@ -154,7 +154,7 @@ watch(
 
 watch(searchText, () => {
 	let filterApplied = false
-	let filters: Filters = {
+	const filters: Filters = {
 		lesson: props.lessonName,
 	}
 

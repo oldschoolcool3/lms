@@ -116,7 +116,7 @@ interface LiveClass {
 	host?: string
 }
 
-let liveClass = reactive<LiveClass>({
+const liveClass = reactive<LiveClass>({
 	title: '',
 	description: '',
 	date: '',
@@ -244,7 +244,7 @@ const validateFormFields = () => {
 }
 
 const valideTime = () => {
-	let time = liveClass.time.split(':')
+	const time = liveClass.time.split(':')
 	if (time.length != 2) {
 		return false
 	}

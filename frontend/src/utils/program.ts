@@ -79,7 +79,7 @@ export class Program {
 				},
 				fieldname: ['name'],
 			}).then((data: { name: string }) => {
-				let submission = data.name || 'new'
+				const submission = data.name || 'new'
 				const submissionPath = getLmsRoute(
 					`programming-exercises/${exercise}/submission/${submission}?fromLesson=1`
 				)

@@ -266,7 +266,7 @@ const totalApplications = createResource({
 })
 
 watch(search, () => {
-	let filters = {
+	const filters = {
 		job: props.job,
 		user: ['like', `%${search.value}%`],
 	}

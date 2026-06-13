@@ -281,7 +281,7 @@ export class CodeBox {
 		const highlightJSCSSElement = document.querySelector(
 			`#${this.highlightCSSID}`
 		)
-		let highlightJSCSSURL = this._getThemeURLFromConfig()
+		const highlightJSCSSURL = this._getThemeURLFromConfig()
 		if (!highlightJSCSSElement) {
 			const link = document.createElement('link')
 			const head = document.querySelector('head')

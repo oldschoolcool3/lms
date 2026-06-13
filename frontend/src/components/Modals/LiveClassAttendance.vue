@@ -71,8 +71,8 @@ const router = useRouter()
 const dayjs = inject('$dayjs')
 
 interface LiveClass {
-	name: String
-	title: String
+	name: string
+	title: string
 }
 
 const props = defineProps<{

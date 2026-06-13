@@ -454,15 +454,15 @@ const updateBatchData = () => {
 			batchDetail.doc[key] = formatTime(batchDetail.doc[key])
 		}
 	})
-	let checkboxes = [
+	const checkboxes = [
 		'published',
 		'paid_batch',
 		'allow_self_enrollment',
 		'certification',
 		'evaluation',
 	]
-	for (let idx in checkboxes) {
-		let key = checkboxes[idx]
+	for (const idx in checkboxes) {
+		const key = checkboxes[idx]
 		batchDetail.doc[key] = batchDetail.doc[key] ? true : false
 	}
 	originalDoc.value = structuredClone(toRaw(batchDetail.doc))

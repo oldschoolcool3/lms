@@ -238,8 +238,8 @@ const updateFilters = () => {
 }
 
 const setQueryParams = () => {
-	let queries = new URLSearchParams(location.search)
-	let filterKeys: Record<string, string | boolean> = {
+	const queries = new URLSearchParams(location.search)
+	const filterKeys: Record<string, string | boolean> = {
 		category: currentCategory.value,
 		name: nameFilter.value,
 		'open-to-work': openToWork.value,
@@ -268,7 +268,7 @@ const hasValue = (value: unknown) => {
 }
 
 const setFiltersFromQuery = () => {
-	let queries = new URLSearchParams(location.search)
+	const queries = new URLSearchParams(location.search)
 	nameFilter.value = queries.get('name') || ''
 	currentCategory.value = queries.get('category') || ''
 	openToWork.value = queries.get('open-to-opportunities') === 'true'

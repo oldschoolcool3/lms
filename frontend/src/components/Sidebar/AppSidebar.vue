@@ -311,7 +311,7 @@ import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
 
 const { user } = sessionStore()
 const { userResource } = usersStore()
-let sidebarStore = useSidebar()
+const sidebarStore = useSidebar()
 const socket = inject<Socket>('$socket')!
 const unreadCount = ref(0)
 const sidebarLinks = ref<SidebarGroup[] | null>(null)
@@ -442,13 +442,13 @@ const toggleWebPages = () => {
 }
 
 const getFirstCourse = async () => {
-	let firstCourse = localStorage.getItem('firstCourse')
+	const firstCourse = localStorage.getItem('firstCourse')
 	if (firstCourse) return firstCourse
 	return await call('lms.lms.onboarding.get_first_course')
 }
 
 const getFirstBatch = async () => {
-	let firstBatch = localStorage.getItem('firstBatch')
+	const firstBatch = localStorage.getItem('firstBatch')
 	if (firstBatch) return firstBatch
 	return await call('lms.lms.onboarding.get_first_batch')
 }
@@ -474,7 +474,7 @@ const steps = reactive([
 		dependsOn: 'create_first_course',
 		onClick: async () => {
 			minimize.value = true
-			let course = await getFirstCourse()
+			const course = await getFirstCourse()
 			if (course) {
 				router.push({
 					name: 'CourseDetail',
@@ -494,7 +494,7 @@ const steps = reactive([
 		dependsOn: 'create_first_chapter',
 		onClick: async () => {
 			minimize.value = true
-			let course = await getFirstCourse()
+			const course = await getFirstCourse()
 			if (course) {
 				router.push({
 					name: 'CourseDetail',
@@ -546,7 +546,7 @@ const steps = reactive([
 		dependsOn: 'create_first_batch',
 		onClick: async () => {
 			minimize.value = true
-			let batch = await getFirstBatch()
+			const batch = await getFirstBatch()
 			if (batch) {
 				router.push({
 					name: 'Batch',
@@ -567,7 +567,7 @@ const steps = reactive([
 		dependsOn: 'create_first_batch',
 		onClick: async () => {
 			minimize.value = true
-			let batch = await getFirstBatch()
+			const batch = await getFirstBatch()
 			if (batch) {
 				router.push({
 					name: 'Batch',
@@ -705,8 +705,8 @@ const profileIsComplete = computed(() => {
 })
 
 const showAppointmentIcon = computed(() => {
-	let isTrialPlan = userResource.data?.site_info?.plan?.is_trial_plan
-	let trialEndDate = calculateTrialEndDays(
+	const isTrialPlan = userResource.data?.site_info?.plan?.is_trial_plan
+	const trialEndDate = calculateTrialEndDays(
 		userResource.data?.site_info?.trial_end_date
 	)
 	return (

@@ -74,13 +74,13 @@ const roles = createResource({
 		}
 	},
 	onSuccess(data: Record<string, unknown>) {
-		let roles = [
+		const roles = [
 			'moderator',
 			'course_creator',
 			'batch_evaluator',
 			'lms_student',
 		]
-		for (let role of roles) {
+		for (const role of roles) {
 			if (data[role]) eval(role).value = true
 		}
 	},

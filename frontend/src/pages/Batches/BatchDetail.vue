@@ -266,7 +266,7 @@ const batchMenu = computed(() => {
 	if (!batch.data?.certification && !canMakeAnnouncement()) {
 		return []
 	}
-	let options = [
+	const options = [
 		{
 			label: __('Generate Certificates'),
 			onClick() {
@@ -286,7 +286,7 @@ const batchMenu = computed(() => {
 })
 
 const breadcrumbs = computed(() => {
-	let crumbs: {
+	const crumbs: {
 		label: string
 		route: { name: string; params?: Record<string, string> }
 	}[] = [{ label: __('Batches'), route: { name: 'Batches' } }]

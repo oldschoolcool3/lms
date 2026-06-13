@@ -171,10 +171,10 @@ interface VideoQuiz {
 
 const videoRef = ref<HTMLVideoElement | null>(null)
 const videoContainer = ref<HTMLElement | null>(null)
-let playing = ref(false)
-let currentTime = ref(0)
-let duration = ref(0)
-let muted = ref(false)
+const playing = ref(false)
+const currentTime = ref(0)
+const duration = ref(0)
+const muted = ref(false)
 const showQuizModal = ref(false)
 const showQuiz = ref(false)
 const showQuizLoader = ref(false)
@@ -270,8 +270,8 @@ const updateNextQuiz = () => {
 
 	props.quizzes.forEach((quiz) => {
 		if (typeof quiz.time == 'string' && quiz.time.includes(':')) {
-			let time = quiz.time.split(':')
-			let timeInSeconds = parseInt(time[0]) * 60 + parseInt(time[1])
+			const time = quiz.time.split(':')
+			const timeInSeconds = parseInt(time[0]) * 60 + parseInt(time[1])
 			quiz.time = timeInSeconds
 		}
 	})

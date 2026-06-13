@@ -101,7 +101,7 @@ const saveImage = (file: { file_url: string }) => {
 }
 
 const validateFile = (file: { name: string }) => {
-	let extension = file.name.split('.').pop()?.toLowerCase()
+	const extension = file.name.split('.').pop()?.toLowerCase()
 	if (!extension || !['jpg', 'jpeg', 'png'].includes(extension)) {
 		return 'Only image file is allowed.'
 	}

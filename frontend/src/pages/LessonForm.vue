@@ -201,7 +201,7 @@ const addLessonContent = (data: LessonCreationDetails) => {
 				sanitizeEditorJs(JSON.parse(lessonData.content)) as OutputData
 			)
 		} else if (lessonData.body) {
-			let blocks = convertToJSON(lessonData)
+			const blocks = convertToJSON(lessonData)
 			editor.value!.render({
 				blocks: blocks,
 			})
@@ -219,7 +219,7 @@ const addInstructorNotes = (data: LessonCreationDetails) => {
 				) as OutputData
 			)
 		} else if (lessonData.instructor_notes) {
-			let blocks = convertToJSON(lessonData)
+			const blocks = convertToJSON(lessonData)
 			instructorEditor.value!.render({
 				blocks: blocks,
 			})
@@ -291,9 +291,9 @@ const lessonReference = createResource({
 })
 
 const convertToJSON = (lessonData: LessonFields) => {
-	let blocks: { type: string; data: Record<string, unknown> }[] = []
+	const blocks: { type: string; data: Record<string, unknown> }[] = []
 	if (lessonData.youtube) {
-		let youtubeID = lessonData.youtube.split('/').pop()
+		const youtubeID = lessonData.youtube.split('/').pop()
 		blocks.push({
 			type: 'embed',
 			data: {
@@ -315,7 +315,7 @@ const convertToJSON = (lessonData: LessonFields) => {
 				},
 			})
 		} else if (block.includes('{{ Quiz')) {
-			let quiz = block.match(/\(["']([^"']+?)["']\)/)![1]
+			const quiz = block.match(/\(["']([^"']+?)["']\)/)![1]
 			blocks.push({
 				type: 'quiz',
 				data: {
@@ -323,7 +323,7 @@ const convertToJSON = (lessonData: LessonFields) => {
 				},
 			})
 		} else if (block.includes('{{ Video')) {
-			let video = block.match(/\(["']([^"']+?)["']\)/)![1]
+			const video = block.match(/\(["']([^"']+?)["']\)/)![1]
 			blocks.push({
 				type: 'upload',
 				data: {
@@ -332,7 +332,7 @@ const convertToJSON = (lessonData: LessonFields) => {
 				},
 			})
 		} else if (block.includes('{{ Audio')) {
-			let audio = block.match(/\(["']([^"']+?)["']\)/)![1]
+			const audio = block.match(/\(["']([^"']+?)["']\)/)![1]
 			blocks.push({
 				type: 'upload',
 				data: {
@@ -341,7 +341,7 @@ const convertToJSON = (lessonData: LessonFields) => {
 				},
 			})
 		} else if (block.includes('{{ PDF')) {
-			let pdf = block.match(/\(["']([^"']+?)["']\)/)![1]
+			const pdf = block.match(/\(["']([^"']+?)["']\)/)![1]
 			blocks.push({
 				type: 'upload',
 				data: {
@@ -350,7 +350,7 @@ const convertToJSON = (lessonData: LessonFields) => {
 				},
 			})
 		} else if (block.includes('{{ Embed')) {
-			let embed = block.match(/\(["']([^"']+?)["']\)/)![1]
+			const embed = block.match(/\(["']([^"']+?)["']\)/)![1]
 			blocks.push({
 				type: 'embed',
 				data: {
@@ -359,7 +359,7 @@ const convertToJSON = (lessonData: LessonFields) => {
 				},
 			})
 		} else if (block.includes('![]')) {
-			let image = block.match(/\((.*?)\)/)![1]
+			const image = block.match(/\((.*?)\)/)![1]
 			blocks.push({
 				type: 'upload',
 				data: {
@@ -368,7 +368,7 @@ const convertToJSON = (lessonData: LessonFields) => {
 				},
 			})
 		} else if (block.includes('#')) {
-			let level = (block.match(/#/g) || []).length
+			const level = (block.match(/#/g) || []).length
 			blocks.push({
 				type: 'header',
 				data: {
@@ -419,7 +419,7 @@ const saveLesson = (e?: { showSuccessMessage?: boolean }) => {
 }
 
 const removeEmptyBlocks = (outputData: OutputData) => {
-	let blocks = outputData.blocks.filter((block) => {
+	const blocks = outputData.blocks.filter((block) => {
 		return Object.keys(block.data).length > 0 || block.type == 'paragraph'
 	})
 	outputData.blocks = blocks

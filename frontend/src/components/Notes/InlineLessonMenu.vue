@@ -140,7 +140,7 @@ const saveHighLight = (color: string) => {
 }
 
 const deleteHighlight = () => {
-	let notesToDelete = notes.value?.data.find(
+	const notesToDelete = notes.value?.data.find(
 		(note: Note) => note.highlighted_text === selectedText.value
 	)
 	if (!notesToDelete) return
@@ -163,7 +163,7 @@ const deleteHighlight = () => {
 
 const addToNotes = () => {
 	if (!selectedText.value) return
-	let noteToUpdate = notes.value?.data.find((note: Note) => {
+	const noteToUpdate = notes.value?.data.find((note: Note) => {
 		return !note.highlighted_text && note.note !== ''
 	})
 	if (!noteToUpdate) {

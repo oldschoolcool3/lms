@@ -154,13 +154,13 @@ const props = defineProps({
 })
 
 const gradientColor = computed(() => {
-	let themeMode = theme.value === 'dark' ? 'darkMode' : 'lightMode'
-	let color = props.course.card_gradient?.toLowerCase() || 'blue'
+	const themeMode = theme.value === 'dark' ? 'darkMode' : 'lightMode'
+	const color = props.course.card_gradient?.toLowerCase() || 'blue'
 	const palette = colors as unknown as Record<
 		string,
 		Record<string, Record<string, string>>
 	>
-	let colorMap = palette[themeMode][color]
+	const colorMap = palette[themeMode][color]
 	return `linear-gradient(to top right, black, ${colorMap[400]})`
 })
 </script>

@@ -543,7 +543,7 @@ const checkQuiz = () => {
 	if (!editor.value && lesson.body) {
 		const quizRegex = /\{\{ Quiz\(".*"\) \}\}/
 		hasQuiz.value = quizRegex.test(lesson.body)
-		if (!hasQuiz.value && !zenModeEnabled) {
+		if (!hasQuiz.value && !zenModeEnabled.value) {
 			allowDiscussions.value = true
 		} else {
 			allowDiscussions.value = false
@@ -640,9 +640,8 @@ const notes = createListResource({
 })
 
 const breadcrumbs = computed(() => {
-	let crumbs: { label: string; route: { name: string; params?: object } }[] = [
-		{ label: __('Courses'), route: { name: 'Courses' } },
-	]
+	const crumbs: { label: string; route: { name: string; params?: object } }[] =
+		[{ label: __('Courses'), route: { name: 'Courses' } }]
 	crumbs.push({
 		label: lesson?.data?.course_title,
 		route: { name: 'CourseDetail', params: { courseName: props.courseName } },
@@ -663,7 +662,7 @@ const breadcrumbs = computed(() => {
 
 const switchLesson = (direction: 'prev' | 'next') => {
 	trackVideoWatchDuration()
-	let lessonIndex =
+	const lessonIndex =
 		direction === 'prev'
 			? lesson.data.prev.split('.')
 			: lesson.data.next.split('.')
@@ -731,7 +730,7 @@ const trackVideoWatchDuration = () => {
 }
 
 const getVideoDetails = () => {
-	let details: VideoDetail[] = []
+	const details: VideoDetail[] = []
 	const videos = document.querySelectorAll('video')
 	if (videos.length > 0) {
 		videos.forEach((video) => {
@@ -746,12 +745,12 @@ const getVideoDetails = () => {
 }
 
 const getPlyrSourceDetails = () => {
-	let details: VideoDetail[] = []
+	const details: VideoDetail[] = []
 	plyrSources.value.forEach((source) => {
 		if (isVideoComplete(source.currentTime, source.duration)) markProgress()
 		// Plyr typings expose `.source` as SourceInfo, but the LMS players carry
 		// the original media URL string here; preserve the existing runtime use.
-		let src = cleanYouTubeUrl(source.source as unknown as string)
+		const src = cleanYouTubeUrl(source.source as unknown as string)
 		details.push({
 			source: src,
 			watch_time: source.currentTime,
@@ -893,8 +892,8 @@ const attachVideoEndedListeners = () => {
 
 const updatePlyrVideoTime = (video: LessonVideo) => {
 	plyrSources.value.forEach((plyrSource) => {
-		let lastWatchedTime = 0
-		let isSeeking = false
+		const lastWatchedTime = 0
+		const isSeeking = false
 
 		plyrSource.on('ready', () => {
 			if ((plyrSource.source as unknown as string) === video.source) {
@@ -911,7 +910,8 @@ const updateVideoTime = (video: LessonVideo) => {
 	if (videos.length > 0) {
 		videos.forEach((vid) => {
 			if (vid.src === video.source) {
-				let watch_time = video.watch_time < vid.duration ? video.watch_time : 0
+				const watch_time =
+					video.watch_time < vid.duration ? video.watch_time : 0
 				if (vid.readyState >= 1) {
 					vid.currentTime = watch_time
 				} else {
@@ -987,7 +987,7 @@ const checkIfDiscussionsAllowed = () => {
 }
 
 const isAdmin = computed(() => {
-	let isInstructor = lesson.data?.instructors?.includes(user.data?.name)
+	const isInstructor = lesson.data?.instructors?.includes(user.data?.name)
 	return user.data?.is_moderator || isInstructor
 })
 
@@ -1054,7 +1054,7 @@ const enrollStudent = () => {
 const toggleInlineMenu = async () => {
 	showInlineMenu.value = false
 	await nextTick()
-	let selection = window.getSelection()
+	const selection = window.getSelection()
 	if (selection?.toString()) {
 		showInlineMenu.value = true
 	}

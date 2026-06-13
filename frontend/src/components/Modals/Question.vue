@@ -170,7 +170,7 @@ const question = reactive<Question>({
 })
 
 const populateFields = () => {
-	let fields = ['option', 'is_correct', 'explanation', 'possibility']
+	const fields = ['option', 'is_correct', 'explanation', 'possibility']
 	let counter = 1
 	fields.forEach((field) => {
 		while (counter <= 4) {

@@ -218,7 +218,7 @@ const reloadAssignments = () => {
 }
 
 const assignmentFilter = computed(() => {
-	let filters: Record<string, unknown> = {}
+	const filters: Record<string, unknown> = {}
 	if (titleFilter.value) {
 		filters.title = ['like', `%${titleFilter.value}%`]
 	}
@@ -291,7 +291,7 @@ const assignmentColumns = computed(() => {
 })
 
 const assignmentTypes = computed(() => {
-	let types = [' ', 'Document', 'Image', 'PDF', 'URL', 'Text']
+	const types = [' ', 'Document', 'Image', 'PDF', 'URL', 'Text']
 	return types.map((type) => {
 		return {
 			label: __(type),

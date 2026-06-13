@@ -177,7 +177,7 @@ onMounted(() => {
 })
 
 const setFiltersFromQuery = () => {
-	let queries = new URLSearchParams(location.search)
+	const queries = new URLSearchParams(location.search)
 	title.value = queries.get('title') || ''
 	currentCategory.value = queries.get('category') || null
 	certification.value = queries.get('certification') || false
@@ -281,8 +281,8 @@ const updateStudentFilter = () => {
 }
 
 const setQueryParams = () => {
-	let queries = new URLSearchParams(location.search)
-	let filterKeys: Record<string, string | boolean | null> = {
+	const queries = new URLSearchParams(location.search)
+	const filterKeys: Record<string, string | boolean | null> = {
 		title: title.value,
 		category: currentCategory.value,
 		certification: certification.value,
@@ -322,7 +322,7 @@ watch(currentTab, () => {
 })
 
 const batchTabs = computed(() => {
-	let tabs = [
+	const tabs = [
 		{
 			label: __('All'),
 			value: 'all',

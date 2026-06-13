@@ -80,7 +80,7 @@ const errorMessage = ref('')
 const emitEditorValue = () => {
 	try {
 		errorMessage.value = ''
-		let value = code.value || ''
+		const value = code.value || ''
 
 		if (!props.showSaveButton && !props.readonly) {
 			emit('update:modelValue', value)

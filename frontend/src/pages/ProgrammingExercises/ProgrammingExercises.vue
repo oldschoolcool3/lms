@@ -217,7 +217,7 @@ const exercises = createListResource({
 })
 
 const updateList = () => {
-	let filters = getFilters()
+	const filters = getFilters()
 	exercises.update({
 		filters: filters,
 	})
@@ -229,7 +229,7 @@ const updateList = () => {
 }
 
 const getFilters = () => {
-	let filters: any = {}
+	const filters: any = {}
 	if (titleFilter.value) {
 		filters['title'] = ['like', `%${titleFilter.value}%`]
 	}

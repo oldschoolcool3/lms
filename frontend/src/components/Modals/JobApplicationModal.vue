@@ -91,7 +91,7 @@ const onUploadSuccess = (file: UploadedFile) => {
 }
 
 const validateFile = (file: File) => {
-	let extension = file.name.split('.').pop()?.toLowerCase()
+	const extension = file.name.split('.').pop()?.toLowerCase()
 	if (extension != 'pdf') {
 		return 'Only PDF file is allowed'
 	}

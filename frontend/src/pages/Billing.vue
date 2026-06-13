@@ -354,7 +354,7 @@ const setBillingDetails = (data: BillingDetails | null | undefined) => {
 const paymentLink = createResource({
 	url: 'lms.lms.payments.get_payment_link',
 	makeParams() {
-		let data = {
+		const data = {
 			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
 			docname: props.name,
 			address: billingDetails,
@@ -405,7 +405,7 @@ function removeCoupon() {
 }
 
 const validateAddress = () => {
-	let billingFields: (keyof BillingDetails)[] = [
+	const billingFields: (keyof BillingDetails)[] = [
 		'billing_name',
 		'address_line1',
 		'address_line2',
@@ -417,8 +417,8 @@ const validateAddress = () => {
 		'gstin',
 		'pan',
 	]
-	let mandatoryFields = billingFields.filter((f) => fieldMeta[f]?.reqd)
-	for (let field of mandatoryFields) {
+	const mandatoryFields = billingFields.filter((f) => fieldMeta[f]?.reqd)
+	for (const field of mandatoryFields) {
 		if (!billingDetails[field])
 			return (
 				'Please enter a valid ' +

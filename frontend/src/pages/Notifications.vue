@@ -268,7 +268,7 @@ const handleMarkAsRead = (logName: string) => {
 const navigateToPage = (log: NotificationLog) => {
 	if (!log.link) return
 	handleMarkAsRead(log.name)
-	let link = log.link.split('/')
+	const link = log.link.split('/')
 	if (link[2] == 'courses') {
 		router.push({
 			name: 'CourseDetail',
@@ -322,7 +322,7 @@ onUnmounted(() => {
 })
 
 const breadcrumbs = computed(() => {
-	let crumbs = [
+	const crumbs = [
 		{
 			label: 'Notifications',
 			route: {

@@ -83,7 +83,7 @@ const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
 const { sidebarSettings } = useSettings()
 const router = useRouter()
-let { userResource } = usersStore()
+const { userResource } = usersStore()
 const sidebarLinks = ref<MobileLink[]>([])
 const otherLinks = ref<MobileLink[]>([])
 const showMenu = ref(false)
@@ -108,7 +108,7 @@ watch(showMenu, (val) => {
 })
 
 const destructureSidebarLinks = () => {
-	let links: MobileLink[] = []
+	const links: MobileLink[] = []
 	sidebarLinks.value.forEach((link) => {
 		link.items?.forEach((item) => {
 			links.push(item)
@@ -180,10 +180,10 @@ const addProgrammingExercises = () => {
 
 const addPrograms = async () => {
 	if (sidebarLinks.value.some((link) => link.label === 'Programs')) return
-	let canAddProgram = await checkIfCanAddProgram()
+	const canAddProgram = await checkIfCanAddProgram()
 	if (!canAddProgram) return
-	let activeFor = ['Programs', 'ProgramDetail']
-	let index = 1
+	const activeFor = ['Programs', 'ProgramDetail']
+	const index = 1
 
 	sidebarLinks.value.splice(index, 0, {
 		label: 'Programs',
@@ -215,7 +215,7 @@ const checkIfCanAddProgram = async () => {
 	return programs.enrolled.length > 0 || programs.published.length > 0
 }
 
-let isActive = (tab: MobileLink) => {
+const isActive = (tab: MobileLink) => {
 	return tab.activeFor?.includes(router.currentRoute.value.name as string)
 }
 

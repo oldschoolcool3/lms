@@ -223,7 +223,7 @@ const submissions = createListResource({
 })
 
 watch(filters.value, () => {
-	let filtersToApply: Record<string, any> = {}
+	const filtersToApply: Record<string, any> = {}
 	filterFields.forEach((field) => {
 		if (filters.value[field as keyof Filters]) {
 			filtersToApply[field] = filters.value[field as keyof Filters]

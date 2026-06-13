@@ -43,7 +43,7 @@ const props = defineProps({
 })
 
 const iconClasses = (index: number) => {
-	let classes = [
+	const classes = [
 		{
 			sm: 'size-4',
 			md: 'size-5',
@@ -63,7 +63,7 @@ const emit = defineEmits(['update:modelValue'])
 const rating = ref(props.modelValue)
 const hoveredRating = ref(0)
 
-let emitChange = (value: number) => {
+const emitChange = (value: number) => {
 	emit('update:modelValue', value)
 }
 

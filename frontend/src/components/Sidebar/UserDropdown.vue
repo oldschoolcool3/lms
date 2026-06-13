@@ -91,7 +91,7 @@ import {
 
 const router = useRouter()
 const { logout, branding } = sessionStore()
-let { userResource } = usersStore()
+const { userResource } = usersStore()
 const settingsStore = useSettings()
 let { isLoggedIn } = sessionStore()
 const showSettingsModal = ref(false)
@@ -143,10 +143,10 @@ const userDropdownOptions = computed(() => {
 				{
 					component: markRaw(Apps),
 					condition: () => {
-						let cookies = new URLSearchParams(
+						const cookies = new URLSearchParams(
 							document.cookie.split('; ').join('&')
 						)
-						let system_user = cookies.get('system_user')
+						const system_user = cookies.get('system_user')
 						if (system_user === 'yes') return true
 						else return false
 					},
@@ -236,7 +236,7 @@ const userDropdownOptions = computed(() => {
 })
 
 const loginToFrappeCloud = () => {
-	let redirect_to = '/dashboard/sites/' + userResource.data.sitename
+	const redirect_to = '/dashboard/sites/' + userResource.data.sitename
 	window.open(`${frappeCloudBaseEndpoint}${redirect_to}`, '_blank')
 }
 

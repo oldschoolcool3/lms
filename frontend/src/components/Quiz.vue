@@ -712,7 +712,7 @@ watch(activeQuestion, (value) => {
 })
 
 const switchQuestion = (questionNumber: number) => {
-	let answers = getAnswers()
+	const answers = getAnswers()
 	if (answers.length) {
 		if (!attemptedQuestions.value.includes(activeQuestion.value)) {
 			attemptedQuestions.value.push(activeQuestion.value)
@@ -726,14 +726,14 @@ const switchQuestion = (questionNumber: number) => {
 }
 
 const loadSavedAnswers = () => {
-	let quizData = JSON.parse(localStorage.getItem(quiz.data.title) as string)
+	const quizData = JSON.parse(localStorage.getItem(quiz.data.title) as string)
 	if (quizData) {
-		let localQuestion = quizData.find(
+		const localQuestion = quizData.find(
 			(q: { question_name: string; answer: string[] }) =>
 				q.question_name == currentQuestion.value
 		)
 		if (localQuestion) {
-			let localAnswers = localQuestion.answer
+			const localAnswers = localQuestion.answer
 			if (localAnswers.length) {
 				if (questionDetails.data?.type == 'Choices') {
 					localAnswers.forEach((answer: string) => {
@@ -781,7 +781,7 @@ const markAnswer = (index: number) => {
 }
 
 const getAnswers = () => {
-	let answers: (string | null | undefined)[] = []
+	const answers: (string | null | undefined)[] = []
 	const type = questionDetails.data?.type
 	if (type == 'Choices') {
 		selectedOptions.value.forEach((value, index) => {
@@ -796,7 +796,7 @@ const getAnswers = () => {
 }
 
 const checkAnswer = () => {
-	let answers = getAnswers()
+	const answers = getAnswers()
 	if (!answers.length) {
 		toast.warning(__('Please select an option'))
 		return
@@ -812,7 +812,7 @@ const checkAnswer = () => {
 		},
 		auto: true,
 		onSuccess(data: number[] | number) {
-			let type = questionDetails.data?.type
+			const type = questionDetails.data?.type
 			if (type == 'Choices') {
 				const choiceData = data as number[]
 				selectedOptions.value.forEach((option, index) => {
@@ -837,12 +837,12 @@ const checkAnswer = () => {
 
 const addToLocalStorage = () => {
 	let quizData = JSON.parse(localStorage.getItem(quiz.data.title) as string)
-	let questionData = {
+	const questionData = {
 		question_name: currentQuestion.value,
 		answer: getAnswers(),
 	}
 	if (quizData) {
-		let existingQuestion = quizData.find(
+		const existingQuestion = quizData.find(
 			(q: { question_name: string; answer: unknown }) =>
 				q.question_name == questionData.question_name
 		)
@@ -933,7 +933,7 @@ const markLessonProgress = () => {
 	if (!pathname.includes('courses'))
 		pathname = window.parent.location.pathname.split('/')
 	if (pathname[2] != 'courses') return
-	let lessonIndex = pathname.pop()!.split('-')
+	const lessonIndex = pathname.pop()!.split('-')
 
 	if (lessonIndex.length == 2) {
 		call('lms.lms.api.mark_lesson_progress', {
@@ -967,8 +967,8 @@ const paginationWindow = computed(() => {
 	const pages: (number | string)[] = []
 	const size = 5
 
-	let start = Math.floor((current - 1) / size) * size + 1
-	let end = Math.min(start + size - 1, total)
+	const start = Math.floor((current - 1) / size) * size + 1
+	const end = Math.min(start + size - 1, total)
 
 	if (start > 1) {
 		pages.push('...')

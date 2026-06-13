@@ -242,7 +242,7 @@ const filteredChartData = computed(() =>
 )
 
 watch(searchFilter, () => {
-	let filters: Record<string, any> = {
+	const filters: Record<string, any> = {
 		batch: props.batch?.data?.name,
 	}
 

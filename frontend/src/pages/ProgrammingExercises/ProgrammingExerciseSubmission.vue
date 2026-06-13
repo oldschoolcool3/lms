@@ -327,16 +327,17 @@ const runCode = async () => {
 	}
 
 	for (const test_case of exercise.doc.test_cases) {
-		let result = await execute(test_case.input)
+		const result = await execute(test_case.input)
 		if (error.value) {
 			errorMessage.value = result
 			break
 		} else {
 			output.value = result
 		}
-		let status =
+		const status =
 			result.trim() === test_case.expected_output.trim() ? 'Passed' : 'Failed'
 		testCases.value.push({
+			name: test_case.name,
 			input: test_case.input,
 			output: result,
 			expected_output: test_case.expected_output,
@@ -347,7 +348,7 @@ const runCode = async () => {
 
 const createSubmission = () => {
 	if (!testCases.value.length) return
-	let codeToSave = code.value?.replace(boilerplate.value, '') || ''
+	const codeToSave = code.value?.replace(boilerplate.value, '') || ''
 
 	call('lms.lms.api.create_programming_exercise_submission', {
 		exercise: props.exerciseID,
@@ -377,11 +378,11 @@ const createSubmission = () => {
 
 const execute = (stdin = ''): Promise<string> => {
 	return new Promise((resolve, reject) => {
-		let outputChunks: string[] = []
+		const outputChunks: string[] = []
 		let hasExited = false
 		let hasError = false
 
-		let session = new LiveCodeSession({
+		const session = new LiveCodeSession({
 			base_url: falconURL.value,
 			runtime: exercise.doc?.language.toLowerCase() || 'python',
 			code: code.value,

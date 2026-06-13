@@ -122,7 +122,7 @@ onMounted(() => {
 })
 
 const getAssignmentFilters = () => {
-	let filters: Record<string, unknown> = {}
+	const filters: Record<string, unknown> = {}
 	if (assignmentID.value) {
 		filters.assignment = assignmentID.value
 	}

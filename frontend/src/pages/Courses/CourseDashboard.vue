@@ -359,7 +359,7 @@ const updateLessonProgress = (value: string) => {
 }
 
 watch([searchFilter], () => {
-	let filters: Filters = {
+	const filters: Filters = {
 		course: props.course.data?.name,
 	}
 
@@ -374,12 +374,12 @@ watch([searchFilter], () => {
 })
 
 const averageCompletionRate = computed(() => {
-	let value = Math.ceil(chartDetails.data?.average_progress) || 0
+	const value = Math.ceil(chartDetails.data?.average_progress) || 0
 	return value + '%'
 })
 
 const progressColors = computed(() => {
-	let colorList = []
+	const colorList = []
 	colorList.push(colors[theme.value]['red'][400])
 	colorList.push(colors[theme.value]['amber'][400])
 	colorList.push(colors[theme.value]['blue'][400])

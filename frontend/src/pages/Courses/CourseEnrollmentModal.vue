@@ -67,7 +67,7 @@ const props = defineProps<{
 }>()
 
 const enrollStudent = (close: () => void) => {
-	let validationPassed = validateData()
+	const validationPassed = validateData()
 	if (!validationPassed) return
 
 	call('frappe.client.insert', {

@@ -70,7 +70,7 @@ const persona = reactive<{
 })
 
 const submitPersona = () => {
-	let responses = {
+	const responses = {
 		site: user.data?.sitename,
 		role: persona.role,
 		use_case: persona.useCase,

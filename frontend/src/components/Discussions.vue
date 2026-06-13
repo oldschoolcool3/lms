@@ -141,7 +141,7 @@ onMounted(() => {
 })
 
 const scrollToEnd = () => {
-	let scrollContainer = getScrollContainer()!
+	const scrollContainer = getScrollContainer()!
 	scrollContainer.scrollTop = scrollContainer.scrollHeight
 }
 

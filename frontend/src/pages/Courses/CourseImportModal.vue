@@ -130,7 +130,7 @@ const uploadFile = (e: Event) => {
 	const file = extractFile(e)
 	if (!file) return
 
-	let fileType = validateFile(file)
+	const fileType = validateFile(file)
 	if (fileType !== 'zip') return
 
 	uploadingFile.value = file

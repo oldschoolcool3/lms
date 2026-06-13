@@ -124,7 +124,7 @@ const addRow = () => {
 	if (!rows.value) {
 		rows.value = []
 	}
-	let newRow: { [key: string]: string } = {}
+	const newRow: { [key: string]: string } = {}
 	columns.value.forEach((column: any) => {
 		newRow[column.toLowerCase().split(' ').join('_')] = ''
 	})
@@ -163,7 +163,7 @@ onClickOutside(menuRef, () => {
 })
 
 const showKey = (key: string) => {
-	let columnsLower = columns.value.map((col) =>
+	const columnsLower = columns.value.map((col) =>
 		col.toLowerCase().split(' ').join('_')
 	)
 	return columnsLower.includes(key)

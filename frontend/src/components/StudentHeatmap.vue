@@ -138,7 +138,7 @@ const chartOptions = computed(() => {
 
 const chartSeries = computed(() => {
 	if (!heatmap.data) return []
-	let series = heatmap.data.heatmap_data.map(
+	const series = heatmap.data.heatmap_data.map(
 		(row: { name: string; data: { count: number }[] }) => {
 			return {
 				name: row.name,
