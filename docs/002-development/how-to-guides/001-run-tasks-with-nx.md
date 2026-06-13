@@ -54,6 +54,11 @@ Nx compares your branch against `develop` (configured as `defaultBase` in
 `nx.json`) and only runs targets for projects whose inputs changed. Editing
 only `frontend/src/` means `backend:lint` is skipped entirely.
 
+CI runs the same thing: `.github/workflows/nx.yml` executes
+`nx affected -t lint typecheck test` against the `nx-set-shas` base on every
+pull request (the backend `test` target is bench-coupled, so it is excluded and
+covered by `ci.yml` instead).
+
 ## Caching
 
 `build`, `lint`, and `test` are cached by default (`targetDefaults` in

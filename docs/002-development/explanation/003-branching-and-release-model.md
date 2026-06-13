@@ -43,7 +43,7 @@ model above is the default.
 
 | Workflow | Trigger | Notes |
 |----------|---------|-------|
-| `linters.yml`, `ci.yml`, `frontend-tests.yml`, `ui-tests.yml` | PRs (and pushes to `develop`/`main`) | Lint, server tests, Vitest, Cypress — the everyday gates |
+| `nx.yml`, `linters.yml`, `ci.yml`, `ui-tests.yml` | PRs (and pushes to `develop`/`main`) | Nx-affected lint/typecheck/Vitest, pre-commit + semgrep, server tests, Cypress — the everyday gates |
 | `on_release.yml` | push to `main` | semantic-release: analyses commits, bumps `lms/__init__.py`, creates a GitHub release |
 | `build.yml` | push to `main`, tags | Builds and publishes the container image to `ghcr.io/oldschoolcool3/lms` |
 | `make_release_pr.yml` | manual (`workflow_dispatch`) | Weekly cron disabled until the release cadence is opted into |
