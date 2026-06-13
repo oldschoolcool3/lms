@@ -115,7 +115,7 @@
 		:batches="batches"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Breadcrumbs,
 	Button,
@@ -136,17 +136,28 @@ import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import NewBatchModal from '@/pages/Batches/components/NewBatchModal.vue'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
-const dayjs = inject('$dayjs')
+interface CategoryOption {
+	label: string
+	value: string | null
+}
+
+interface BatchListItem {
+	name: string
+	category?: string
+}
+
+const user = inject<SessionUser>('$user')!
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
 const { brand } = sessionStore()
 const start = ref(0)
 const pageLength = ref(20)
-const categories = ref([])
-const currentCategory = ref(null)
+const categories = ref<CategoryOption[]>([])
+const currentCategory = ref<string | null>(null)
 const title = ref('')
-const certification = ref(false)
-const filters = ref({})
+const certification = ref<boolean | string>(false)
+const filters = ref<Record<string, unknown>>({})
 const is_student = computed(() => user.data?.is_student)
 const currentTab = ref(is_student.value ? 'all' : 'upcoming')
 const orderBy = ref('start_date')
@@ -180,7 +191,7 @@ const batches = createListResource({
 	start: start.value,
 })
 
-const setCategories = (data) => {
+const setCategories = (data: BatchListItem[]) => {
 	let allCategories = data.map((batch) => batch.category)
 	allCategories = allCategories.filter(
 		(category, index) => allCategories.indexOf(category) === index && category
@@ -196,7 +207,7 @@ const updateBatches = () => {
 		filters: filters.value,
 		orderBy: orderBy.value,
 	})
-	batches.reload().then((data) => {
+	batches.reload().then((data: BatchListItem[]) => {
 		setCategories(data)
 	})
 }
@@ -271,15 +282,16 @@ const updateStudentFilter = () => {
 
 const setQueryParams = () => {
 	let queries = new URLSearchParams(location.search)
-	let filterKeys = {
+	let filterKeys: Record<string, string | boolean | null> = {
 		title: title.value,
 		category: currentCategory.value,
 		certification: certification.value,
 	}
 
 	Object.keys(filterKeys).forEach((key) => {
-		if (filterKeys[key]) {
-			queries.set(key, filterKeys[key])
+		const value = filterKeys[key]
+		if (value) {
+			queries.set(key, String(value))
 		} else {
 			queries.delete(key)
 		}
@@ -292,7 +304,7 @@ const setQueryParams = () => {
 	)
 }
 
-const updateCategories = (data) => {
+const updateCategories = (data: BatchListItem[]) => {
 	data.forEach((batch) => {
 		if (
 			batch.category &&

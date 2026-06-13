@@ -14,12 +14,12 @@
 					<Badge v-if="childRef?.isDirty" theme="orange">
 						{{ __('Not Saved') }}
 					</Badge>
-					<Button @click="childRef.deleteBatch()">
+					<Button @click="childRef?.deleteBatch()">
 						<template #icon>
 							<Trash2 class="w-4 h-4 stroke-1.5" />
 						</template>
 					</Button>
-					<Button variant="solid" @click="childRef.submitBatch()">
+					<Button variant="solid" @click="childRef?.submitBatch()">
 						{{ __('Save') }}
 					</Button>
 				</template>
@@ -90,7 +90,7 @@
 		:students="batch.data.students"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	ClipboardPen,
 	EllipsisVertical,
@@ -104,6 +104,7 @@ import {
 	TrendingUp,
 } from 'lucide-vue-next'
 import { computed, inject, markRaw, ref, watch } from 'vue'
+import type { Component } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
 	Badge,
@@ -125,14 +126,25 @@ import AnnouncementModal from '@/pages/Batches/components/AnnouncementModal.vue'
 import BatchForm from '@/pages/Batches/BatchForm.vue'
 import BulkCertificates from '@/pages/Batches/components/BulkCertificates.vue'
 import Discussions from '@/components/Discussions.vue'
+import type { SessionUser } from '@/types/api'
+
+interface BatchTab {
+	label: string
+	component: Component
+	icon: Component
+}
 
 const router = useRouter()
 const route = useRoute()
 const { brand } = sessionStore()
-const user = inject('$user')
-const childRef = ref(null)
+const user = inject<SessionUser>('$user')!
+const childRef = ref<{
+	isDirty?: boolean
+	deleteBatch: () => void
+	submitBatch: () => void
+} | null>(null)
 const tabIndex = ref(0)
-const tabs = ref([])
+const tabs = ref<BatchTab[]>([])
 const openCertificateDialog = ref(false)
 const showAnnouncementModal = ref(false)
 const readOnlyMode = window.read_only_mode
@@ -169,7 +181,7 @@ const batch = createResource({
 		batch: props.batchName,
 	},
 	auto: true,
-	onSuccess: (data) => {
+	onSuccess: (data: unknown) => {
 		if (!data) {
 			router.push({ name: 'Batches' })
 		}
@@ -197,7 +209,7 @@ const updateTabs = () => {
 	}
 }
 
-const addToTabs = (label, component, icon) => {
+const addToTabs = (label: string, component: Component, icon: Component) => {
 	if (!tabs.value.some((tab) => tab.label === label)) {
 		tabs.value.push({
 			label,
@@ -241,7 +253,7 @@ const publishToggle = createResource({
 		)
 		batch.reload()
 	},
-	onError(err) {
+	onError(err: { messages?: string[] }) {
 		toast.error(err.messages?.[0] || __('Could not update publish status'))
 	},
 })
@@ -274,7 +286,10 @@ const batchMenu = computed(() => {
 })
 
 const breadcrumbs = computed(() => {
-	let crumbs = [{ label: __('Batches'), route: { name: 'Batches' } }]
+	let crumbs: {
+		label: string
+		route: { name: string; params?: Record<string, string> }
+	}[] = [{ label: __('Batches'), route: { name: 'Batches' } }]
 	crumbs.push({
 		label: batch?.data?.title,
 		route: { name: 'BatchDetail', params: { batchName: batch?.data?.name } },
