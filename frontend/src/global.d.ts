@@ -1,7 +1,9 @@
 export {}
 
 declare global {
-	function __(text: string): string
+	// frappe-style translator: extra args (interpolation values) are accepted
+	// for compatibility; the LMS translate() reads only `text`.
+	function __(text: string, ...args: unknown[]): string
 
 	interface String {
 		format(...args: any[]): string
@@ -15,7 +17,7 @@ declare global {
 		// Set by Desktop/MobileLayout.vue; the app's scroll viewport.
 		scrollContainer?: HTMLElement
 		// Installed by translation.ts; the global `__()` translator.
-		__?: (text: string) => string
+		__?: (text: string, ...args: unknown[]) => string
 		// Translation cache populated by translation.ts.
 		translatedMessages?: Record<string, string>
 	}
@@ -26,6 +28,6 @@ declare global {
 // that vue-tsc uses to type-check template expressions like `{{ __('…') }}`.
 declare module '@vue/runtime-core' {
 	interface ComponentCustomProperties {
-		__: (text: string) => string
+		__: (text: string, ...args: unknown[]) => string
 	}
 }

@@ -1,8 +1,5 @@
 <template>
-	<FileUploader
-		:file-types="image_type"
-		@success="(file) => emit('upload', file.file_url)"
-	>
+	<FileUploader :file-types="image_type" @success="onUpload">
 		<template #default="{ progress, uploading, openFileSelector }">
 			<div class="flex items-end space-x-1 rtl:space-x-reverse">
 				<Button
@@ -25,7 +22,7 @@
 		</template>
 	</FileUploader>
 </template>
-<script setup>
+<script setup lang="ts">
 import { ImageUp as ImageUpIcon } from 'lucide-vue-next'
 import { FileUploader, Button } from 'frappe-ui'
 
@@ -34,4 +31,6 @@ defineProps({
 	image_type: { type: String, default: 'image/*' },
 })
 const emit = defineEmits(['upload', 'remove'])
+
+const onUpload = (file: { file_url: string }) => emit('upload', file.file_url)
 </script>
