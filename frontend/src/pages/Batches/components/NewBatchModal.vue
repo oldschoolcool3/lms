@@ -55,7 +55,8 @@
 						/>
 					</div>
 					<Link
-						v-model="batch.category"
+						:modelValue="batch.category ?? undefined"
+						@update:modelValue="(val: string) => (batch.category = val)"
 						doctype="LMS Category"
 						:label="__('Category')"
 						variant="outline"
@@ -197,11 +198,12 @@ const batch = ref<Batch>({
 	medium: null,
 })
 
-const createCategory = (name: string, done: () => void) => {
-	createLMSCategory(name).then((categoryName: string) => {
+const createCategory = (name: string | null, done?: () => void) => {
+	if (!name) return
+	createLMSCategory(name).then((categoryName: string | undefined) => {
 		if (!categoryName) return
 		batch.value.category = categoryName
-		done()
+		done?.()
 	})
 }
 

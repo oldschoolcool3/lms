@@ -104,11 +104,6 @@
       "count": 1
     }
   },
-  "src/components/Modals/ChapterModal.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    }
-  },
   "src/components/Modals/EditCoverImage.vue": {
     "vue/no-unused-vars": {
       "count": 1
@@ -138,24 +133,8 @@
       "count": 1
     }
   },
-  "src/components/Modals/FeedbackModal.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    },
-    "vue/valid-v-for": {
-      "count": 2
-    }
-  },
   "src/components/Modals/JobApplicationModal.vue": {
     "vue/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/components/Modals/LiveClassAttendance.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/require-v-for-key": {
       "count": 1
     }
   },
@@ -421,11 +400,6 @@
     }
   },
   "src/pages/Batches/Batches.vue": {
-    "vue/valid-v-for": {
-      "count": 1
-    }
-  },
-  "src/pages/Batches/components/AdminBatchDashboard.vue": {
     "vue/valid-v-for": {
       "count": 1
     }

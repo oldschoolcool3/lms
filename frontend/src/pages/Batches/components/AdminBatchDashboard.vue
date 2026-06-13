@@ -71,7 +71,11 @@
 							>
 							</ListHeaderItem>
 						</ListHeader>
-						<ListRows v-for="row in students.data" class="max-h-[500px]">
+						<ListRows
+							v-for="row in students.data"
+							:key="row.name"
+							class="max-h-[500px]"
+						>
 							<ListRow :row="row">
 								<template #default="{ column, item }">
 									<ListRowItem
@@ -159,7 +163,7 @@
 	<StudentModal
 		v-if="showEnrollmentModal"
 		v-model="showEnrollmentModal"
-		:batch="batch"
+		:batch="batch ?? undefined"
 		:students="students"
 	/>
 	<BatchStudentProgress

@@ -28,6 +28,7 @@
 			<div class="divide-y text-base">
 				<div
 					v-for="participant in participants.data"
+					:key="participant.name"
 					@click="redirectToProfile(participant.member_username)"
 					class="grid grid-cols-2 items-center w-full text-base w-fit py-2"
 				>
@@ -62,13 +63,14 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Avatar, createListResource, Dialog, Tooltip } from 'frappe-ui'
+import { Avatar, createListResource, Dialog } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { inject } from 'vue'
+import type dayjsType from 'dayjs'
 
 const show = defineModel()
 const router = useRouter()
-const dayjs = inject('$dayjs')
+const dayjs = inject<typeof dayjsType>('$dayjs')!
 
 interface LiveClass {
 	name: string

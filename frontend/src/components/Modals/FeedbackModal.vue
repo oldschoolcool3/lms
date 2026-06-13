@@ -24,7 +24,11 @@
 					<ListHeader
 						class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none !px-0"
 					>
-						<ListHeaderItem :item="item" v-for="item in feedbackColumns">
+						<ListHeaderItem
+							:item="item"
+							v-for="item in feedbackColumns"
+							:key="item.key"
+						>
 							<template #prefix="{ item }">
 								<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
 							</template>
@@ -34,6 +38,7 @@
 						<ListRow
 							:row="row"
 							v-for="row in feedbackList"
+							:key="row.name"
 							class="group feedback-list"
 						>
 							<template #default="{ column, item }">
@@ -80,14 +85,19 @@ import {
 	ListRowItem,
 	Rating,
 } from 'frappe-ui'
-import { reactive, computed } from 'vue'
+import { computed } from 'vue'
+import type { PropType } from 'vue'
+
+// Rows come from a frappe-ui list resource (LMS Batch Feedback) and are
+// accessed by dynamic column key, so the value type stays an index signature.
+type FeedbackRow = Record<string, string | number>
 
 const show = defineModel()
 const ratingKeys = ['content', 'instructors', 'value']
 
-const props = defineProps({
+defineProps({
 	feedbackList: {
-		type: Array,
+		type: Array as PropType<FeedbackRow[]>,
 		required: true,
 	},
 })

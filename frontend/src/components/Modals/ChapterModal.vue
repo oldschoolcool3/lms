@@ -8,7 +8,7 @@
 				{
 					label: chapterDetail ? __('Edit') : __('Create'),
 					variant: 'solid',
-					onClick: (close) =>
+					onClick: (close: () => void) =>
 						chapterDetail ? editChapter(close) : addChapter(close),
 				},
 			],
@@ -37,9 +37,9 @@
 						v-if="!chapter.scorm_package"
 						:fileTypes="['.zip']"
 						:validateFile="validateFile"
-						@success="(file) => (chapter.scorm_package = file)"
+						@success="onScormUpload"
 					>
-						<template v-slot="{ file, progress, uploading, openFileSelector }">
+						<template v-slot="{ progress, uploading, openFileSelector }">
 							<div class="mb-4">
 								<Button @click="openFileSelector" :loading="uploading">
 									{{
@@ -199,6 +199,10 @@ watch(
 		chapter.scorm_package = (newChapter?.scorm_package ?? null) as ScormPackage
 	}
 )
+
+const onScormUpload = (file: { file_name: string; file_size: number }) => {
+	chapter.scorm_package = file
+}
 
 const validateFile = (file: File): string | undefined => {
 	const extension = file.name.split('.').pop()?.toLowerCase()
