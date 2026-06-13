@@ -30,7 +30,7 @@
 						:uploadArgs="{ private: 1 }"
 						@success="onUploadSuccess"
 					>
-						<template v-slot="{ file, progress, uploading, openFileSelector }">
+						<template v-slot="{ progress, uploading, openFileSelector }">
 							<div class="">
 								<Button @click="openFileSelector" :loading="uploading">
 									<template #prefix>

@@ -7,14 +7,6 @@
       "count": 1
     }
   },
-  "src/components/Modals/EditCoverImage.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/no-useless-template-attributes": {
-      "count": 1
-    }
-  },
   "src/components/Modals/EditProfile.vue": {
     "vue/no-dupe-keys": {
       "count": 1
@@ -23,70 +15,13 @@
       "count": 1
     }
   },
-  "src/components/Modals/EvaluationModal.vue": {
-    "vue/require-v-for-key": {
-      "count": 2
-    },
-    "vue/require-valid-default-prop": {
-      "count": 1
-    }
-  },
   "src/components/Modals/ExplanationVideos.vue": {
     "vue/return-in-computed-property": {
       "count": 1
     }
   },
-  "src/components/Modals/JobApplicationModal.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    }
-  },
   "src/components/Modals/PageModal.vue": {
     "vue/no-dupe-keys": {
-      "count": 1
-    }
-  },
-  "src/components/Modals/Question.vue": {
-    "vue/require-v-for-key": {
-      "count": 2
-    }
-  },
-  "src/components/Modals/QuizInVideo.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 2
-    }
-  },
-  "src/components/Modals/StudentModal.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/components/Modals/VideoStatistics.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 4
-    },
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/components/Notes/InlineLessonMenu.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    },
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/components/Notes/Notes.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/components/NumberChartGraph.vue": {
-    "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
   },
@@ -101,16 +36,6 @@
     },
     "vue/require-v-for-key": {
       "count": 4
-    }
-  },
-  "src/components/QuizBlock.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/components/Settings/BadgeAssignments.vue": {
-    "vue/valid-v-for": {
-      "count": 2
     }
   },
   "src/components/Settings/Badges.vue": {

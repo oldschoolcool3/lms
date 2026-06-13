@@ -14,6 +14,7 @@
 			<div class="">
 				<div
 					v-for="color in colors"
+					:key="color"
 					class="flex items-center gap-x-2 px-3 py-2 cursor-pointer hover:bg-surface-gray-2"
 					@click="saveHighLight(color)"
 				>
@@ -183,7 +184,7 @@ const createNote = () => {
 			name: '',
 		},
 		{
-			onSuccess(data: Note) {
+			onSuccess(_data: Note) {
 				emit('updateNotes')
 				setTimeout(() => {
 					scrollToText(selectedText.value)
@@ -206,7 +207,7 @@ const updateNote = (noteToUpdate: Note) => {
 			note: `${noteToUpdate.note}\n\n<blockquote><p>${selectedText.value}</p></blockquote><br>`,
 		},
 		{
-			onSuccess(data: Note) {
+			onSuccess(_data: Note) {
 				emit('updateNotes')
 				setTimeout(() => {
 					scrollToText(selectedText.value)

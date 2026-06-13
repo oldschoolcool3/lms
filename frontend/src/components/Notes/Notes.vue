@@ -106,7 +106,7 @@ const updateNote = () => {
 			note: note.value,
 		},
 		{
-			onSuccess(data: Note) {
+			onSuccess(_data: Note) {
 				emit('updateNotes')
 			},
 			onError(err: any) {

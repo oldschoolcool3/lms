@@ -1,6 +1,6 @@
 <template>
 	<Popover transition="default">
-		<template #target="{ isOpen, togglePopover }" class="flex w-full">
+		<template #target="{ isOpen, togglePopover }">
 			<slot v-bind="{ isOpen, togglePopover }"></slot>
 		</template>
 		<template #body>
@@ -23,9 +23,7 @@
 							:validateFile="validateFile"
 							@success="saveImage"
 						>
-							<template
-								v-slot="{ file, progress, uploading, openFileSelector }"
-							>
+							<template v-slot="{ progress, uploading, openFileSelector }">
 								<div class="">
 									<Button @click="openFileSelector" :loading="uploading">
 										{{ uploading ? `Uploading ${progress}%` : 'Upload Image' }}

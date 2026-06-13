@@ -47,7 +47,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { call, Dialog, toast } from 'frappe-ui'
+import { Dialog, toast } from 'frappe-ui'
 import { ref, inject } from 'vue'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { openSettings } from '@/utils'

@@ -18,7 +18,7 @@ import Quiz from '@/components/Quiz.vue'
 import type { SessionUser } from '@/types/api'
 
 const user = inject<SessionUser>('$user')!
-const props = defineProps({
+defineProps({
 	quiz: {
 		type: String,
 		required: true,

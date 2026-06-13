@@ -26,7 +26,7 @@
 						{{ __('Available Slots') }}
 					</div>
 					<div class="space-y-5">
-						<div v-for="row in slots.data" class="space-y-2">
+						<div v-for="row in slots.data" :key="row.date" class="space-y-2">
 							<div class="flex items-center text-ink-gray-7 gap-x-2">
 								<Calendar class="size-3" />
 								<div class="text-ink-gray-9">
@@ -40,6 +40,7 @@
 							<div class="grid grid-cols-3 gap-2">
 								<div
 									v-for="slot in row.slots"
+									:key="slot.start_time"
 									class="text-base text-center border rounded-md text-ink-gray-8 p-2 cursor-pointer text-ink-gray-7 hover:bg-surface-gray-2 hover:border-outline-gray-3"
 									@click="saveSlot(slot, row)"
 									:class="{
@@ -82,7 +83,7 @@ const evaluations = defineModel<{ reload: () => void }>('reloadEvals')
 const props = defineProps({
 	courses: {
 		type: Array as PropType<BatchCourse[]>,
-		default: [],
+		default: () => [],
 	},
 	batch: {
 		type: String,
