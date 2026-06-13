@@ -6,6 +6,7 @@
 		<div class="flex text-center">
 			<div
 				v-for="index in 5"
+				:key="index"
 				@mouseover="hoveredRating = index"
 				@mouseleave="hoveredRating = 0"
 			>

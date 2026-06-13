@@ -46,7 +46,7 @@ const isMuted = ref(false)
 const currentTime = ref(0)
 const duration = ref(0)
 
-const props = defineProps({
+defineProps({
 	file: {
 		type: String,
 		required: true,

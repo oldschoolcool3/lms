@@ -52,7 +52,7 @@ import { Badge } from 'frappe-ui'
 import { MapPin, User } from 'lucide-vue-next'
 
 const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
-const props = defineProps({
+defineProps({
 	job: {
 		type: Object,
 		default: null,

@@ -11,7 +11,7 @@
 			</span>
 		</div>
 
-		<div v-for="(reply, index) in replies.data">
+		<div v-for="(reply, index) in replies.data" :key="reply.name">
 			<div
 				class="py-3"
 				:class="{ 'border-b': index + 1 != replies.data.length }"
@@ -45,7 +45,7 @@
 							},
 						]"
 					>
-						<template v-slot="{ open }">
+						<template #default>
 							<MoreHorizontal class="w-4 h-4 stroke-1.5 cursor-pointer" />
 						</template>
 					</Dropdown>

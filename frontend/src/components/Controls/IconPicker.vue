@@ -28,7 +28,7 @@
 						</span>
 					</button>
 				</template>
-				<template #body-main="{ close, isOpen }" class="w-full">
+				<template #body-main="{ close }">
 					<div class="p-3 max-h-56 overflow-auto w-full">
 						<FormControl
 							ref="search"
@@ -37,7 +37,10 @@
 							autocomplete="off"
 						/>
 						<div class="grid grid-cols-10 gap-4 mt-4">
-							<div v-for="(iconComponent, iconName) in filteredIcons">
+							<div
+								v-for="(iconComponent, iconName) in filteredIcons"
+								:key="iconName"
+							>
 								<component
 									:is="iconComponent"
 									class="h-4 w-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
@@ -54,7 +57,7 @@
 <script setup lang="ts">
 import { FormControl, Popover } from 'frappe-ui'
 import * as icons from 'lucide-vue-next'
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { Component } from 'vue'
 
 type IconMap = Record<string, Component>

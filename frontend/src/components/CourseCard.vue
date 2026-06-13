@@ -110,6 +110,7 @@
 					>
 						<UserAvatar
 							v-for="instructor in course.instructors"
+							:key="instructor.username"
 							:user="instructor"
 						/>
 					</div>
@@ -138,7 +139,7 @@ import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils'
 import { theme } from '@/utils/theme'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'

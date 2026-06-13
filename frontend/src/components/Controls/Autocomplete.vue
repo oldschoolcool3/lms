@@ -4,11 +4,7 @@
 			{{ __(label) }}
 			<span class="text-ink-red-3" v-if="attrs.required">*</span>
 		</div>
-		<Combobox
-			v-model="selectedValue"
-			nullable
-			v-slot="{ open: isComboboxOpen }"
-		>
+		<Combobox v-model="selectedValue" nullable>
 			<Popover
 				class="w-full"
 				v-model:show="showOptions"
