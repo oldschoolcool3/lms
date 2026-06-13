@@ -79,17 +79,18 @@
 		:feedbackList="feedbackList.data"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { Button, createListResource, FormControl, Rating } from 'frappe-ui'
 import FeedbackModal from '@/components/Modals/FeedbackModal.vue'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const ratingKeys = ['content', 'instructors', 'value']
 const readOnly = ref(false)
-const average = reactive({})
-const feedback = reactive({})
+const average = reactive<Record<string, number>>({})
+const feedback = reactive<Record<string, number | string>>({})
 const showFeedbackForm = ref(true)
 const showAllFeedback = ref(false)
 
@@ -101,7 +102,7 @@ const props = defineProps({
 })
 
 onMounted(() => {
-	let filters = {
+	const filters: Record<string, string | undefined> = {
 		batch: props.batch,
 	}
 	if (user.data?.is_student) {
@@ -135,7 +136,7 @@ watch(
 	() => feedbackList.data,
 	() => {
 		if (feedbackList.data.length) {
-			let data = feedbackList.data
+			const data = feedbackList.data
 			readOnly.value = true
 			showFeedbackForm.value = false
 
@@ -143,13 +144,13 @@ watch(
 				average[key] = 0
 			})
 
-			data.forEach((row) => {
+			data.forEach((row: Record<string, number | string>) => {
 				Object.keys(row).forEach((key) => {
-					if (ratingKeys.includes(key)) row[key] = row[key] * 5
+					if (ratingKeys.includes(key)) row[key] = Number(row[key]) * 5
 					feedback[key] = row[key]
 				})
 				ratingKeys.forEach((key) => {
-					average[key] += row[key]
+					average[key] += Number(row[key])
 				})
 			})
 			Object.keys(average).forEach((key) => {
@@ -161,7 +162,7 @@ watch(
 
 const submitFeedback = () => {
 	ratingKeys.forEach((key) => {
-		feedback[key] = feedback[key] / 5
+		feedback[key] = Number(feedback[key]) / 5
 	})
 	feedbackList.insert.submit(
 		{

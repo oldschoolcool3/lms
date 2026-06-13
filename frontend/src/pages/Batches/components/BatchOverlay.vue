@@ -106,7 +106,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { inject, computed } from 'vue'
 import { Badge, Button, createResource, toast } from 'frappe-ui'
 import {
@@ -122,9 +122,10 @@ import {
 import { formatNumberIntoCurrency, formatTime } from '@/utils'
 import DateRange from '@/components/Common/DateRange.vue'
 import { useRouter } from 'vue-router'
+import type { SessionUser } from '@/types/api'
 
 const router = useRouter()
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
@@ -136,7 +137,7 @@ const props = defineProps({
 
 const enroll = createResource({
 	url: 'lms.lms.utils.enroll_in_batch',
-	makeParams(values) {
+	makeParams() {
 		return {
 			batch: props.batch.data.name,
 		}
@@ -150,7 +151,7 @@ const enrollInBatch = () => {
 	enroll.submit(
 		{},
 		{
-			onSuccess(data) {
+			onSuccess() {
 				toast.success(__('You have been enrolled in this batch'))
 				router.push({
 					name: 'Batch',
@@ -159,8 +160,8 @@ const enrollInBatch = () => {
 					},
 				})
 			},
-			onError(err) {
-				toast.error(__(err.messages?.[0] || err))
+			onError(err: { messages?: string[] }) {
+				toast.error(__(err.messages?.[0] || String(err)))
 				console.error(err)
 			},
 		}

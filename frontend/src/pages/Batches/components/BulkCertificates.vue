@@ -8,9 +8,7 @@
 				{
 					label: 'Create',
 					variant: 'solid',
-					onClick: ({ close }) => {
-						generateCertificates(close)
-					},
+					onClick: onCreateClick,
 				},
 			],
 		}"
@@ -60,19 +58,27 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { inject, reactive } from 'vue'
 import { createResource, Dialog, FormControl, toast } from 'frappe-ui'
 import Switch from '@/components/Controls/Switch.vue'
 import Link from '@/components/Controls/Link.vue'
+import type dayjsType from 'dayjs'
 
 const show = defineModel()
-const dayjs = inject('$dayjs')
-const details = reactive({
+const dayjs = inject<typeof dayjsType>('$dayjs')!
+const details = reactive<{
+	issue_date: string
+	expiry_date: string | null
+	template?: string
+	evaluator?: string
+	course?: string
+	published: boolean
+}>({
 	issue_date: dayjs().format('YYYY-MM-DD'),
 	expiry_date: null,
-	template: null,
-	evaluator: null,
+	template: undefined,
+	evaluator: undefined,
 	published: true,
 })
 
@@ -85,7 +91,7 @@ const props = defineProps({
 
 const createCertificate = createResource({
 	url: 'frappe.client.insert',
-	makeParams(values) {
+	makeParams(values: { course?: string; batch?: string; member?: string }) {
 		return {
 			doc: {
 				doctype: 'LMS Certificate',
@@ -102,17 +108,21 @@ const createCertificate = createResource({
 	},
 })
 
-const generateCertificates = (close) => {
-	props.batch?.students.forEach((student) => {
+const onCreateClick = ({ close }: { close: () => void }) => {
+	generateCertificates(close)
+}
+
+const generateCertificates = (close: () => void) => {
+	props.batch?.students.forEach((student: string) => {
 		createCertificate.submit(
 			{
 				course: details.course,
-				batch: props.batch.name,
+				batch: props.batch?.name,
 				member: student,
 			},
 			{
-				onError(err) {
-					toast.error(err.messages?.[0] || err)
+				onError(err: { messages?: string[] }) {
+					toast.error(err.messages?.[0] || String(err))
 				},
 			}
 		)
@@ -122,7 +132,7 @@ const generateCertificates = (close) => {
 }
 
 const getCourses = () => {
-	return props.batch?.courses.map((course) => {
+	return props.batch?.courses.map((course: { course: string }) => {
 		return {
 			label: course.course,
 			value: course.course,

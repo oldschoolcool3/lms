@@ -645,16 +645,13 @@
     }
   },
   "src/pages/Batches/components/BatchFeedback.vue": {
-    "prefer-const": {
-      "count": 2
-    },
     "vue/valid-v-for": {
       "count": 2
     }
   },
   "src/pages/Batches/components/BatchOverlay.vue": {
     "@typescript-eslint/no-unused-vars": {
-      "count": 6
+      "count": 4
     }
   },
   "src/pages/Batches/components/BatchStudentProgress.vue": {
