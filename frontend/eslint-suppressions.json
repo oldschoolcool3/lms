@@ -474,12 +474,6 @@
     }
   },
   "src/components/Tags.vue": {
-    "prefer-const": {
-      "count": 3
-    },
-    "vue/no-ref-as-operand": {
-      "count": 2
-    },
     "vue/require-v-for-key": {
       "count": 1
     }
