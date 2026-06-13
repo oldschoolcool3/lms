@@ -115,9 +115,6 @@ import {
 	CreditCard,
 	Globe,
 	GraduationCap,
-	LogIn,
-	Pencil,
-	Settings,
 } from 'lucide-vue-next'
 import { formatNumberIntoCurrency, formatTime } from '@/utils'
 import DateRange from '@/components/Common/DateRange.vue'
@@ -187,9 +184,5 @@ const canAccessBatch = computed(() => {
 		return false
 	}
 	return isModerator.value || isStudent.value || isEvaluator.value
-})
-
-const isAdmin = computed(() => {
-	return isModerator.value || isEvaluator.value
 })
 </script>

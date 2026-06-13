@@ -67,7 +67,7 @@ const show = defineModel<boolean>({
 	default: false,
 })
 
-const props = defineProps<{
+defineProps<{
 	streakInfo: {
 		data: {
 			current_streak: number

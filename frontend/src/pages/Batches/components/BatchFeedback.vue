@@ -40,6 +40,7 @@
 					<div class="space-y-4">
 						<Rating
 							v-for="key in ratingKeys"
+							:key="key"
 							v-model="feedback[key]"
 							:label="__(convertToTitleCase(key))"
 							:readonly="readOnly"
@@ -63,6 +64,7 @@
 			<div class="space-y-4">
 				<Rating
 					v-for="key in ratingKeys"
+					:key="key"
 					v-model="average[key]"
 					:label="__(convertToTitleCase(key))"
 					:readonly="true"

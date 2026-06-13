@@ -65,6 +65,7 @@
 							:row="row"
 							v-slot="{ column, item }"
 							v-for="row in applicantRows"
+							:key="row.name"
 							class="cursor-pointer"
 						>
 							<ListRowItem :item="item">
@@ -167,7 +168,6 @@ import {
 	Avatar,
 	Button,
 	Breadcrumbs,
-	call,
 	Dialog,
 	Dropdown,
 	FeatherIcon,

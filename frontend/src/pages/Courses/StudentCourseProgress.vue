@@ -47,6 +47,7 @@
 						</div>
 						<div
 							v-for="progress in lessons.data"
+							:key="progress.lesson_name"
 							class="flex justify-between text-sm py-2 my-1"
 						>
 							<div class="">
@@ -90,6 +91,7 @@
 							</div>
 							<div
 								v-for="quiz in assessmentProgress.data.quizzes"
+								:key="quiz.quiz"
 								class="grid grid-cols-4 gap-15 text-sm py-1 my-1"
 							>
 								<div class="col-span-2 leading-5">
@@ -113,6 +115,7 @@
 							</div>
 							<div
 								v-for="assignment in assessmentProgress.data.assignments"
+								:key="assignment.assignment"
 								class="flex justify-between text-sm py-2 my-1"
 							>
 								<div>
@@ -135,6 +138,7 @@
 							</div>
 							<div
 								v-for="exercise in assessmentProgress.data.exercises"
+								:key="exercise.exercise"
 								class="flex justify-between text-sm py-2 my-1"
 							>
 								<div>
@@ -196,15 +200,6 @@ const getLessonStatus = (lesson: any) => {
 		lessonProgress.data?.find((lp: any) => lp.lesson === lesson.lesson)
 			?.status || __('Pending')
 	)
-}
-
-const getLessonStatusTheme = (lesson: any) => {
-	const status = getLessonStatus(lesson)
-	if (status === 'Complete') {
-		return 'green'
-	} else {
-		return 'orange'
-	}
 }
 
 const getAssessmentStatusTheme = (status: string) => {

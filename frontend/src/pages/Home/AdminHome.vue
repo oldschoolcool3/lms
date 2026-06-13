@@ -8,6 +8,7 @@
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
 					<div
 						v-for="evaluation in evals?.data"
+						:key="evaluation.name"
 						class="border hover:border-outline-gray-3 rounded-md p-3 flex flex-col h-full cursor-pointer"
 						@click="redirectToProfile()"
 					>
@@ -44,6 +45,7 @@
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
 					<div
 						v-for="cls in liveClasses?.data"
+						:key="cls.name"
 						class="border hover:border-outline-gray-3 rounded-md p-3"
 					>
 						<div class="font-semibold text-ink-gray-9 text-lg leading-5 mb-1">
@@ -128,6 +130,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 				<router-link
 					v-for="course in createdCourses.data"
+					:key="course.name"
 					:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
 				>
 					<CourseCard :course="course" />
@@ -156,6 +159,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 				<router-link
 					v-for="batch in createdBatches.data"
+					:key="batch.name"
 					:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
 				>
 					<BatchCard :batch="batch" />
@@ -216,7 +220,7 @@ const user = inject<any>('$user')
 const dayjs = inject<any>('$dayjs')
 const router = useRouter()
 
-const props = defineProps<{
+defineProps<{
 	liveClasses?: { data?: any[] }
 	evals?: { data?: any[] }
 }>()

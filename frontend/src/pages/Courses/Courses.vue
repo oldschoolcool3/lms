@@ -74,6 +74,7 @@
 		>
 			<router-link
 				v-for="course in courses.data"
+				:key="course.name"
 				:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
 			>
 				<CourseCard :course="course" />

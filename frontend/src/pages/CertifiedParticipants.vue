@@ -59,6 +59,7 @@
 			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
 				<div
 					v-for="participant in participants.data"
+					:key="participant.username"
 					class="flex cursor-pointer flex-col rounded-lg border p-3 text-ink-gray-9 hover:border-outline-gray-3"
 					@click="
 						router.push({

@@ -33,6 +33,7 @@
 		>
 			<div
 				v-for="cls in liveClasses.data"
+				:key="cls.name"
 				class="flex flex-col border rounded-md h-full text-ink-gray-7 hover:border-outline-gray-3 p-3"
 				:class="{
 					'cursor-pointer': isAdmin() && cls.attendees > 0,
@@ -134,7 +135,6 @@ import {
 	AlertCircle,
 } from 'lucide-vue-next'
 import { inject, ref } from 'vue'
-import { formatTime } from '@/utils/'
 import LiveClassModal from '@/components/Modals/LiveClassModal.vue'
 import LiveClassAttendance from '@/components/Modals/LiveClassAttendance.vue'
 import type { SessionUser } from '@/types/api'

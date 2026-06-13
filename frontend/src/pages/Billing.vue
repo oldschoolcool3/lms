@@ -242,7 +242,6 @@ import {
 	Breadcrumbs,
 	usePageMeta,
 	toast,
-	call,
 } from 'frappe-ui'
 import { reactive, inject, onMounted, computed, ref, watch } from 'vue'
 import { sessionStore } from '../stores/session'
