@@ -21,7 +21,7 @@
 						<FileUploader
 							:fileTypes="['image/*']"
 							:validateFile="validateFile"
-							@success="(file) => saveImage(file)"
+							@success="saveImage"
 						>
 							<template
 								v-slot="{ file, progress, uploading, openFileSelector }"
@@ -65,7 +65,7 @@
 		</template>
 	</Popover>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Popover,
 	TextInput,
@@ -75,7 +75,7 @@ import {
 } from 'frappe-ui'
 import { ref, watch } from 'vue'
 
-const search = ref(null)
+const search = ref<string | null>(null)
 const emit = defineEmits(['select'])
 
 const images = createResource({
@@ -96,13 +96,13 @@ watch(
 	}
 )
 
-const saveImage = (file) => {
+const saveImage = (file: { file_url: string }) => {
 	emit('select', file.file_url)
 }
 
-const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png'].includes(extension)) {
+const validateFile = (file: { name: string }) => {
+	let extension = file.name.split('.').pop()?.toLowerCase()
+	if (!extension || !['jpg', 'jpeg', 'png'].includes(extension)) {
 		return 'Only image file is allowed.'
 	}
 }

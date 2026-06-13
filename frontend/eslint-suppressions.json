@@ -145,18 +145,8 @@
       "count": 1
     }
   },
-  "src/components/Modals/AssessmentModal.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
   "src/components/Modals/ChapterModal.vue": {
     "vue/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/components/Modals/DiscussionModal.vue": {
-    "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
   },
@@ -172,9 +162,6 @@
     }
   },
   "src/components/Modals/EditProfile.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
     "prefer-const": {
       "count": 4
     },

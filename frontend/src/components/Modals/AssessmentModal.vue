@@ -8,7 +8,7 @@
 				{
 					label: __('Submit'),
 					variant: 'solid',
-					onClick: (close) => addAssessment(close),
+					onClick: (close: () => void) => addAssessment(close),
 				},
 			],
 		}"
@@ -21,7 +21,7 @@
 					v-model="assessmentType"
 					:label="__('Type')"
 					placeholder=" "
-					@update:modelValue="() => (assessment = null)"
+					@update:modelValue="() => (assessment = undefined)"
 				/>
 				<Link
 					v-if="assessmentType"
@@ -29,38 +29,23 @@
 					:doctype="assessmentType"
 					:label="__('Assessment')"
 					placeholder=" "
-					:onCreate="
-						(value, close) => {
-							close()
-							if (assessmentType === 'LMS Quiz') {
-								router.push({
-									name: 'QuizForm',
-									params: {
-										quizID: 'new',
-									},
-								})
-							} else if (assessmentType === 'LMS Assignment') {
-								router.push({
-									name: 'Assignments',
-								})
-							}
-						}
-					"
+					:onCreate="onAssessmentCreate"
 				/>
 			</div>
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Dialog, FormControl, createResource, toast } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import type { Resource } from '@/types/api'
 import Link from '@/components/Controls/Link.vue'
 
-const show = defineModel()
-const assessmentType = ref(null)
-const assessment = ref(null)
-const assessments = defineModel('assessments')
+const show = defineModel<boolean>()
+const assessmentType = ref<string | undefined>()
+const assessment = ref<string | undefined>()
+const assessments = defineModel<Resource<unknown> | undefined>('assessments')
 const router = useRouter()
 
 const props = defineProps({
@@ -72,7 +57,7 @@ const props = defineProps({
 
 const assessmentResource = createResource({
 	url: 'frappe.client.insert',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doc: {
 				doctype: 'LMS Assessment',
@@ -86,12 +71,28 @@ const assessmentResource = createResource({
 	},
 })
 
-const addAssessment = (close) => {
+const onAssessmentCreate = (_value: string | null, close?: () => void) => {
+	close?.()
+	if (assessmentType.value === 'LMS Quiz') {
+		router.push({
+			name: 'QuizForm',
+			params: {
+				quizID: 'new',
+			},
+		})
+	} else if (assessmentType.value === 'LMS Assignment') {
+		router.push({
+			name: 'Assignments',
+		})
+	}
+}
+
+const addAssessment = (close: () => void) => {
 	assessmentResource.submit(
 		{},
 		{
-			onSuccess(data) {
-				assessments.value.reload()
+			onSuccess() {
+				assessments.value?.reload()
 				toast.success(__('Assessment added successfully'))
 				close()
 			},
