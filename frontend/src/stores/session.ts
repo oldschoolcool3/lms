@@ -3,12 +3,24 @@ import { createResource } from 'frappe-ui'
 import { usersStore } from './user'
 import { computed, reactive, ref } from 'vue'
 
-export const sessionStore = defineStore('lms-session', () => {
-	let { userResource } = usersStore()
-	const brand = reactive({})
+interface Brand {
+	name?: string
+	logo?: string
+	favicon?: string
+}
 
-	function sessionUser() {
-		let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
+interface BrandingResponse {
+	app_name?: string
+	app_logo?: string
+	favicon?: { file_url?: string }
+}
+
+export const sessionStore = defineStore('lms-session', () => {
+	const { userResource } = usersStore()
+	const brand = reactive<Brand>({})
+
+	function sessionUser(): string | null {
+		const cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
 		let _sessionUser = cookies.get('user_id')
 		if (_sessionUser === 'Guest') {
 			_sessionUser = null
@@ -18,7 +30,7 @@ export const sessionStore = defineStore('lms-session', () => {
 		return _sessionUser
 	}
 
-	let user = ref(sessionUser())
+	const user = ref(sessionUser())
 	const isLoggedIn = computed(() => !!user.value)
 
 	const logout = createResource({
@@ -34,7 +46,7 @@ export const sessionStore = defineStore('lms-session', () => {
 		url: 'lms.lms.api.get_branding',
 		cache: 'brand',
 		auto: true,
-		onSuccess(data) {
+		onSuccess(data: BrandingResponse) {
 			brand.name = data.app_name
 			brand.logo = data.app_logo
 			brand.favicon =
