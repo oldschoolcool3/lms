@@ -16,7 +16,8 @@
 		<template #body-content>
 			<div class="space-y-4">
 				<Link
-					v-model="details.evaluator"
+					:modelValue="details.evaluator ?? undefined"
+					@update:modelValue="onEvaluatorUpdate"
 					:label="__('Evaluator')"
 					doctype="Course Evaluator"
 				/>
@@ -37,7 +38,8 @@
 					:options="getCourses()"
 				/>
 				<Link
-					v-model="details.template"
+					:modelValue="details.template ?? undefined"
+					@update:modelValue="onTemplateUpdate"
 					:label="__('Template')"
 					doctype="Print Format"
 					:filters="{
@@ -70,15 +72,15 @@ const dayjs = inject<typeof dayjsType>('$dayjs')!
 const details = reactive<{
 	issue_date: string
 	expiry_date: string | null
-	template?: string
-	evaluator?: string
+	template: string | null
+	evaluator: string | null
 	course?: string
 	published: boolean
 }>({
 	issue_date: dayjs().format('YYYY-MM-DD'),
 	expiry_date: null,
-	template: undefined,
-	evaluator: undefined,
+	template: null,
+	evaluator: null,
 	published: true,
 })
 
@@ -108,6 +110,14 @@ const createCertificate = createResource({
 	},
 })
 
+const onEvaluatorUpdate = (value: string) => {
+	details.evaluator = value
+}
+
+const onTemplateUpdate = (value: string) => {
+	details.template = value
+}
+
 const onCreateClick = ({ close }: { close: () => void }) => {
 	generateCertificates(close)
 }
@@ -122,7 +132,7 @@ const generateCertificates = (close: () => void) => {
 			},
 			{
 				onError(err: { messages?: string[] }) {
-					toast.error(err.messages?.[0] || String(err))
+					toast.error(err.messages?.[0] || err)
 				},
 			}
 		)
