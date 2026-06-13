@@ -1,11 +1,16 @@
 <template>
-	<div v-for="result in list" class="px-2.5 space-y-2">
+	<div
+		v-for="(result, resultIndex) in list"
+		:key="resultIndex"
+		class="px-2.5 space-y-2"
+	>
 		<div class="text-ink-gray-5 px-2">
 			{{ result.title }}
 		</div>
 		<div class="">
 			<div
-				v-for="item in result.items"
+				v-for="(item, itemIndex) in result.items"
+				:key="itemIndex"
 				class="flex items-center justify-between p-2 rounded hover:bg-surface-gray-2 cursor-pointer"
 				:class="{ 'bg-surface-gray-2': item.isActive }"
 				@click="emit('navigateTo', item.route)"
@@ -31,11 +36,16 @@ import { inject } from 'vue'
 const dayjs = inject<any>('$dayjs')
 const emit = defineEmits(['navigateTo'])
 
-const props = defineProps<{
+defineProps<{
 	list: Array<{
 		title: string
 		items: Array<{
 			title: string
+			route: {
+				name: string
+				params?: Record<string, any>
+				query?: Record<string, any>
+			}
 			icon?: any
 			isActive?: boolean
 			modified?: string

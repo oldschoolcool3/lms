@@ -13,7 +13,13 @@ vi.mock('frappe-ui', () => ({
 
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 
-const mountLayout = (props: Record<string, unknown>, slots = {}) =>
+type SettingsLayoutProps = {
+	title: string
+	description?: string
+	showBack?: boolean
+}
+
+const mountLayout = (props: SettingsLayoutProps, slots = {}) =>
 	mount(SettingsLayout, {
 		props,
 		slots,

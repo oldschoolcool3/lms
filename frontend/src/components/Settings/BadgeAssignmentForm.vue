@@ -1,23 +1,5 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			title:
-				props.badgeAssignmentID === 'new'
-					? __('Assign a Badge')
-					: __('Edit Badge Assignment'),
-			size: 'sm',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick: ({ close }) => {
-						saveBadgeAssignment(close)
-					},
-				},
-			],
-		}"
-	>
+	<Dialog v-model="show" :options="dialogOptions">
 		<template #body-content>
 			<div class="space-y-4">
 				<Link
@@ -53,7 +35,7 @@ import type {
 	BadgeAssignments,
 	BadgeAssignment,
 } from '@/components/Settings/types'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { cleanError } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 
@@ -101,6 +83,23 @@ const saveBadgeAssignment = (close: () => void) => {
 		updateBadgeAssignment(close)
 	}
 }
+
+const dialogOptions = computed(() => ({
+	title:
+		props.badgeAssignmentID === 'new'
+			? __('Assign a Badge')
+			: __('Edit Badge Assignment'),
+	size: 'sm',
+	actions: [
+		{
+			label: __('Save'),
+			variant: 'solid',
+			onClick: ({ close }: { close: () => void }) => {
+				saveBadgeAssignment(close)
+			},
+		},
+	],
+}))
 
 const updateBadgeAssignment = async (close: () => void) => {
 	badgeAssignments.value?.setValue.submit(

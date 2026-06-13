@@ -15,7 +15,8 @@
 				:placeholder="__('Filter by Billing Name')"
 			/>
 			<Link
-				v-model="member"
+				:model-value="member ?? undefined"
+				@update:model-value="(value: string) => (member = value)"
 				doctype="User"
 				:placeholder="__('Filter by Member')"
 			/>
@@ -45,7 +46,7 @@
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in columns">
+					<ListHeaderItem :item="item" v-for="item in columns" :key="item.key">
 						<template #prefix="{ item }">
 							<FeatherIcon
 								v-if="item.icon"
@@ -57,8 +58,8 @@
 				</ListHeader>
 
 				<ListRows>
-					<ListRow :row="row" v-for="row in transactions.data">
-						<template #default="{ column, item }">
+					<ListRow :row="row" v-for="row in transactions.data" :key="row.name">
+						<template #default="{ column }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<FormControl
 									v-if="
@@ -113,7 +114,6 @@ import {
 	ListRowItem,
 	FormControl,
 } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
 import { computed, ref, watch } from 'vue'
 import { RefreshCw, Landmark } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
@@ -123,7 +123,7 @@ import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 const billingName = ref(null)
 const paymentReceived = ref(false)
 const paymentForCertificate = ref(false)
-const member = ref(null)
+const member = ref<string | null>(null)
 const emit = defineEmits(['updateStep'])
 
 const props = defineProps<{

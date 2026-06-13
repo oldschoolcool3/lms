@@ -1,14 +1,9 @@
 {
-  "total": 11,
+  "total": 6,
   "signatures": {
-    "src/components/CommandPalette/CommandPaletteGroup.vue | TS2339 | Property 'route' does not exist on type '{ title: string; icon?: any; isActive?: boolean | undefined; modified?: string | undefined; }'.": 1,
-    "src/components/ContactUsEmail.vue | TS7006 | Parameter 'val' implicitly has an 'any' type.": 1,
     "src/components/Controls/MultiSelect.vue | TS2339 | Property 'focusInput' does not exist on type 'CreateComponentPublicInstanceWithMixins<ToResolvedProps<__VLS_PublicProps, { \"update:modelValue\": (value: string[]) => any; }>, { Combobox: typeof Combobox; ComboboxButton: typeof ComboboxButton; ... 14 more ...; labelClasses: typeof labelClasses; }, ... 23 more ..., { ...; }>'.": 1,
     "src/components/Controls/MultiSelect.vue | TS2349 | This expression is not callable.": 1,
     "src/components/Controls/Select.vue | TS2709 | Cannot use namespace 'SelectOption' as a type.": 1,
-    "src/components/Controls/Select.vue | TS2709 | Cannot use namespace 'SelectOptionValue' as a type.": 3,
-    "src/components/Settings/BadgeAssignmentForm.vue | TS7031 | Binding element 'close' implicitly has an 'any' type.": 1,
-    "src/components/Settings/Transactions/TransactionList.vue | TS2322 | Type 'null' is not assignable to type 'string | undefined'.": 1,
-    "src/tests/SettingsLayout.test.ts | TS2322 | Type 'Record<string, unknown>' is not assignable to type 'VNodeProps & { __v_isVNode?: undefined; [Symbol.iterator]?: undefined; } & Record<string, any> & { readonly title: string; readonly description?: string | undefined; readonly showBack?: boolean | undefined; readonly onBack?: (() => any) | undefined; } & AllowedComponentProps & ComponentCustomProps'.": 1
+    "src/components/Controls/Select.vue | TS2709 | Cannot use namespace 'SelectOptionValue' as a type.": 3
   }
 }
