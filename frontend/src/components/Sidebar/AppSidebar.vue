@@ -234,9 +234,9 @@
 			appName="learning"
 			title="Frappe Learning"
 			:logo="LMSLogo"
-			:afterSkip="(step) => capture('onboarding_step_skipped_' + step)"
+			:afterSkip="onAfterSkip"
 			:afterSkipAll="() => capture('onboarding_steps_skipped')"
-			:afterReset="(step) => capture('onboarding_step_reset_' + step)"
+			:afterReset="onAfterReset"
 			:afterResetAll="() => capture('onboarding_steps_reset')"
 			docsLink="https://docs.frappe.io/learning"
 		/>
@@ -253,8 +253,11 @@
 	/>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { getSidebarLinks } from '@/utils'
+import type { SidebarGroup } from '@/utils'
+import type { Socket } from 'socket.io-client'
+import type { LMSSidebarItem } from '@/types/lms/LMSSidebarItem'
 import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
@@ -309,14 +312,14 @@ import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
 const { user } = sessionStore()
 const { userResource } = usersStore()
 let sidebarStore = useSidebar()
-const socket = inject('$socket')
+const socket = inject<Socket>('$socket')!
 const unreadCount = ref(0)
-const sidebarLinks = ref(null)
+const sidebarLinks = ref<SidebarGroup[] | null>(null)
 const { capture } = useTelemetry()
 const showPageModal = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)
-const pageToEdit = ref(null)
+const pageToEdit = ref<LMSSidebarItem>()
 const { sidebarSettings, activeTab, isSettingsOpen, programs } = useSettings()
 const settingsStore = useSettings()
 const showOnboarding = ref(false)
@@ -346,10 +349,10 @@ const updateSidebarLinksVisibility = () => {
 	sidebarSettings.reload(
 		{},
 		{
-			onSuccess(data) {
+			onSuccess(data: Record<string, unknown>) {
 				Object.keys(data).forEach((key) => {
-					if (!parseInt(data[key])) {
-						sidebarLinks.value.forEach((link) => {
+					if (!parseInt(data[key] as string)) {
+						sidebarLinks.value?.forEach((link) => {
 							link.items = link.items.filter(
 								(item) => item.label.toLowerCase().split(' ').join('_') !== key
 							)
@@ -366,7 +369,7 @@ const addKeyboardShortcut = () => {
 		if (
 			e.key === 'k' &&
 			(e.ctrlKey || e.metaKey) &&
-			!e.target.classList.contains('ProseMirror')
+			!(e.target as HTMLElement).classList.contains('ProseMirror')
 		) {
 			toggleCommandPalette()
 			e.preventDefault()
@@ -381,7 +384,7 @@ const toggleCommandPalette = () => {
 const unreadNotifications = createResource({
 	cache: 'Unread Notifications Count',
 	url: 'frappe.client.get_count',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doctype: 'Notification Log',
 			filters: {
@@ -390,7 +393,7 @@ const unreadNotifications = createResource({
 			},
 		}
 	},
-	onSuccess(data) {
+	onSuccess(data: number) {
 		unreadCount.value = data
 		updateUnreadCount()
 	},
@@ -407,12 +410,12 @@ const updateUnreadCount = () => {
 	})
 }
 
-const openPageModal = (link) => {
+const openPageModal = (link?: LMSSidebarItem) => {
 	showPageModal.value = true
 	pageToEdit.value = link
 }
 
-const deletePage = (link) => {
+const deletePage = (link: LMSSidebarItem) => {
 	call('lms.lms.api.delete_documents', {
 		doctype: 'LMS Sidebar Item',
 		documents: [link.name],
@@ -521,8 +524,11 @@ const steps = reactive([
 		completed: false,
 		onClick: () => {
 			minimize.value = true
-			activeTab.value = 'Members'
-			isSettingsOpen.value = true
+			// `activeTab`/`isSettingsOpen` are unwrapped values here (Pinia
+			// unwraps refs on destructure); these `.value` writes preserve the
+			// original runtime behaviour. Cast is type-only.
+			;(activeTab as unknown as { value: string | null }).value = 'Members'
+			;(isSettingsOpen as unknown as { value: boolean }).value = true
 		},
 	},
 	{
@@ -647,6 +653,14 @@ const articles = ref([
 	},
 ])
 
+const onAfterSkip = (step: string) => {
+	capture('onboarding_step_skipped_' + step)
+}
+
+const onAfterReset = (step: string) => {
+	capture('onboarding_step_reset_' + step)
+}
+
 const setUpOnboarding = () => {
 	if (userResource.data?.is_system_manager) {
 		onboardingDetails = useOnboarding('learning')
@@ -706,12 +720,12 @@ const showAppointmentIcon = computed(() => {
 	)
 })
 
-const calculateTrialEndDays = (trialEndDate) => {
+const calculateTrialEndDays = (trialEndDate: string | null | undefined) => {
 	if (!trialEndDate) return 0
 
-	trialEndDate = new Date(trialEndDate)
+	const endDate = new Date(trialEndDate)
 	const today = new Date()
-	const diffTime = trialEndDate - today
+	const diffTime = endDate.getTime() - today.getTime()
 	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 	return diffDays
 }

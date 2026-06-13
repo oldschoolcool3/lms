@@ -19,7 +19,7 @@
 								:debounce="300"
 							/>
 						</div>
-						<FileUploader @success="(file) => $emit('select', file.file_url)">
+						<FileUploader @success="onUploadSuccess">
 							<template
 								v-slot="{ file, progress, uploading, openFileSelector }"
 							>
@@ -60,7 +60,7 @@
 	</Popover>
 </template>
 
-<script>
+<script lang="ts">
 // import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { Popover, FileUploader, Button } from 'frappe-ui'
 
@@ -85,6 +85,11 @@ export default {
 		return {
 			search: '',
 		}
+	},
+	methods: {
+		onUploadSuccess(file: { file_url: string }) {
+			this.$emit('select', file.file_url)
+		},
 	},
 }
 </script>

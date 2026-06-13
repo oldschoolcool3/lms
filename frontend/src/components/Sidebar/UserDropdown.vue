@@ -63,7 +63,7 @@
 	/>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { sessionStore } from '@/stores/session'
 import { call, Dropdown, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
@@ -193,7 +193,7 @@ const userDropdownOptions = computed(() => {
 								{
 									label: __('Confirm'),
 									variant: 'solid',
-									onClick(close) {
+									onClick(close: () => void) {
 										loginToFrappeCloud()
 										close()
 									},
@@ -251,7 +251,7 @@ const clearDemoDataConfirmation = () => {
 				label: __('Confirm'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(close) {
+				onClick(close: () => void) {
 					clearDemoData()
 					close()
 				},
@@ -266,7 +266,7 @@ const clearDemoData = () => {
 			window.location.href = '/lms'
 			toast.success(__('Demo data cleared successfully'))
 		})
-		.catch((error) => {
+		.catch((error: { message?: string }) => {
 			toast.error(__(error.message || 'Error clearing demo data'))
 			console.error('Error clearing demo data:', error)
 		})

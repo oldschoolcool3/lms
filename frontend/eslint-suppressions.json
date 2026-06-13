@@ -311,9 +311,6 @@
     }
   },
   "src/components/Quiz.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 3
-    },
     "prefer-const": {
       "count": 12
     },
@@ -462,7 +459,7 @@
   },
   "src/components/Sidebar/AppSidebar.vue": {
     "@typescript-eslint/no-unused-vars": {
-      "count": 2
+      "count": 1
     },
     "prefer-const": {
       "count": 9

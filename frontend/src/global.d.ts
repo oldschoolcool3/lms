@@ -29,5 +29,10 @@ declare global {
 declare module '@vue/runtime-core' {
 	interface ComponentCustomProperties {
 		__: (text: string, ...args: unknown[]) => string
+		// The Options-API `resources` plugin from frappe-ui injects
+		// `this.$resources` onto every component instance. Like the rest of
+		// frappe-ui it is part of the untyped boundary (see
+		// types/frappe-ui-shim.d.ts), so it is typed `any` rather than modelled.
+		$resources: any
 	}
 }

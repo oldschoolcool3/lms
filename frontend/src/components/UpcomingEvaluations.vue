@@ -109,7 +109,7 @@
 		v-model:reloadEvals="upcoming_evals"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Ban,
 	Calendar,
@@ -119,15 +119,31 @@ import {
 	EllipsisVertical,
 } from 'lucide-vue-next'
 import { inject, ref, getCurrentInstance, computed } from 'vue'
+import type { PropType } from 'vue'
+import type { SessionUser } from '@/types/api'
+import type { BatchCourse } from '@/types/lms/BatchCourse'
+import type { LMSCertificateRequest } from '@/types/lms/LMSCertificateRequest'
 import { formatTime } from '@/utils'
 import { Button, createListResource, call, Dropdown, toast } from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
 
-const dayjs = inject('$dayjs')
-const user = inject('$user')
+interface DialogAction {
+	label: string
+	theme?: string
+	variant?: string
+	onClick: (close: () => void) => void
+}
+type DialogFn = (opts: {
+	title: string
+	message: string
+	actions: DialogAction[]
+}) => void
+
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
+const user = inject<SessionUser>('$user')!
 const showEvalModal = ref(false)
-const app = getCurrentInstance()
-const { $dialog } = app.appContext.config.globalProperties
+const app = getCurrentInstance()!
+const $dialog = app.appContext.config.globalProperties.$dialog as DialogFn
 
 const props = defineProps({
 	batch: {
@@ -135,7 +151,7 @@ const props = defineProps({
 		default: null,
 	},
 	courses: {
-		type: Array,
+		type: Array as PropType<BatchCourse[]>,
 		default: [],
 	},
 	endDate: {
@@ -177,7 +193,7 @@ function openEvalModal() {
 	showEvalModal.value = true
 }
 
-const openEvalCall = (evl) => {
+const openEvalCall = (evl: LMSCertificateRequest) => {
 	window.open(evl.google_meet_link, '_blank')
 }
 
@@ -199,7 +215,7 @@ const endDateHasPassed = computed(() => {
 	return dayjs().isSameOrAfter(dayjs(props.endDate))
 })
 
-const cancelEvaluation = (evl) => {
+const cancelEvaluation = (evl: LMSCertificateRequest) => {
 	$dialog({
 		title: __('Confirm Cancellation?'),
 		message: __(
@@ -210,14 +226,14 @@ const cancelEvaluation = (evl) => {
 				label: __('Cancel'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(close) {
+				onClick(close: () => void) {
 					call('lms.lms.api.cancel_evaluation', { evaluation: evl })
 						.then(() => {
 							upcoming_evals.reload()
 							toast.success(__('Evaluation cancelled successfully'))
 						})
-						.catch((err) => {
-							toast.error(__(err.messages?.[0] || err))
+						.catch((err: { messages?: string[] }) => {
+							toast.error(__(err.messages?.[0] || (err as unknown as string)))
 							console.error(err)
 						})
 					close()

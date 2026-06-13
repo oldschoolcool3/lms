@@ -21,7 +21,7 @@ import Plyr from 'plyr'
 import 'plyr/dist/plyr.css'
 import DOMPurify from 'dompurify'
 
-interface SidebarLinkItem {
+export interface SidebarLinkItem {
 	label: string
 	icon: string
 	to?: string
@@ -29,9 +29,10 @@ interface SidebarLinkItem {
 	activeFor?: string[]
 	await?: boolean
 	hideLabel?: boolean
+	count?: number
 }
 
-interface SidebarGroup {
+export interface SidebarGroup {
 	label: string
 	hideLabel: boolean
 	items: SidebarLinkItem[]
