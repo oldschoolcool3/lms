@@ -52,6 +52,7 @@ ALLOWED_PATHS = [
 
 
 def authenticate():
+    """Block API requests whose path is not allowed for the current user."""
     if not frappe.conf.get("block_endpoints"):
         return
 
@@ -82,6 +83,7 @@ def authenticate():
 
 
 def is_server_script_path(path):
+    """Return whether the path maps to an enabled API-type Server Script."""
     endpoint = path.split("/api/method/")[-1]
     if frappe.db.exists("Server Script", {"script_type": "API", "api_method": endpoint, "disabled": 0}):
         return True
@@ -89,6 +91,7 @@ def is_server_script_path(path):
 
 
 def is_custom_app_endpoint(path):
+    """Return whether the path matches a configured custom-app endpoint allowlist."""
     allowed_custom_endpoints = frappe.conf.get("allowed_custom_endpoints", [])
 
     if isinstance(allowed_custom_endpoints, str):

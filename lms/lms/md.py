@@ -23,12 +23,12 @@ from markdown.inlinepatterns import InlineProcessor
 
 
 def markdown_to_html(text):
-    """Renders markdown text into html."""
+    """Render markdown text into html."""
     return markdown.markdown(text, extensions=["fenced_code", MacroExtension()])
 
 
 def find_macros(text):
-    """Returns all macros in the given text.
+    """Return all macros in the given text.
 
     >>> find_macros(text)
     [
@@ -45,7 +45,7 @@ def find_macros(text):
 
 
 def _remove_quotes(value):
-    """Removes quotes around a value.
+    """Remove quotes around a value.
 
     Also strips the whitespace.
 
@@ -60,11 +60,13 @@ def _remove_quotes(value):
 
 
 def get_macro_registry():
+    """Return a mapping of macro name to its renderer function from the hook registry."""
     d = frappe.get_hooks("lms_markdown_macro_renderers") or {}
     return {name: frappe.get_attr(klass[0]) for name, klass in d.items()}
 
 
 def render_macro(macro_name, macro_argument):
+    """Render a macro to html via its registered renderer, or a fallback for unknown macros."""
     # stripping the quotes on either side of the argument
     macro_argument = _remove_quotes(macro_argument)
 
@@ -82,6 +84,7 @@ class MacroExtension(Extension):
     """MacroExtension is a markdown extension to support macro syntax."""
 
     def extendMarkdown(self, md):
+        """Register the macro inline processor on the given markdown instance."""
         self.md = md
         pattern = MacroInlineProcessor(MACRO_RE)
         pattern.md = md

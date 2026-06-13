@@ -50,15 +50,16 @@ target-version = "py312"
 line-length = 120
 
 [tool.ruff.lint]
-# Matches ~/projects/power's rule set. Four docstring rules from power are
-# intentionally NOT selected here — D101/D102/D103 (docstring *presence*) and
-# D401 (imperative mood). They are not auto-fixable and would force ~420 manual
-# edits across inherited frappe/lms code, churning the fork against upstream for
-# little value. We keep every *auto-fixable* docstring-quality rule so existing
-# docstrings stay clean. Enforcing presence/mood on our own new modules is a
-# tracked follow-up.
+# Matches the org-standard ruff rule set (power). All four docstring rules from
+# power are enforced: D101/D102/D103 (docstring *presence*) and D401 (imperative
+# mood). The ~418 docstrings this required across inherited frappe/lms code were
+# authored in a one-time pass; tests, DocType controllers, reports, patches, and
+# a few generated/entrypoint modules stay exempt via the per-file-ignores below.
 select = [
     "E", "F", "I", "UP", "B", "S",
+    "D101",   # missing docstring in public class
+    "D102",   # missing docstring in public method
+    "D103",   # missing docstring in public function
     "D200",   # unnecessary multiline docstring
     "D205",   # blank line after summary
     "D208",   # over-indentation
@@ -67,6 +68,7 @@ select = [
     "D300",   # use triple double quotes
     "D301",   # use r-prefix for backslash docstrings
     "D400",   # first line should end with period
+    "D401",   # first line should be imperative mood
     "D403",   # first word of first line capitalized
     "D415",   # first line should end with punctuation
     "D417",   # missing argument descriptions (Google-style)

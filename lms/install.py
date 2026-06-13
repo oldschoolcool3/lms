@@ -5,6 +5,7 @@ from lms.lms.api import give_discussions_permission
 
 
 def after_install():
+    """Run post-install setup: seed batch sources and grant baseline permissions."""
     create_batch_source()
     give_discussions_permission()
     give_user_list_permission()
@@ -12,17 +13,20 @@ def after_install():
 
 
 def after_sync():
+    """Create LMS roles, set the default certificate print format, and assign roles to Administrator."""
     create_lms_roles()
     set_default_certificate_print_format()
     give_lms_roles_to_admin()
 
 
 def before_uninstall():
+    """Remove LMS custom fields and roles before the app is uninstalled."""
     delete_custom_fields()
     delete_lms_roles()
 
 
 def create_lms_roles():
+    """Create the Course Creator, Moderator, Batch Evaluator, and LMS Student roles."""
     create_course_creator_role()
     create_moderator_role()
     create_evaluator_role()
@@ -30,6 +34,7 @@ def create_lms_roles():
 
 
 def create_course_creator_role():
+    """Create the Course Creator role without desk access, or clear its desk access if it exists."""
     if frappe.db.exists("Role", "Course Creator"):
         frappe.db.set_value("Role", "Course Creator", "desk_access", 0)
     else:
@@ -45,6 +50,7 @@ def create_course_creator_role():
 
 
 def create_moderator_role():
+    """Create the Moderator role without desk access, or clear its desk access if it exists."""
     if frappe.db.exists("Role", "Moderator"):
         frappe.db.set_value("Role", "Moderator", "desk_access", 0)
     else:
@@ -60,6 +66,7 @@ def create_moderator_role():
 
 
 def create_evaluator_role():
+    """Create the Batch Evaluator role without desk access, or clear its desk access if it exists."""
     if frappe.db.exists("Role", "Batch Evaluator"):
         frappe.db.set_value("Role", "Batch Evaluator", "desk_access", 0)
     else:
@@ -75,6 +82,7 @@ def create_evaluator_role():
 
 
 def create_lms_student_role():
+    """Create the LMS Student role without desk access, or clear its desk access if it exists."""
     if frappe.db.exists("Role", "LMS Student"):
         frappe.db.set_value("Role", "LMS Student", "desk_access", 0)
     else:
@@ -90,6 +98,7 @@ def create_lms_student_role():
 
 
 def set_default_certificate_print_format():
+    """Set the default print format for LMS Certificate via a Property Setter if not already set."""
     filters = {
         "doc_type": "LMS Certificate",
         "property": "default_print_format",
@@ -109,6 +118,7 @@ def set_default_certificate_print_format():
 
 
 def delete_custom_fields():
+    """Delete the User custom fields added by the LMS app."""
     fields = [
         "user_category",
         "headline",
@@ -155,6 +165,7 @@ def delete_custom_fields():
 
 
 def create_batch_source():
+    """Seed the default LMS Source records used as batch lead sources."""
     sources = [
         "Newsletter",
         "LinkedIn",
@@ -172,6 +183,7 @@ def create_batch_source():
 
 
 def give_lms_roles_to_admin():
+    """Assign the LMS management roles to the Administrator user."""
     roles = ["Course Creator", "Moderator", "Batch Evaluator"]
     for role in roles:
         if not frappe.db.exists("Has Role", {"parent": "Administrator", "role": role}):
@@ -184,6 +196,7 @@ def give_lms_roles_to_admin():
 
 
 def give_user_list_permission():
+    """Grant LMS management roles permission on the User doctype."""
     doctype = "User"
     roles = ["Course Creator", "Moderator", "Batch Evaluator"]
     for role in roles:
@@ -193,6 +206,7 @@ def give_user_list_permission():
 
 
 def give_event_permission():
+    """Grant Moderator, Batch Evaluator, and System Manager roles permission on the Event doctype."""
     doctype = "Event"
     roles = ["Moderator", "Batch Evaluator"]
     for role in roles:
@@ -202,6 +216,7 @@ def give_event_permission():
 
 
 def create_role(doctype, role, permlevel, write=0, create=0):
+    """Add a custom permission for the given role on a doctype, with optional write and create rights."""
     if frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": permlevel}):
         return
 
@@ -215,6 +230,7 @@ def create_role(doctype, role, permlevel, write=0, create=0):
 
 
 def delete_lms_roles():
+    """Delete the LMS roles along with their role assignments and custom permissions."""
     roles = ["Course Creator", "Moderator", "Batch Evaluator", "LMS Student"]
     for role in roles:
         if frappe.db.exists("Role", role):

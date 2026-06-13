@@ -16,6 +16,7 @@ from lms.lms.utils import create_user as create_lms_user
 
 
 def export_course_zip(course_name):
+    """Export a course and its related data as a downloadable ZIP archive."""
     course = frappe.get_doc("LMS Course", course_name)
     chapters = get_chapters_for_export(course.chapters)
     lessons = get_lessons_for_export(course_name)
@@ -40,6 +41,7 @@ def export_course_zip(course_name):
 
 
 def get_chapters_for_export(chapters: list):
+    """Return the Course Chapter documents referenced by the given chapter rows."""
     chapters_list = []
     for row in chapters:
         chapter = frappe.get_doc("Course Chapter", row.chapter)
@@ -48,6 +50,7 @@ def get_chapters_for_export(chapters: list):
 
 
 def get_lessons_for_export(course_name: str):
+    """Return all Course Lesson documents belonging to the given course."""
     lessons = frappe.get_all("Course Lesson", {"course": course_name}, pluck="name")
     lessons_list = []
     for lesson in lessons:
@@ -57,6 +60,7 @@ def get_lessons_for_export(course_name: str):
 
 
 def get_assessment_from_block(block):
+    """Return the assessment document referenced by a lesson content block, or None."""
     block_type = block.get("type")
     data_field = "exercise" if block_type == "program" else block_type
     name = block.get("data", {}).get(data_field)
@@ -67,6 +71,7 @@ def get_assessment_from_block(block):
 
 
 def get_quiz_questions(doc):
+    """Return the LMS Question documents linked to a quiz as dicts."""
     questions = []
     for q in doc.questions:
         question_doc = frappe.get_doc("LMS Question", q.question)
@@ -75,6 +80,7 @@ def get_quiz_questions(doc):
 
 
 def get_exercise_test_cases(doc):
+    """Return the LMS Test Case documents linked to a programming exercise as dicts."""
     test_cases = []
     for tc in doc.test_cases:
         test_case_doc = frappe.get_doc("LMS Test Case", tc.name)
@@ -83,6 +89,7 @@ def get_exercise_test_cases(doc):
 
 
 def get_assessments_from_lesson(lesson):
+    """Return the assessments, questions, and test cases referenced in a lesson's content."""
     assessments, questions, test_cases = [], [], []
     content = json.loads(lesson.content) if lesson.content else {}
     for block in content.get("blocks", []):
@@ -100,6 +107,7 @@ def get_assessments_from_lesson(lesson):
 
 
 def get_course_assessments(lessons):
+    """Return the combined assessments, questions, and test cases across all lessons."""
     assessments, questions, test_cases = [], [], []
     for lesson in lessons:
         lesson_assessments, lesson_questions, lesson_test_cases = get_assessments_from_lesson(lesson)
@@ -110,6 +118,7 @@ def get_course_assessments(lessons):
 
 
 def get_course_instructors(course):
+    """Return user info dicts for each instructor on the course."""
     users = []
     for instructor in course.instructors:
         user_info = frappe.db.get_value(
@@ -124,6 +133,7 @@ def get_course_instructors(course):
 
 
 def get_course_evaluator(course):
+    """Return the course's Course Evaluator document as a single-item list, if any."""
     evaluators = []
     if course.evaluator and frappe.db.exists("Course Evaluator", course.evaluator):
         evaluator_info = frappe.get_doc("Course Evaluator", course.evaluator)
@@ -132,6 +142,7 @@ def get_course_evaluator(course):
 
 
 def get_course_assets(course, lessons, instructors, evaluator):
+    """Return the list of asset URLs referenced by the course, lessons, instructors, and evaluator."""
     assets = []
     if course.image:
         assets.append(course.image)
@@ -150,6 +161,7 @@ def get_course_assets(course, lessons, instructors, evaluator):
 
 
 def read_asset_content(url):
+    """Return the raw bytes of the file at the given URL, or None if it cannot be read safely."""
     try:
         file_doc = frappe.get_doc("File", {"file_url": url})
         file_path = file_doc.get_full_path()
@@ -174,6 +186,7 @@ def create_course_zip(
     instructors,
     evaluator,
 ):
+    """Build the course ZIP, move it to private files, schedule its deletion, and serve it."""
     try:
         tmp_path = os.path.join(tempfile.gettempdir(), zip_filename)
         build_course_zip(
@@ -199,6 +212,7 @@ def create_course_zip(
 def build_course_zip(
     tmp_path, course, chapters, lessons, assets, assessments, questions, test_cases, instructors, evaluator
 ):
+    """Write the course's JSON files and assets into a ZIP archive at the given path."""
     with zipfile.ZipFile(tmp_path, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
         write_course_json(zip_file, course)
         write_chapters_json(zip_file, chapters)
@@ -210,10 +224,12 @@ def build_course_zip(
 
 
 def write_course_json(zip_file, course):
+    """Write the course document as course.json into the ZIP archive."""
     zip_file.writestr("course.json", frappe_json_dumps(course.as_dict()))
 
 
 def write_chapters_json(zip_file, chapters):
+    """Write each chapter document as a JSON file under chapters/ in the ZIP archive."""
     for chapter in chapters:
         chapter_data = chapter.as_dict()
         chapter_json = frappe_json_dumps(chapter_data)
@@ -222,6 +238,7 @@ def write_chapters_json(zip_file, chapters):
 
 
 def write_lessons_json(zip_file, lessons):
+    """Write each lesson document as a JSON file under lessons/ in the ZIP archive."""
     for lesson in lessons:
         lesson_data = lesson.as_dict()
         lesson_json = frappe_json_dumps(lesson_data)
@@ -230,6 +247,7 @@ def write_lessons_json(zip_file, lessons):
 
 
 def write_assessments_json(zip_file, assessments, questions, test_cases):
+    """Write assessments, questions, and test cases as JSON files under assessments/ in the ZIP."""
     for question in questions:
         question_json = frappe_json_dumps(question)
         safe_name = sanitize_string(question["name"])
@@ -248,6 +266,7 @@ def write_assessments_json(zip_file, assessments, questions, test_cases):
 
 
 def write_assets(zip_file, assets):
+    """Write each safe asset file under assets/ in the ZIP archive."""
     assets = list(set(assets))
     for asset in assets:
         real_path = frappe.get_site_path(asset.lstrip("/"))
@@ -262,17 +281,20 @@ def write_assets(zip_file, assets):
 
 
 def move_zip_to_private(tmp_path, zip_filename):
+    """Move the temporary ZIP into the site's private files directory and return its path."""
     final_path = os.path.join(frappe.get_site_path("private", "files"), zip_filename)
     shutil.move(tmp_path, final_path)
     return final_path
 
 
 def write_instructors_json(zip_file, instructors):
+    """Write the instructors list as instructors.json into the ZIP archive."""
     instructors_json = frappe_json_dumps(instructors)
     zip_file.writestr("instructors.json", instructors_json)
 
 
 def write_evaluator_json(zip_file, evaluator):
+    """Write the evaluator document as evaluator.json into the ZIP archive, if present."""
     if not len(evaluator):
         return
     evaluator_json = frappe_json_dumps(evaluator[0].as_dict())
@@ -280,6 +302,7 @@ def write_evaluator_json(zip_file, evaluator):
 
 
 def serve_zip(final_path, zip_filename):
+    """Stream the ZIP file at the given path to the client as a download response."""
     if not os.path.exists(final_path) or not os.path.isfile(final_path):
         frappe.throw(_("File not found"))
 
@@ -297,6 +320,7 @@ def serve_zip(final_path, zip_filename):
 
 
 def schedule_file_deletion(file_path, delay_seconds=600):
+    """Enqueue a background job to delete the file at the given path after a delay."""
     frappe.enqueue(
         delete_file,
         file_path=file_path,
@@ -308,6 +332,7 @@ def schedule_file_deletion(file_path, delay_seconds=600):
 
 
 def delete_file(file_path):
+    """Delete the file at the given path, logging any error."""
     try:
         if os.path.exists(file_path):
             os.remove(file_path)
@@ -316,6 +341,8 @@ def delete_file(file_path):
 
 
 def frappe_json_dumps(data):
+    """Return the data serialized to indented JSON, stringifying date and time objects."""
+
     def default(obj):
         try:
             if isinstance(obj, (datetime | date | timedelta)):
@@ -327,6 +354,7 @@ def frappe_json_dumps(data):
 
 
 def import_course_zip(zip_file_path):
+    """Import a course from a ZIP archive and return the new course's name."""
     zip_file_path = zip_file_path.lstrip("/")
     actual_path = frappe.get_site_path(zip_file_path)
     validate_zip_file(actual_path)
@@ -348,6 +376,7 @@ def import_course_zip(zip_file_path):
 
 
 def read_json_from_zip(zip_file, filename):
+    """Return the parsed JSON content of a file inside the ZIP, or None on failure."""
     try:
         with zip_file.open(filename) as f:
             return json.load(f)
@@ -357,6 +386,7 @@ def read_json_from_zip(zip_file, filename):
 
 
 def create_user_for_instructors(zip_file):
+    """Create User records for any instructors in the ZIP that do not already exist."""
     instructors = read_json_from_zip(zip_file, "instructors.json")
     if not instructors:
         return
@@ -415,11 +445,13 @@ def sanitize_string(
 
 
 def validate_user_email(user):
+    """Validate that the user dict has a well-formed email, throwing otherwise."""
     if not user.get("email") or not validate_email_address(user["email"]):
         frappe.throw(f"Invalid email for user creation: {user.get('email')}")
 
 
 def get_user_names(user):
+    """Return the sanitized first name, last name, and full name derived from a user dict."""
     first_name = sanitize_string(user.get("first_name", ""), max_length=50)
     last_name = sanitize_string(user.get("last_name", ""), max_length=50)
     full_name = sanitize_string(user.get("full_name", ""), max_length=100)
@@ -432,6 +464,7 @@ def get_user_names(user):
 
 
 def create_user(user):
+    """Create an LMS user with the Course Creator role from the given user dict and return it."""
     first_name, last_name, full_name = get_user_names(user)
     user_doc = create_lms_user(
         email=user["email"],
@@ -445,6 +478,7 @@ def create_user(user):
 
 
 def create_evaluator(zip_file):
+    """Create the Course Evaluator and its backing user from the ZIP, if not already present."""
     evaluator_data = read_json_from_zip(zip_file, "evaluator.json")
     if not evaluator_data:
         return
@@ -464,6 +498,7 @@ def create_evaluator(zip_file):
 
 
 def get_course_fields():
+    """Return the list of course fields that are copied during import."""
     return [
         "title",
         "tags",
@@ -490,18 +525,21 @@ def get_course_fields():
 
 
 def add_data_to_course(course_doc, course_data):
+    """Copy the importable course fields from the source data onto the course document."""
     for field in get_course_fields():
         if field in course_data:
             course_doc.set(field, course_data[field])
 
 
 def add_instructors_to_course(course_doc, course_data):
+    """Append the instructors from the source data onto the course document."""
     instructors = course_data.get("instructors", [])
     for instructor in instructors:
         course_doc.append("instructors", {"instructor": instructor["instructor"]})
 
 
 def verify_category(category_name):
+    """Create the LMS Category with the given name if it does not already exist."""
     if category_name and not frappe.db.exists("LMS Category", category_name):
         category = frappe.new_doc("LMS Category")
         category.category = category_name
@@ -509,6 +547,7 @@ def verify_category(category_name):
 
 
 def create_course_doc(course_data):
+    """Create and insert a new LMS Course document from the imported course data."""
     course_doc = frappe.new_doc("LMS Course")
     add_instructors_to_course(course_doc, course_data)
     verify_category(course_data.get("category"))
@@ -520,11 +559,13 @@ def create_course_doc(course_data):
 
 
 def exclude_meta_fields(data):
+    """Return a copy of the data dict without Frappe metadata fields."""
     meta_fields = ["name", "owner", "creation", "created_by", "modified", "modified_by", "docstatus"]
     return {k: v for k, v in data.items() if k not in meta_fields}
 
 
 def create_chapter_docs(zip_file, course_name):
+    """Create Course Chapter documents for the course from the chapters in the ZIP and return them."""
     chapter_docs = []
     for file in zip_file.namelist():
         if file.startswith("chapters/") and file.endswith(".json"):
@@ -541,6 +582,7 @@ def create_chapter_docs(zip_file, course_name):
 
 
 def get_chapter_name_for_lesson(zip_file, lesson_data, chapter_docs):
+    """Return the name of the newly created chapter that a lesson belongs to, or None."""
     for file in zip_file.namelist():
         if file.startswith("chapters/") and file.endswith(".json"):
             chapter_data = read_json_from_zip(zip_file, file)
@@ -553,10 +595,12 @@ def get_chapter_name_for_lesson(zip_file, lesson_data, chapter_docs):
 
 
 def get_assessment_map():
+    """Return the mapping of content block types to their assessment DocType names."""
     return {"quiz": "LMS Quiz", "assignment": "LMS Assignment", "program": "LMS Programming Exercise"}
 
 
 def get_assessment_title(zip_file, assessment_name, assessment_type):
+    """Return the title of an assessment read from its JSON file in the ZIP, or None."""
     assessment_map = get_assessment_map()
     doctype = "_".join(assessment_map.get(assessment_type).lower().split(" "))
     assessment_name = "_".join(assessment_name.split(" "))
@@ -571,6 +615,7 @@ def get_assessment_title(zip_file, assessment_name, assessment_type):
 
 
 def replace_assessment_names(zip_file, content):
+    """Return lesson content JSON with assessment references remapped to the imported records."""
     assessment_types = ["quiz", "assignment", "program"]
     content = json.loads(content)
     for block in content.get("blocks", []):
@@ -586,6 +631,7 @@ def replace_assessment_names(zip_file, content):
 
 
 def replace_assets(content):
+    """Remap upload block file URLs in lesson content to the imported LMS Asset URLs."""
     content = json.loads(content)
     for block in content.get("blocks", []):
         if block.get("type") == "upload":
@@ -598,11 +644,13 @@ def replace_assets(content):
 
 
 def replace_values_in_content(zip_file, content):
+    """Return lesson content with imported references substituted in."""
     return replace_assessment_names(zip_file, content)
     # replace_assets(content)
 
 
 def create_lesson_docs(zip_file, course_name, chapter_docs):
+    """Create Course Lesson documents for the course from the lessons in the ZIP and return them."""
     lesson_docs = []
     for file in zip_file.namelist():
         if file.startswith("lessons/") and file.endswith(".json"):
@@ -622,6 +670,7 @@ def create_lesson_docs(zip_file, course_name, chapter_docs):
 
 
 def create_question_doc(zip_file, file):
+    """Create an LMS Question document from a question JSON file in the ZIP."""
     question_data = read_json_from_zip(zip_file, file)
     if question_data:
         doc = frappe.new_doc("LMS Question")
@@ -630,6 +679,7 @@ def create_question_doc(zip_file, file):
 
 
 def create_test_case_doc(zip_file, file):
+    """Create an LMS Test Case document from a test case JSON file in the ZIP."""
     test_case_data = read_json_from_zip(zip_file, file)
     if test_case_data:
         doc = frappe.new_doc("LMS Test Case")
@@ -638,6 +688,7 @@ def create_test_case_doc(zip_file, file):
 
 
 def add_questions_to_quiz(quiz_doc, questions):
+    """Append the imported questions to a quiz document, matching them by detail text."""
     for question in questions:
         question_detail = question["question_detail"]
         question_name = frappe.db.get_value("LMS Question", {"question": question_detail}, "name")
@@ -646,6 +697,7 @@ def add_questions_to_quiz(quiz_doc, questions):
 
 
 def create_supporting_docs(zip_file):
+    """Create the question and test case documents that assessments depend on."""
     for file in zip_file.namelist():
         if file.startswith("assessments/questions/") and file.endswith(".json"):
             create_question_doc(zip_file, file)
@@ -654,6 +706,7 @@ def create_supporting_docs(zip_file):
 
 
 def is_assessment_file(file):
+    """Return whether the ZIP entry is a top-level assessment JSON file."""
     return (
         file.startswith("assessments/")
         and file.endswith(".json")
@@ -663,6 +716,7 @@ def is_assessment_file(file):
 
 
 def build_assessment_doc(assessment_data):
+    """Create an assessment document with its questions or test cases from the imported data."""
     doctype = assessment_data.get("doctype")
     if doctype not in ("LMS Quiz", "LMS Assignment", "LMS Programming Exercise"):
         return
@@ -684,6 +738,7 @@ def build_assessment_doc(assessment_data):
 
 
 def create_main_assessment_docs(zip_file):
+    """Create the quiz, assignment, and programming exercise documents from the ZIP."""
     for file in zip_file.namelist():
         if not is_assessment_file(file):
             continue
@@ -696,11 +751,13 @@ def create_main_assessment_docs(zip_file):
 
 
 def create_assessment_docs(zip_file):
+    """Create all assessment documents and their supporting records from the ZIP."""
     create_supporting_docs(zip_file)
     create_main_assessment_docs(zip_file)
 
 
 def create_asset_doc(asset_name, content):
+    """Create a File document with the given name and content if it does not already exist."""
     if frappe.db.exists("File", {"file_name": asset_name}):
         return
     asset_doc = frappe.new_doc("File")
@@ -710,6 +767,7 @@ def create_asset_doc(asset_name, content):
 
 
 def process_asset_file(zip_file, file):
+    """Create a File document from a single asset entry in the ZIP if its path is safe."""
     if not is_safe_path(file):
         return
     with zip_file.open(file) as f:
@@ -717,6 +775,7 @@ def process_asset_file(zip_file, file):
 
 
 def create_assets(zip_file):
+    """Create File documents for every asset stored under assets/ in the ZIP."""
     for file in zip_file.namelist():
         if not file.startswith("assets/") or file.endswith("/"):
             continue
@@ -727,6 +786,7 @@ def create_assets(zip_file):
 
 
 def get_lesson_title(zip_file, lesson_name):
+    """Return the title of the lesson with the given name from the ZIP, or None."""
     for file in zip_file.namelist():
         if file.startswith("lessons/") and file.endswith(".json"):
             lesson_data = read_json_from_zip(zip_file, file)
@@ -736,6 +796,7 @@ def get_lesson_title(zip_file, lesson_name):
 
 
 def add_lessons_to_chapters(zip_file, course_name, chapter_docs):
+    """Append each imported lesson to its chapter based on the chapter data in the ZIP."""
     for file in zip_file.namelist():
         if file.startswith("chapters/") and file.endswith(".json"):
             chapter_data = read_json_from_zip(zip_file, file)
@@ -753,6 +814,7 @@ def add_lessons_to_chapters(zip_file, course_name, chapter_docs):
 
 
 def add_chapter_to_course(course_doc, chapter_docs):
+    """Append the imported chapters to the course document and save it."""
     course_doc.reload()
     for chapter_doc in chapter_docs:
         course_doc.append("chapters", {"chapter": chapter_doc.name})
@@ -760,11 +822,13 @@ def add_chapter_to_course(course_doc, chapter_docs):
 
 
 def save_course_structure(zip_file, course_doc, chapter_docs):
+    """Link the imported chapters to the course and the lessons to their chapters."""
     add_chapter_to_course(course_doc, chapter_docs)
     add_lessons_to_chapters(zip_file, course_doc.name, chapter_docs)
 
 
 def validate_zip_file(zip_file_path):
+    """Validate that the path points to a real ZIP file with a safe location, throwing otherwise."""
     if not os.path.exists(zip_file_path) or not zipfile.is_zipfile(zip_file_path):
         frappe.throw(_("Invalid ZIP file"))
 

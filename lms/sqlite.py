@@ -4,6 +4,8 @@ from frappe.utils import get_datetime, getdate, nowdate
 
 
 class LearningSearch(SQLiteSearch):
+    """SQLite full-text search index over LMS courses, batches, jobs, and instructors."""
+
     INDEX_NAME = "learning.db"
 
     INDEX_SCHEMA = {
@@ -123,15 +125,18 @@ class LearningSearch(SQLiteSearch):
     }
 
     def build_index(self):
+        """Build the search index, surfacing any failure as a Frappe error."""
         try:
             super().build_index()
         except Exception as e:
             frappe.throw(e)
 
     def get_search_filters(self):
+        """Return the metadata filters applied to every search query."""
         return {}
 
     def prepare_document(self, doc):
+        """Return the indexable document for a doc, enriching instructor and date fields."""
         document = super().prepare_document(doc)
         if not document:
             return None
@@ -145,6 +150,7 @@ class LearningSearch(SQLiteSearch):
         return document
 
     def get_instructor_details(self, doc, document):
+        """Return the document populated with its parent course or batch instructor details."""
         instructor = frappe.db.get_value("User", doc.instructor, "full_name")
         fields = self.COURSE_FIELDS if doc.parenttype == "LMS Course" else self.BATCH_FIELDS
         details = frappe.db.get_value(doc.parenttype, doc.parent, fields, as_dict=True)
@@ -166,6 +172,7 @@ class LearningSearch(SQLiteSearch):
         return document
 
     def set_modified_date(self, details, doctype, document):
+        """Set the document's modified timestamp and doctype-specific date field."""
         modified_value = None
         if doctype == "LMS Course":
             modified_value = details.get("published_on")
@@ -185,6 +192,7 @@ class LearningSearch(SQLiteSearch):
 
     @SQLiteSearch.scoring_function
     def get_doctype_boost(self, row, query, query_words):
+        """Return a relevance multiplier favouring published, upcoming courses and batches."""
         doctype = row["doctype"]
         if doctype == "LMS Course":
             if row["published"]:
@@ -198,20 +206,25 @@ class LearningSearch(SQLiteSearch):
 
 
 class LearningSearchIndexMissingError(SQLiteSearchIndexMissingError):
+    """Raise when the learning search index is queried before it has been built."""
+
     pass
 
 
 def build_index():
+    """Build the learning search index from scratch."""
     search = LearningSearch()
     search.build_index()
 
 
 def build_index_in_background():
+    """Enqueue a learning search index rebuild unless one is already running."""
     if not frappe.cache().get_value("learning_search_indexing_in_progress"):
         frappe.enqueue(build_index, queue="long")
 
 
 def build_index_if_not_exists():
+    """Build the learning search index only if it does not already exist."""
     search = LearningSearch()
     if not search.index_exists():
         build_index()

@@ -7,6 +7,7 @@ from lms.lms.utils import create_user, get_course_progress
 
 
 def create_demo_data(setup_args: dict = None):
+    """Seed the demo course, students, lessons, reviews, and progress, then mark demo data present."""
     course = create_course()
     student = create_user(
         email="ash@ipp.com",
@@ -42,6 +43,7 @@ def create_demo_data(setup_args: dict = None):
 
 
 def create_course():
+    """Return the demo LMS Course, creating and publishing it if it does not already exist."""
     title = "A guide to Frappe Learning"
     filters = {"title": title}
     if frappe.db.exists("LMS Course", filters):
@@ -87,6 +89,7 @@ def create_course():
 
 
 def create_instructor():
+    """Return an instructor user, promoting an existing user to Moderator or creating a new one."""
     if (
         frappe.db.count(
             "User",
@@ -120,12 +123,14 @@ def create_instructor():
 
 
 def create_chapter(course):
+    """Create the demo course's chapters."""
     prepare_chapter(course, "Introduction")
     prepare_chapter(course, "Adding content to your lessons")
     prepare_chapter(course, "Assessments")
 
 
 def prepare_chapter(course, chapter_title):
+    """Create the named Course Chapter and link it to the course, reusing it if it already exists."""
     chapter_exists = check_if_chapter_exists(course, chapter_title)
     if chapter_exists:
         return frappe.get_doc("Course Chapter", chapter_exists)
@@ -138,17 +143,20 @@ def prepare_chapter(course, chapter_title):
 
 
 def check_if_chapter_exists(course, chapter_title):
+    """Return the name of a matching Course Chapter for the course, or None if none exists."""
     filters = {"course": course.name, "title": chapter_title}
     return frappe.db.exists("Course Chapter", filters)
 
 
 def add_chapter_to_course(course, chapter):
+    """Append the chapter to the course's chapters table and save."""
     course.reload()
     course.append("chapters", {"chapter": chapter.name})
     course.save()
 
 
 def create_lessons(course):
+    """Create all demo lessons across the course's chapters."""
     create_intro_lesson_1(course)
     create_intro_lesson_2(course)
     create_content_lesson_1(course)
@@ -157,11 +165,13 @@ def create_lessons(course):
 
 
 def get_chapter(course, chapter_title):
+    """Return the Course Chapter document matching the course and title."""
     filters = {"course": course.name, "title": chapter_title}
     return frappe.get_doc("Course Chapter", filters)
 
 
 def create_lesson(course, chapter, title, content):
+    """Create a Course Lesson and link it to the chapter, reusing it if it already exists."""
     filters = {"course": course.name, "chapter": chapter.name, "title": title}
 
     if frappe.db.exists("Course Lesson", filters):
@@ -177,12 +187,14 @@ def create_lesson(course, chapter, title, content):
 
 
 def add_lesson_to_chapter(chapter, lesson):
+    """Append the lesson to the chapter's lessons table and save."""
     chapter.reload()
     chapter.append("lessons", {"lesson": lesson.name})
     chapter.save()
 
 
 def create_intro_lesson_1(course):
+    """Create the first introduction lesson with an embedded YouTube video."""
     title = "What are Learning Management Systems?"
     chapter = get_chapter(course, "Introduction")
     content = """
@@ -192,6 +204,7 @@ def create_intro_lesson_1(course):
 
 
 def create_intro_lesson_2(course):
+    """Create the second introduction lesson with an embedded YouTube video."""
     title = "What is Frappe Learning?"
     chapter = get_chapter(course, "Introduction")
     content = """
@@ -201,6 +214,7 @@ def create_intro_lesson_2(course):
 
 
 def create_content_lesson_1(course):
+    """Create the lesson demonstrating video content embedding."""
     title = "Video Content"
     chapter = get_chapter(course, "Adding content to your lessons")
     content = json.dumps(get_video_content())
@@ -208,6 +222,7 @@ def create_content_lesson_1(course):
 
 
 def create_content_lesson_2(course):
+    """Create the lesson demonstrating Google Workspace content embedding."""
     title = "Content from Google Suite"
     chapter = get_chapter(course, "Adding content to your lessons")
     content = json.dumps(get_google_suite_content())
@@ -215,6 +230,7 @@ def create_content_lesson_2(course):
 
 
 def create_assessment_lesson_1(course):
+    """Create the assessment lesson embedding the demo quiz."""
     quiz = create_quiz()
     title = "Quiz Time"
     chapter = get_chapter(course, "Assessments")
@@ -233,6 +249,7 @@ def create_assessment_lesson_1(course):
 
 
 def create_quiz():
+    """Return the demo LMS Quiz with its questions, creating it if it does not already exist."""
     title = "Do you know Frappe Learning?"
     filters = {"title": title}
     if frappe.db.exists("LMS Quiz", filters):
@@ -306,6 +323,7 @@ def create_quiz():
 
 
 def create_quiz_questions(question, option_1, is_correct_1, option_2, is_correct_2):
+    """Create and return an LMS Question with two choices."""
     doc = frappe.new_doc("LMS Question")
     doc.update(
         {
@@ -322,6 +340,7 @@ def create_quiz_questions(question, option_1, is_correct_1, option_2, is_correct
 
 
 def create_reviews(course, student):
+    """Create a course review as the given student and refresh course statistics."""
     frappe.session.user = student.name
     review = frappe.new_doc("LMS Course Review")
     review.course = course.name
@@ -335,6 +354,7 @@ def create_reviews(course, student):
 
 
 def enroll_student_in_course(student, course):
+    """Create an LMS Enrollment linking the student to the course if one does not already exist."""
     filters = {"member": student.name, "course": course.name}
     if not frappe.db.exists("LMS Enrollment", filters):
         enrollment = frappe.new_doc("LMS Enrollment")
@@ -344,6 +364,7 @@ def enroll_student_in_course(student, course):
 
 
 def create_progress(course, student, limit=None):
+    """Mark the student's first lessons complete and update their enrollment progress percentage."""
     lessons = frappe.get_all(
         "Course Lesson", {"course": course.name}, pluck="name", limit=limit, order_by="creation asc"
     )
@@ -362,6 +383,7 @@ def create_progress(course, student, limit=None):
 
 
 def get_video_content():
+    """Return the editor block content describing how to embed videos in a lesson."""
     return {
         "time": 1772450228627,
         "blocks": [
@@ -493,6 +515,7 @@ def get_video_content():
 
 
 def get_google_suite_content():
+    """Return the editor block content describing how to embed Google Workspace files in a lesson."""
     return {
         "time": 1772450743148,
         "blocks": [
