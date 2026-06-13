@@ -8,7 +8,7 @@
 				)
 			}}
 
-			<div v-for="(quiz, index) in quizzes" class="ps-3 mt-1">
+			<div v-for="(quiz, index) in quizzes" :key="index" class="ps-3 mt-1">
 				<span>
 					{{ index + 1 }}. <span class="font-semibold"> {{ quiz.quiz }} </span>
 				</span>
@@ -155,7 +155,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import type { PropType } from 'vue'
 import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button, Dialog, Dropdown } from 'frappe-ui'

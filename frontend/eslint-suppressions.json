@@ -1,12 +1,4 @@
 {
-  "src/components/Discussions.vue": {
-    "vue/no-use-v-if-with-v-for": {
-      "count": 1
-    },
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
   "src/components/Modals/EditProfile.vue": {
     "vue/no-dupe-keys": {
       "count": 1
@@ -15,41 +7,7 @@
       "count": 1
     }
   },
-  "src/components/Modals/ExplanationVideos.vue": {
-    "vue/return-in-computed-property": {
-      "count": 1
-    }
-  },
-  "src/components/Modals/PageModal.vue": {
-    "vue/no-dupe-keys": {
-      "count": 1
-    }
-  },
-  "src/components/ProgressBar.vue": {
-    "vue/return-in-computed-property": {
-      "count": 1
-    }
-  },
-  "src/components/Quiz.vue": {
-    "vue/no-use-v-if-with-v-for": {
-      "count": 1
-    },
-    "vue/require-v-for-key": {
-      "count": 4
-    }
-  },
-  "src/components/Settings/Categories.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/no-use-v-if-with-v-for": {
-      "count": 1
-    }
-  },
   "src/components/Settings/Coupons/CouponDetails.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
     "vue/no-mutating-props": {
       "count": 10
     }
@@ -57,46 +15,10 @@
   "src/components/Settings/SettingFields.vue": {
     "vue/no-mutating-props": {
       "count": 8
-    },
-    "vue/no-unused-vars": {
-      "count": 1
     }
   },
   "src/components/VideoBlock.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
     "vue/no-mutating-props": {
-      "count": 1
-    },
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/pages/Batches/BatchOverview.vue": {
-    "vue/no-use-v-if-with-v-for": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 1
-    }
-  },
-  "src/pages/Notifications.vue": {
-    "vue/no-use-v-if-with-v-for": {
-      "count": 1
-    },
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/pages/ProfileEvaluator.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/no-use-v-if-with-v-for": {
-      "count": 1
-    },
-    "vue/require-v-for-key": {
       "count": 1
     }
   }

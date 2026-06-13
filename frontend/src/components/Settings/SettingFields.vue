@@ -36,9 +36,7 @@
 								(file: UploadedFile) => (data[field.name] = file.file_url)
 							"
 						>
-							<template
-								v-slot="{ file, progress, uploading, openFileSelector }"
-							>
+							<template v-slot="{ progress, uploading, openFileSelector }">
 								<div class="">
 									<Button @click="openFileSelector" :loading="uploading">
 										{{

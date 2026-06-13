@@ -114,7 +114,7 @@ const editCoupon = () => {
 			...props.data,
 		},
 		{
-			onSuccess(data: Coupon) {
+			onSuccess(_data: Coupon) {
 				if (couponItems.value) {
 					couponItems.value.saveItems()
 				}

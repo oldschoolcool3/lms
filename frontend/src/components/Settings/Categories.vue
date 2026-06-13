@@ -35,42 +35,43 @@
 		</template>
 
 		<div class="divide-y divide-outline-gray-modals space-y-2">
-			<div
-				v-if="categories.data?.length"
-				v-for="(cat, index) in categories.data"
-				:key="cat.name"
-				class="pt-2"
-			>
+			<template v-if="categories.data?.length">
 				<div
-					v-if="editing?.name !== cat.name"
-					class="flex items-center justify-between group text-sm text-ink-gray-9"
+					v-for="(cat, index) in categories.data"
+					:key="cat.name"
+					class="pt-2"
 				>
-					<div class="text-ink-gray-9" @dblclick="allowEdit(cat, index)">
-						{{ cat.category }}
-					</div>
-					<Button
-						variant="ghost"
-						theme="red"
-						class="invisible group-hover:visible"
-						@click="deleteCategory(cat.name)"
+					<div
+						v-if="editing?.name !== cat.name"
+						class="flex items-center justify-between group text-sm text-ink-gray-9"
 					>
-						<template #icon>
-							<Trash2 class="size-4 stroke-1.5 text-ink-red-4" />
-						</template>
-					</Button>
+						<div class="text-ink-gray-9" @dblclick="allowEdit(cat, index)">
+							{{ cat.category }}
+						</div>
+						<Button
+							variant="ghost"
+							theme="red"
+							class="invisible group-hover:visible"
+							@click="deleteCategory(cat.name)"
+						>
+							<template #icon>
+								<Trash2 class="size-4 stroke-1.5 text-ink-red-4" />
+							</template>
+						</Button>
+					</div>
+					<FormControl
+						v-else
+						:ref="
+							(el: Element | ComponentPublicInstance | null) =>
+								setEditInputRef(el, index)
+						"
+						v-model="editedValue"
+						type="text"
+						class="w-full"
+						@keyup.enter="saveChanges(cat.name, editedValue)"
+					/>
 				</div>
-				<FormControl
-					v-else
-					:ref="
-						(el: Element | ComponentPublicInstance | null) =>
-							setEditInputRef(el, index)
-					"
-					v-model="editedValue"
-					type="text"
-					class="w-full"
-					@keyup.enter="saveChanges(cat.name, editedValue)"
-				/>
-			</div>
+			</template>
 			<EmptyStateLayout
 				v-else
 				name="Categories"
@@ -109,7 +110,7 @@ const editing = ref<LMSCategory | null>(null)
 const editedValue = ref('')
 const editInputRef = ref<(ComponentPublicInstance | null)[]>([])
 
-const props = defineProps({
+defineProps({
 	label: {
 		type: String,
 		required: true,

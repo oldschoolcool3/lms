@@ -117,7 +117,7 @@
 			</div>
 		</div>
 		<div v-else-if="!quizSubmission.data">
-			<div v-for="(question, qtidx) in questions">
+			<div v-for="(question, qtidx) in questions" :key="qtidx">
 				<div
 					v-if="qtidx == activeQuestion - 1 && questionDetails.data"
 					class="border rounded-lg p-5"
@@ -136,62 +136,67 @@
 						class="text-ink-gray-9 font-semibold mt-2 leading-5"
 						v-html="questionDetails.data.question"
 					></div>
-					<div v-if="questionDetails.data.type == 'Choices'" v-for="index in 4">
-						<label
-							v-if="questionDetails.data[`option_${index}`]"
-							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-blue-600"
-						>
-							<input
-								v-if="!showAnswers.length && !questionDetails.data.multiple"
-								type="radio"
-								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 text-ink-gray-9 focus:ring-outline-gray-modals"
-								@change="markAnswer(index)"
-								:checked="!!selectedOptions[index - 1]"
-							/>
+					<template v-if="questionDetails.data.type == 'Choices'">
+						<div v-for="index in 4" :key="index">
+							<label
+								v-if="questionDetails.data[`option_${index}`]"
+								class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-blue-600"
+							>
+								<input
+									v-if="!showAnswers.length && !questionDetails.data.multiple"
+									type="radio"
+									:name="encodeURIComponent(questionDetails.data.question)"
+									class="w-3.5 h-3.5 text-ink-gray-9 focus:ring-outline-gray-modals"
+									@change="markAnswer(index)"
+									:checked="!!selectedOptions[index - 1]"
+								/>
 
-							<input
-								v-else-if="!showAnswers.length && questionDetails.data.multiple"
-								type="checkbox"
-								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 text-ink-gray-9 rounded-sm focus:ring-outline-gray-modals"
-								@change="markAnswer(index)"
-								:checked="!!selectedOptions[index - 1]"
-							/>
-							<div
-								v-else-if="quiz.data.show_answers"
-								v-for="(answer, idx) in showAnswers"
-							>
-								<div v-if="index - 1 == idx">
-									<CheckCircle
-										v-if="answer == 1"
-										class="w-4 h-4 text-ink-green-2"
-									/>
-									<MinusCircle
-										v-else-if="answer == 2"
-										class="w-4 h-4 text-ink-green-2"
-									/>
-									<XCircle
-										v-else-if="answer == 0"
-										class="w-4 h-4 text-ink-red-3"
-									/>
-									<MinusCircle v-else class="w-4 h-4" />
+								<input
+									v-else-if="
+										!showAnswers.length && questionDetails.data.multiple
+									"
+									type="checkbox"
+									:name="encodeURIComponent(questionDetails.data.question)"
+									class="w-3.5 h-3.5 text-ink-gray-9 rounded-sm focus:ring-outline-gray-modals"
+									@change="markAnswer(index)"
+									:checked="!!selectedOptions[index - 1]"
+								/>
+								<div
+									v-else-if="quiz.data.show_answers"
+									v-for="(answer, idx) in showAnswers"
+									:key="idx"
+								>
+									<div v-if="index - 1 == idx">
+										<CheckCircle
+											v-if="answer == 1"
+											class="w-4 h-4 text-ink-green-2"
+										/>
+										<MinusCircle
+											v-else-if="answer == 2"
+											class="w-4 h-4 text-ink-green-2"
+										/>
+										<XCircle
+											v-else-if="answer == 0"
+											class="w-4 h-4 text-ink-red-3"
+										/>
+										<MinusCircle v-else class="w-4 h-4" />
+									</div>
 								</div>
-							</div>
-							<span
-								class="ms-2 text-ink-gray-9"
-								v-html="questionDetails.data[`option_${index}`]"
+								<span
+									class="ms-2 text-ink-gray-9"
+									v-html="questionDetails.data[`option_${index}`]"
+								>
+								</span>
+							</label>
+							<div
+								v-if="questionDetails.data[`explanation_${index}`]"
+								class="mt-2 text-xs text-ink-gray-7"
+								v-show="showAnswers.length"
 							>
-							</span>
-						</label>
-						<div
-							v-if="questionDetails.data[`explanation_${index}`]"
-							class="mt-2 text-xs text-ink-gray-7"
-							v-show="showAnswers.length"
-						>
-							{{ questionDetails.data[`explanation_${index}`] }}
+								{{ questionDetails.data[`explanation_${index}`] }}
+							</div>
 						</div>
-					</div>
+					</template>
 					<div v-else-if="questionDetails.data.type == 'User Input'">
 						<FormControl
 							v-model="possibleAnswer"
@@ -318,6 +323,7 @@
 				<div class="flex items-center gap-x-2 mt-2">
 					<div
 						v-for="index in reviewQuestions"
+						:key="index"
 						@click="switchQuestion(index)"
 						class="w-6 h-6 rounded-full flex items-center justify-center text-sm cursor-pointer bg-surface-gray-3"
 					>

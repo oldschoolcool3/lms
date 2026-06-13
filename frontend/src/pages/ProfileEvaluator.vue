@@ -34,8 +34,8 @@
 				</div>
 
 				<div
-					v-if="evaluator.data"
-					v-for="slot in evaluator.data.slots.schedule"
+					v-for="(slot, index) in evaluator.data?.slots?.schedule"
+					:key="index"
 					class="grid grid-cols-3 md:grid-cols-4 gap-4 mb-4 group"
 				>
 					<FormControl
@@ -150,7 +150,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { createResource, FormControl, Button, Badge, toast } from 'frappe-ui'
+import { createResource, FormControl, Button, toast } from 'frappe-ui'
 import { computed, reactive, ref, onMounted, inject, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { Plus, X, Check, CircleAlert } from 'lucide-vue-next'

@@ -19,128 +19,130 @@
 		</template>
 	</LayoutHeader>
 	<div class="w-full md:w-3/4 mx-auto px-3 sm:px-5 pt-4 sm:pt-6 divide-y">
-		<div
-			v-if="notifications?.length"
-			v-for="log in notifications"
-			:key="log.name"
-			class="flex items-center gap-x-2 px-2 py-4"
-			:class="{
-				'cursor-pointer': log.link,
-				'items-center': !showDetails(log) && !isMentionOrComment(log),
-			}"
-			@click="navigateToPage(log)"
-		>
-			<Avatar
-				:image="log.from_user_details.user_image"
-				size="xl"
-				:label="log.from_user_details.full_name"
-			/>
-			<div class="space-y-2 w-full">
-				<div class="flex items-center justify-between">
-					<div class="flex items-center">
-						<div class="text-ink-gray-9" v-html="log.subject"></div>
-					</div>
-					<div class="flex items-center gap-x-2">
-						<div class="text-sm text-ink-gray-5">
-							{{ dayjs(log.creation).fromNow() }}
+		<template v-if="notifications?.length">
+			<div
+				v-for="log in notifications"
+				:key="log.name"
+				class="flex items-center gap-x-2 px-2 py-4"
+				:class="{
+					'cursor-pointer': log.link,
+					'items-center': !showDetails(log) && !isMentionOrComment(log),
+				}"
+				@click="navigateToPage(log)"
+			>
+				<Avatar
+					:image="log.from_user_details.user_image"
+					size="xl"
+					:label="log.from_user_details.full_name"
+				/>
+				<div class="space-y-2 w-full">
+					<div class="flex items-center justify-between">
+						<div class="flex items-center">
+							<div class="text-ink-gray-9" v-html="log.subject"></div>
 						</div>
-					</div>
-					<div class="flex items-center gap-x-2 shrink-0">
-						<Button
-							variant="ghost"
-							v-if="!log.read"
-							@click.stop="() => handleMarkAsRead(log.name)"
-						>
-							<template #icon>
-								<X class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
-							</template>
-						</Button>
-					</div>
-				</div>
-				<div
-					v-if="isMentionOrComment(log)"
-					v-html="log.email_content"
-					class="bg-surface-gray-2 rounded-md px-3 py-2 line-clamp-3 overflow-hidden"
-				></div>
-				<div
-					v-else-if="showDetails(log)"
-					class="flex items-stretch border border-outline-gray-2 gap-x-2 rounded-md"
-				>
-					<iframe
-						v-if="
-							log.document_type == 'LMS Course' &&
-							log.document_details.video_link
-						"
-						:src="`https://www.youtube.com/embed/${log.document_details.video_link}`"
-						class="rounded-s-md w-72"
-					/>
-					<video
-						v-else-if="
-							log.document_type == 'LMS Batch' &&
-							log.document_details.video_link
-						"
-						:src="log.document_details.video_link"
-						class="rounded-s-md w-72"
-					/>
-					<div class="p-3">
-						<div
-							class="bg-surface-violet-1 w-fit py-1 px-1.5 rounded-full text-ink-violet-1 text-sm mb-2"
-						>
-							{{
-								log.document_type === 'LMS Course'
-									? __('New Course')
-									: __('New Batch')
-							}}
+						<div class="flex items-center gap-x-2">
+							<div class="text-sm text-ink-gray-5">
+								{{ dayjs(log.creation).fromNow() }}
+							</div>
 						</div>
-						<div class="font-semibold mb-1 text-ink-gray-9">
-							{{ __(log.document_details.title) }}
-						</div>
-						<div class="leading-5 text-ink-gray-7">
-							{{ __(log.document_details.short_introduction) }}
-						</div>
-						<div
-							v-if="log.document_details.start_date"
-							class="flex items-center gap-x-2 text-sm mt-5"
-						>
-							<Calendar class="size-3 stroke-1.5" />
-							<span>
-								{{
-									dayjs(log.document_details.start_date).format('DD MMM YYYY')
-								}}
-							</span>
-						</div>
-						<div
-							v-if="log.document_details.start_time"
-							class="flex items-center gap-x-2 text-sm mt-2"
-						>
-							<Clock class="size-3 stroke-1.5" />
-							<span>
-								{{ formatTime(log.document_details.start_time) }}
-								{{ log.document_details.timezone }}
-							</span>
-						</div>
-						<div
-							v-if="log.document_details.instructors.length > 1"
-							class="space-y-2 mt-5"
-						>
-							<div
-								v-for="instructor in log.document_details.instructors"
-								class="flex items-center gap-x-2"
+						<div class="flex items-center gap-x-2 shrink-0">
+							<Button
+								variant="ghost"
+								v-if="!log.read"
+								@click.stop="() => handleMarkAsRead(log.name)"
 							>
-								<Avatar
-									:size="'sm'"
-									:image="instructor.user_image"
-									:label="instructor.full_name"
-								/>
-								<span class="font-medium text-sm text-ink-gray-9">
-									{{ instructor.full_name }}
+								<template #icon>
+									<X class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
+								</template>
+							</Button>
+						</div>
+					</div>
+					<div
+						v-if="isMentionOrComment(log)"
+						v-html="log.email_content"
+						class="bg-surface-gray-2 rounded-md px-3 py-2 line-clamp-3 overflow-hidden"
+					></div>
+					<div
+						v-else-if="showDetails(log)"
+						class="flex items-stretch border border-outline-gray-2 gap-x-2 rounded-md"
+					>
+						<iframe
+							v-if="
+								log.document_type == 'LMS Course' &&
+								log.document_details.video_link
+							"
+							:src="`https://www.youtube.com/embed/${log.document_details.video_link}`"
+							class="rounded-s-md w-72"
+						/>
+						<video
+							v-else-if="
+								log.document_type == 'LMS Batch' &&
+								log.document_details.video_link
+							"
+							:src="log.document_details.video_link"
+							class="rounded-s-md w-72"
+						/>
+						<div class="p-3">
+							<div
+								class="bg-surface-violet-1 w-fit py-1 px-1.5 rounded-full text-ink-violet-1 text-sm mb-2"
+							>
+								{{
+									log.document_type === 'LMS Course'
+										? __('New Course')
+										: __('New Batch')
+								}}
+							</div>
+							<div class="font-semibold mb-1 text-ink-gray-9">
+								{{ __(log.document_details.title) }}
+							</div>
+							<div class="leading-5 text-ink-gray-7">
+								{{ __(log.document_details.short_introduction) }}
+							</div>
+							<div
+								v-if="log.document_details.start_date"
+								class="flex items-center gap-x-2 text-sm mt-5"
+							>
+								<Calendar class="size-3 stroke-1.5" />
+								<span>
+									{{
+										dayjs(log.document_details.start_date).format('DD MMM YYYY')
+									}}
 								</span>
+							</div>
+							<div
+								v-if="log.document_details.start_time"
+								class="flex items-center gap-x-2 text-sm mt-2"
+							>
+								<Clock class="size-3 stroke-1.5" />
+								<span>
+									{{ formatTime(log.document_details.start_time) }}
+									{{ log.document_details.timezone }}
+								</span>
+							</div>
+							<div
+								v-if="log.document_details.instructors.length > 1"
+								class="space-y-2 mt-5"
+							>
+								<div
+									v-for="instructor in log.document_details.instructors"
+									:key="instructor"
+									class="flex items-center gap-x-2"
+								>
+									<Avatar
+										:size="'sm'"
+										:image="instructor.user_image"
+										:label="instructor.full_name"
+									/>
+									<span class="font-medium text-sm text-ink-gray-9">
+										{{ instructor.full_name }}
+									</span>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</template>
 		<EmptyStateLayout
 			v-else
 			name="Notifications"

@@ -43,5 +43,6 @@ const progressBarHeight = computed(() => {
 	if (props.size === 'lg') {
 		return 'h-3'
 	}
+	return undefined
 })
 </script>

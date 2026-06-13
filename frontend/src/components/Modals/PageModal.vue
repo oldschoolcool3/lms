@@ -16,14 +16,14 @@
 		<template #body-content>
 			<div class="text-base">
 				<Link
-					v-model="page.webpage"
+					v-model="form.webpage"
 					doctype="Web Page"
 					:label="__('Web Page')"
 					:filters="{
 						published: 1,
 					}"
 				/>
-				<IconPicker v-model="page.icon" :label="__('Icon')" class="mt-4" />
+				<IconPicker v-model="form.icon" :label="__('Icon')" class="mt-4" />
 			</div>
 		</template>
 	</Dialog>
@@ -36,7 +36,7 @@ import IconPicker from '@/components/Controls/IconPicker.vue'
 
 const sidebar = defineModel<{ reload: () => void }>('reloadSidebar')
 const show = defineModel()
-const page = reactive({
+const form = reactive({
 	icon: '',
 	webpage: '',
 })
@@ -52,8 +52,8 @@ const webPage = createResource({
 	url: 'lms.lms.api.update_sidebar_item',
 	makeParams() {
 		return {
-			webpage: page.webpage,
-			icon: page.icon,
+			webpage: form.webpage,
+			icon: form.icon,
 		}
 	},
 })
@@ -62,8 +62,8 @@ watch(
 	() => props.page,
 	(newPage) => {
 		if (newPage) {
-			page.icon = newPage.icon
-			page.webpage = newPage.web_page
+			form.icon = newPage.icon
+			form.webpage = newPage.web_page
 		}
 	},
 	{ immediate: true }
