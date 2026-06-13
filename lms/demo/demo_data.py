@@ -6,7 +6,7 @@ from lms.lms.doctype.lms_course.lms_course import update_course_statistics
 from lms.lms.utils import create_user, get_course_progress
 
 
-def create_demo_data(args: dict = None):
+def create_demo_data(setup_args: dict = None):
     course = create_course()
     student = create_user(
         email="ash@ipp.com",

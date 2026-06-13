@@ -42,7 +42,7 @@ class CourseEvaluator(Document):
             self.validate_overlaps(schedule)
 
     def validate_overlaps(self, schedule):
-        same_day_slots = list(filter(lambda x: x.day == schedule.day and x.name != schedule.name, self.schedule))
+        same_day_slots = [x for x in self.schedule if x.day == schedule.day and x.name != schedule.name]
         overlap = False
 
         for slot in same_day_slots:

@@ -152,7 +152,8 @@ def quiz_renderer(quiz_name):
             order_by="creation desc",
         )
 
-    return frappe.render_template(
+    # SSTI false positive (reviewed): literal template path, not user input.
+    return frappe.render_template(  # nosemgrep: frappe-semgrep-rules.rules.security.frappe-ssti
         "templates/quiz/quiz.html",
         {
             "quiz": quiz,
@@ -231,7 +232,8 @@ def assignment_renderer(detail):
     question = detail.split("-")[0]
     file_type = detail.split("-")[1]
     accept = supported_types[file_type] if file_type else ""
-    return frappe.render_template(
+    # SSTI false positive (reviewed): literal template path, not user input.
+    return frappe.render_template(  # nosemgrep: frappe-semgrep-rules.rules.security.frappe-ssti
         "templates/assignment.html",
         {"question": question, "accept": accept, "file_type": file_type},
     )

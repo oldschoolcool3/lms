@@ -72,7 +72,8 @@ def get_user_info():
     return user
 
 
-@frappe.whitelist(allow_guest=True)
+# Guest-safe (reviewed): public i18n strings, no user data.
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_translations():
     if frappe.session.user != "Guest":
         language = frappe.db.get_value("User", frappe.session.user, "language")
@@ -208,7 +209,8 @@ def verify_billing_access(doctype, name, billing_type):
     return access, message
 
 
-@frappe.whitelist(allow_guest=True)
+# Guest-safe (reviewed): public job posting, read-only.
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_job_details(job: str):
     return frappe.db.get_value(
         "Job Opportunity",
@@ -269,7 +271,8 @@ def sanitize_job_filters(filters, or_filters):
     return filters, or_filters
 
 
-@frappe.whitelist(allow_guest=True)
+# Guest-safe (reviewed): public jobs; filters sanitized.
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_job_opportunities(
     filters: dict = None,
     or_filters: dict = None,
@@ -311,13 +314,15 @@ def get_job_opportunities(
     return jobs
 
 
-@frappe.whitelist(allow_guest=True)
+# Guest-safe (reviewed): public count; filters sanitized.
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_job_opportunities_count(filters: dict = None, or_filters: dict = None):
     filters, or_filters = sanitize_job_filters(filters, or_filters)
     return frappe.db.count("Job Opportunity", filters, or_filters)
 
 
-@frappe.whitelist(allow_guest=True)
+# Guest-safe (reviewed): public aggregate counts only.
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_chart_details():
     details = frappe._dict()
     details.enrollments = frappe.db.count("LMS Enrollment")
@@ -340,7 +345,8 @@ def get_file_info(file_url):
     return file_info
 
 
-@frappe.whitelist(allow_guest=True)
+# Guest-safe (reviewed): public branding, no user data.
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_branding():
     """Get branding details."""
     fields = ["app_name"]
@@ -504,7 +510,8 @@ def get_all_users():
     return {user.name: user for user in users}
 
 
-@frappe.whitelist(allow_guest=True)
+# Guest-safe (reviewed): gated by allow_guest_access.
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_sidebar_settings():
     lms_settings = frappe.get_single("LMS Settings")
     if frappe.session.user == "Guest" and not lms_settings.allow_guest_access:
@@ -1436,7 +1443,8 @@ def update_document_details(notification: dict) -> dict:
     return notification
 
 
-@frappe.whitelist(allow_guest=True)
+# Guest-safe (reviewed): allow-listed public settings.
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_lms_settings():
     allowed_fields = [
         "allow_guest_access",
@@ -1847,7 +1855,8 @@ def get_progress_distribution(progressList: list):
     return distribution
 
 
-@frappe.whitelist(allow_guest=True)
+# Guest-safe (reviewed): public PWA manifest.
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_pwa_manifest():
     title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
     banner_image = frappe.db.get_single_value("Website Settings", "banner_image")
