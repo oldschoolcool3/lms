@@ -277,7 +277,7 @@
 					:courseTitle="lesson.data.course_title"
 					:progress="lessonProgress"
 					:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
-					:completedLesson="completedLesson"
+					:completedLesson="completedLesson ?? undefined"
 					:withProgress="lesson.data.membership ? true : false"
 				/>
 			</div>
@@ -297,7 +297,7 @@
 		:lessonTitle="lesson.data?.title"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Badge,
 	Breadcrumbs,
@@ -346,6 +346,7 @@ import {
 	shouldAttachVideoFallback,
 } from '@/utils/lessonProgress'
 import EditorJS from '@editorjs/editorjs'
+import type { EditorConfig, OutputData } from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
@@ -358,31 +359,64 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { getLmsRoute } from '@/utils/basePath'
+import type { SessionUser } from '@/types/api'
+import type Plyr from 'plyr'
+import type { initSocket } from '@/socket'
 
-const user = inject('$user')
-const socket = inject('$socket')
+const user = inject<SessionUser>('$user')!
+const socket = inject<ReturnType<typeof initSocket>>('$socket')!
 const router = useRouter()
 const route = useRoute()
 const allowDiscussions = ref(false)
-const editor = ref(null)
-const instructorEditor = ref(null)
-const lessonProgress = ref(0)
-const lessonContainer = ref(null)
+const editor = ref<EditorJS | null>(null)
+const instructorEditor = ref<EditorJS | null>(null)
+const lessonProgress = ref<number | undefined>(0)
+const lessonContainer = ref<HTMLElement | null>(null)
 const zenModeEnabled = ref(false)
 const showStatsDialog = ref(false)
 const hasQuiz = ref(false)
-const discussionsContainer = ref(null)
+const discussionsContainer = ref<HTMLElement | null>(null)
 const timer = ref(0)
 const { brand } = sessionStore()
 const sidebarStore = useSidebar()
-const plyrSources = ref([])
+const plyrSources = ref<Plyr[]>([])
 const showInlineMenu = ref(false)
-const currentTab = ref(null)
-const completedLesson = ref(null)
+const currentTab = ref<string | null>(null)
+const completedLesson = ref<string | null>(null)
 const settingsStore = useSettings()
-let timerInterval = null
+let timerInterval: ReturnType<typeof setInterval> | null = null
 
-const tabs = ref([])
+interface TabItem {
+	label: string
+	value: string
+}
+const tabs = ref<TabItem[]>([])
+
+interface LessonData {
+	is_scorm_package?: boolean | 0 | 1
+	chapter_name?: string
+	membership?: { progress?: number } | null
+	content?: string
+	instructor_content?: string
+	[key: string]: unknown
+}
+
+interface NoteRow {
+	name: string
+	color?: string
+	highlighted_text?: string
+	note?: string
+}
+
+interface VideoDetail {
+	source: string
+	watch_time: number
+}
+
+interface LessonVideo {
+	source: string
+	watch_time: number
+}
 
 const props = defineProps({
 	courseName: {
@@ -413,7 +447,7 @@ const emit = defineEmits([
 // Prev / Next / Zen-mode controls as the student header but place them in
 // the page-level LayoutHeader instead of inside the lesson body.
 defineExpose({
-	switchLesson: (direction) => switchLesson(direction),
+	switchLesson: (direction: 'prev' | 'next') => switchLesson(direction),
 	goFullScreen: () => goFullScreen(),
 	canGoZen: () => canGoZen(),
 	hasPrev: computed(() => Boolean(lesson.data?.prev)),
@@ -462,7 +496,7 @@ onBeforeUnmount(() => {
 
 const lesson = createResource({
 	url: 'lms.lms.utils.get_lesson',
-	makeParams(values) {
+	makeParams(values?: { chapter?: string; lesson?: string }) {
 		return {
 			course: props.courseName,
 			chapter: values ? values.chapter : props.chapterNumber,
@@ -472,7 +506,7 @@ const lesson = createResource({
 	auto: true,
 })
 
-const setupLesson = (data) => {
+const setupLesson = (data: LessonData) => {
 	if (Object.keys(data).length === 0) {
 		router.push({
 			name: 'CourseDetail',
@@ -517,13 +551,16 @@ const checkQuiz = () => {
 	}
 }
 
-const renderEditor = (holder, content) => {
-	if (document.getElementById(holder))
-		document.getElementById(holder).innerHTML = ''
+const renderEditor = (holder: string, content: string) => {
+	const holderEl = document.getElementById(holder)
+	if (holderEl) holderEl.innerHTML = ''
 	return new EditorJS({
 		holder: holder,
-		tools: getEditorTools(),
-		data: sanitizeEditorJs(JSON.parse(content)),
+		// getEditorTools wires Editor.js plugins that are an untyped (`any`)
+		// boundary (see types/editorjs-shim.d.ts); its inferred shape doesn't
+		// structurally match Editor.js's ToolSettings, so widen through unknown.
+		tools: getEditorTools() as unknown as EditorConfig['tools'],
+		data: sanitizeEditorJs(JSON.parse(content)) as OutputData,
 		readOnly: true,
 		defaultBlock: 'embed',
 		i18n: {
@@ -557,7 +594,7 @@ const markProgress = () => {
 			onSuccess() {
 				progressSubmitting = false
 			},
-			onError(err) {
+			onError(err: unknown) {
 				progressSubmitting = false
 				console.error(err)
 			},
@@ -573,7 +610,7 @@ const progress = createResource({
 			course: props.courseName,
 		}
 	},
-	onSuccess(data) {
+	onSuccess(data: number) {
 		lessonProgress.value = data
 		const name = lesson.data?.name
 		completedLesson.value = name
@@ -593,7 +630,7 @@ const notes = createListResource({
 	},
 	fields: ['name', 'color', 'highlighted_text', 'note'],
 	cache: ['notes', lesson.data?.name, user.data?.name],
-	onSuccess(data) {
+	onSuccess(data: NoteRow[]) {
 		data.forEach((note) => {
 			setTimeout(() => {
 				highlightText(note)
@@ -603,7 +640,9 @@ const notes = createListResource({
 })
 
 const breadcrumbs = computed(() => {
-	let crumbs = [{ label: __('Courses'), route: { name: 'Courses' } }]
+	let crumbs: { label: string; route: { name: string; params?: object } }[] = [
+		{ label: __('Courses'), route: { name: 'Courses' } },
+	]
 	crumbs.push({
 		label: lesson?.data?.course_title,
 		route: { name: 'CourseDetail', params: { courseName: props.courseName } },
@@ -622,7 +661,7 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 
-const switchLesson = (direction) => {
+const switchLesson = (direction: 'prev' | 'next') => {
 	trackVideoWatchDuration()
 	let lessonIndex =
 		direction === 'prev'
@@ -664,7 +703,10 @@ watch(
 	}
 )
 
-const resetLessonState = (newChapterNumber, newLessonNumber) => {
+const resetLessonState = (
+	newChapterNumber: string | string[],
+	newLessonNumber: string | string[]
+) => {
 	editor.value = null
 	instructorEditor.value = null
 	allowDiscussions.value = false
@@ -674,7 +716,7 @@ const resetLessonState = (newChapterNumber, newLessonNumber) => {
 	})
 	videoFallbackArmed = false
 	fallbackGeneration++
-	clearInterval(timerInterval)
+	clearInterval(timerInterval ?? undefined)
 	timer.value = 0
 }
 
@@ -689,7 +731,7 @@ const trackVideoWatchDuration = () => {
 }
 
 const getVideoDetails = () => {
-	let details = []
+	let details: VideoDetail[] = []
 	const videos = document.querySelectorAll('video')
 	if (videos.length > 0) {
 		videos.forEach((video) => {
@@ -704,10 +746,12 @@ const getVideoDetails = () => {
 }
 
 const getPlyrSourceDetails = () => {
-	let details = []
+	let details: VideoDetail[] = []
 	plyrSources.value.forEach((source) => {
 		if (isVideoComplete(source.currentTime, source.duration)) markProgress()
-		let src = cleanYouTubeUrl(source.source)
+		// Plyr typings expose `.source` as SourceInfo, but the LMS players carry
+		// the original media URL string here; preserve the existing runtime use.
+		let src = cleanYouTubeUrl(source.source as unknown as string)
 		details.push({
 			source: src,
 			watch_time: source.currentTime,
@@ -716,7 +760,7 @@ const getPlyrSourceDetails = () => {
 	return details
 }
 
-const cleanYouTubeUrl = (url) => {
+const cleanYouTubeUrl = (url: string) => {
 	if (!url) return url
 	const urlObj = new URL(url)
 	urlObj.searchParams.delete('t')
@@ -743,14 +787,14 @@ watch(
 			plyrSources.value.length > 0 || !!document.querySelector('video')
 		const enforceVideo = Number(
 			settingsStore.settings?.data?.enforce_video_completion ?? 0
-		)
+		) as 0 | 1
 		// When the lesson has video AND enforcement is on, suppress dwell so
 		// completion is gated on play-to-end. When enforcement is off, dwell
 		// runs for every lesson type — including YouTube/Plyr — so admins can
 		// set a short dwell to mark video lessons complete without a full
 		// playthrough.
 		if (!shouldStartDwellTimer({ hasVideo: hasVideoListener, enforceVideo })) {
-			clearInterval(timerInterval)
+			clearInterval(timerInterval ?? undefined)
 		}
 		if (
 			shouldAttachVideoFallback({ hasVideo: hasVideoListener, enforceVideo })
@@ -778,7 +822,7 @@ const getPlyrSource = async () => {
 		plyrSources.value = await enablePlyr()
 		const enforceVideo = Number(
 			settingsStore.settings?.data?.enforce_video_completion ?? 0
-		)
+		) as 0 | 1
 		if (
 			shouldAttachVideoFallback({
 				hasVideo: plyrSources.value.length > 0,
@@ -793,9 +837,8 @@ const getPlyrSource = async () => {
 				})
 				player.on('error', (event) => {
 					if (gen !== fallbackGeneration) return
-					fallbackToDwellTimer(
-						'plyr-error: ' + (event?.detail?.message || 'unknown')
-					)
+					const detail = event?.detail as { message?: string } | undefined
+					fallbackToDwellTimer('plyr-error: ' + (detail?.message || 'unknown'))
 				})
 				setTimeout(() => {
 					if (!readyFired && gen === fallbackGeneration) {
@@ -810,7 +853,7 @@ const getPlyrSource = async () => {
 
 const updateVideoWatchDuration = () => {
 	if (lesson.data.videos && lesson.data.videos.length > 0) {
-		lesson.data.videos.forEach((video) => {
+		lesson.data.videos.forEach((video: LessonVideo) => {
 			if (video.source.includes('youtube') || video.source.includes('vimeo')) {
 				updatePlyrVideoTime(video)
 			} else {
@@ -834,24 +877,27 @@ const attachVideoEndedListeners = () => {
 		}
 	})
 
-	plyrSources.value.forEach((plyrSource) => {
-		if (!plyrSource._lmsEndedAttached) {
-			plyrSource.on('ended', onVideoEnded)
-			plyrSource.on('statechange', (event) => {
-				if (event.detail?.code === 0) onVideoEnded()
-			})
-			plyrSource._lmsEndedAttached = true
+	plyrSources.value.forEach(
+		(plyrSource: Plyr & { _lmsEndedAttached?: boolean }) => {
+			if (!plyrSource._lmsEndedAttached) {
+				plyrSource.on('ended', onVideoEnded)
+				plyrSource.on('statechange', (event) => {
+					const detail = event?.detail as { code?: number } | undefined
+					if (detail?.code === 0) onVideoEnded()
+				})
+				plyrSource._lmsEndedAttached = true
+			}
 		}
-	})
+	)
 }
 
-const updatePlyrVideoTime = (video) => {
+const updatePlyrVideoTime = (video: LessonVideo) => {
 	plyrSources.value.forEach((plyrSource) => {
 		let lastWatchedTime = 0
 		let isSeeking = false
 
 		plyrSource.on('ready', () => {
-			if (plyrSource.source === video.source) {
+			if ((plyrSource.source as unknown as string) === video.source) {
 				plyrSource.embed.seekTo(video.watch_time, true)
 				plyrSource.play()
 				plyrSource.pause()
@@ -860,7 +906,7 @@ const updatePlyrVideoTime = (video) => {
 	})
 }
 
-const updateVideoTime = (video) => {
+const updateVideoTime = (video: LessonVideo) => {
 	const videos = document.querySelectorAll('video')
 	if (videos.length > 0) {
 		videos.forEach((vid) => {
@@ -880,14 +926,14 @@ const updateVideoTime = (video) => {
 
 let videoFallbackArmed = false
 let fallbackGeneration = 0
-const fallbackToDwellTimer = (reason) => {
+const fallbackToDwellTimer = (reason: string) => {
 	if (videoFallbackArmed) return
 	videoFallbackArmed = true
 	console.warn('[Lesson] video fallback engaged:', reason)
 	toast.warning(
 		__('Video failed to load — you can still mark this lesson as viewed.')
 	)
-	clearInterval(timerInterval)
+	clearInterval(timerInterval ?? undefined)
 	timer.value = 0
 	startTimer()
 }
@@ -901,25 +947,27 @@ const startTimer = () => {
 	timerInterval = setInterval(() => {
 		timer.value++
 		if (timer.value >= dwell) {
-			clearInterval(timerInterval)
+			clearInterval(timerInterval ?? undefined)
 			markProgress()
 		}
 	}, 1000)
 }
 
 onBeforeUnmount(() => {
-	clearInterval(timerInterval)
+	clearInterval(timerInterval ?? undefined)
 })
 
 const checkIfDiscussionsAllowed = () => {
 	hasQuiz.value = false
 	if (lesson.data?.content) {
 		try {
-			JSON.parse(lesson.data.content)?.blocks?.forEach((block) => {
-				if (block.type === 'quiz') {
-					hasQuiz.value = true
+			JSON.parse(lesson.data.content)?.blocks?.forEach(
+				(block: { type?: string }) => {
+					if (block.type === 'quiz') {
+						hasQuiz.value = true
+					}
 				}
-			})
+			)
 		} catch {
 			// legacy markdown lessons
 		}
@@ -956,11 +1004,11 @@ const lessonHasVideo = computed(() => {
 		try {
 			const blocks = JSON.parse(data.content)?.blocks || []
 			return blocks.some(
-				(block) =>
+				(block: { type?: string; data?: { file_type?: string } }) =>
 					block.type === 'embed' ||
 					(block.type === 'upload' &&
 						['mp4', 'webm', 'mov', 'mkv', 'm4v'].includes(
-							block.data?.file_type
+							block.data?.file_type as string
 						))
 			)
 		} catch {
@@ -995,8 +1043,8 @@ const enrollStudent = () => {
 			onSuccess() {
 				window.location.reload()
 			},
-			onError(err) {
-				toast.error(__(err.messages?.[0] || err))
+			onError(err: { messages?: string[] }) {
+				toast.error(__((err.messages?.[0] || err) as string))
 				console.error(err)
 			},
 		}
@@ -1007,7 +1055,7 @@ const toggleInlineMenu = async () => {
 	showInlineMenu.value = false
 	await nextTick()
 	let selection = window.getSelection()
-	if (selection.toString()) {
+	if (selection?.toString()) {
 		showInlineMenu.value = true
 	}
 }
@@ -1028,14 +1076,15 @@ const canGoZen = () => {
 }
 
 const goFullScreen = () => {
-	if (lessonContainer.value.requestFullscreen) {
-		lessonContainer.value.requestFullscreen()
-	} else if (lessonContainer.value.mozRequestFullScreen) {
-		lessonContainer.value.mozRequestFullScreen()
-	} else if (lessonContainer.value.webkitRequestFullscreen) {
-		lessonContainer.value.webkitRequestFullscreen()
-	} else if (lessonContainer.value.msRequestFullscreen) {
-		lessonContainer.value.msRequestFullscreen()
+	const el = lessonContainer.value!
+	if (el.requestFullscreen) {
+		el.requestFullscreen()
+	} else if (el.mozRequestFullScreen) {
+		el.mozRequestFullScreen()
+	} else if (el.webkitRequestFullscreen) {
+		el.webkitRequestFullscreen()
+	} else if (el.msRequestFullscreen) {
+		el.msRequestFullscreen()
 	}
 }
 

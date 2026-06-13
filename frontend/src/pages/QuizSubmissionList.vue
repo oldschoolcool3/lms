@@ -42,7 +42,7 @@
 	</div>
 	<EmptyStateLayout v-else name="Quiz Submissions" />
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	createListResource,
 	Breadcrumbs,
@@ -59,10 +59,11 @@ import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import type { SessionUser } from '@/types/api'
 
 const { brand } = sessionStore()
 const router = useRouter()
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 
 onMounted(() => {
 	if (!user.data?.is_instructor && !user.data?.is_moderator)

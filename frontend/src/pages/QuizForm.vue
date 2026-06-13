@@ -205,7 +205,7 @@
 		:title="currentQuestion.question ? __('Edit Question') : __('Add Question')"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Breadcrumbs,
 	createResource,
@@ -237,6 +237,7 @@ import { ClipboardList, ListChecks, Plus, Trash2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { sanitizeHTML } from '@/utils'
 import Question from '@/components/Modals/Question.vue'
+import type { SessionUser } from '@/types/api'
 
 const { brand } = sessionStore()
 const showQuestionModal = ref(false)
@@ -245,7 +246,7 @@ const currentQuestion = reactive({
 	marks: 0,
 	name: '',
 })
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const router = useRouter()
 const readOnlyMode = window.read_only_mode
 
@@ -268,7 +269,7 @@ onMounted(() => {
 	window.addEventListener('keydown', keyboardShortcut)
 })
 
-const keyboardShortcut = (e) => {
+const keyboardShortcut = (e: KeyboardEvent) => {
 	if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
 		submitQuiz()
 		e.preventDefault()
@@ -297,11 +298,11 @@ const submitQuiz = () => {
 			total_marks: calculateTotalMarks(),
 		},
 		{
-			onSuccess(data) {
+			onSuccess(data: { total_marks: number }) {
 				quizDetails.doc.total_marks = data.total_marks
 				toast.success(__('Quiz updated successfully'))
 			},
-			onError(err) {
+			onError(err: { messages?: string[] }) {
 				toast.error(err.messages?.[0] || err)
 			},
 		}
@@ -318,7 +319,7 @@ const calculateTotalMarks = () => {
 			quizDetails.doc.questions[0].marks * quizDetails.doc.limit_questions_to
 		)
 
-	quizDetails.doc?.questions.forEach((question) => {
+	quizDetails.doc?.questions.forEach((question: { marks: number }) => {
 		totalMarks += question.marks
 	})
 	return totalMarks
@@ -344,7 +345,9 @@ const questionColumns = computed(() => {
 	]
 })
 
-const openQuestionModal = (question = null) => {
+const openQuestionModal = (
+	question: { question: string; marks: number; name: string } | null = null
+) => {
 	if (question) {
 		currentQuestion.question = question.question
 		currentQuestion.marks = question.marks
@@ -359,7 +362,7 @@ const openQuestionModal = (question = null) => {
 
 const deleteQuestionResource = createResource({
 	url: 'lms.lms.api.delete_documents',
-	makeParams(values) {
+	makeParams(values: { questions: string[] }) {
 		return {
 			doctype: 'LMS Quiz Question',
 			documents: values.questions,
@@ -367,7 +370,7 @@ const deleteQuestionResource = createResource({
 	},
 })
 
-const deleteQuestions = (selections, unselectAll) => {
+const deleteQuestions = (selections: Set<string>, unselectAll: () => void) => {
 	deleteQuestionResource.submit(
 		{
 			questions: Array.from(selections),
@@ -383,7 +386,7 @@ const deleteQuestions = (selections, unselectAll) => {
 }
 
 const breadcrumbs = computed(() => {
-	let crumbs = [
+	let crumbs: { label: string; route: { name: string; params?: object } }[] = [
 		{
 			label: __('Quizzes'),
 			route: {

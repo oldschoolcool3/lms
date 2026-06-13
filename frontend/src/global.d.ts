@@ -20,6 +20,44 @@ declare global {
 		__?: (text: string, ...args: unknown[]) => string
 		// Translation cache populated by translation.ts.
 		translatedMessages?: Record<string, string>
+		// SCORM 2004 runtime API surface, installed by SCORMChapter.vue so the
+		// embedded SCORM package iframe can discover it via window.API_1484_11.
+		API_1484_11?: {
+			Initialize: () => string
+			Terminate: () => string
+			GetValue: (key: string) => string
+			SetValue: (key: string, value: string) => string
+			Commit: () => string
+			GetLastError: () => string
+			GetErrorString: () => string
+			GetDiagnostic: () => string
+		}
+		// SCORM 1.2 runtime API surface, installed alongside API_1484_11.
+		API?: {
+			LMSInitialize: () => string
+			LMSFinish: () => string
+			LMSGetValue: (key: string) => string
+			LMSSetValue: (key: string, value: string) => string
+			LMSCommit: () => string
+			LMSGetLastError: () => string
+			LMSGetErrorString: () => string
+			LMSGetDiagnostic: () => string
+		}
+	}
+
+	// Lesson.vue tags <video> elements with these flags so it attaches its
+	// 'ended' / 'error' listeners only once per element.
+	interface HTMLVideoElement {
+		_lmsEndedAttached?: boolean
+		_lmsErrorAttached?: boolean
+	}
+
+	// Vendor-prefixed fullscreen entry points used by Lesson.vue's Zen mode;
+	// the standard requestFullscreen is already declared by the DOM lib.
+	interface HTMLElement {
+		mozRequestFullScreen?: () => void
+		webkitRequestFullscreen?: () => void
+		msRequestFullscreen?: () => void
 	}
 }
 
