@@ -28,7 +28,7 @@
 							:options="{
 								showTooltip: false,
 								selectable: user.data?.is_student ? false : true,
-								getRowRoute: (row) => ({
+								getRowRoute: (row: BatchCourse) => ({
 									name: 'CourseDetail',
 									params: { courseName: row.course },
 								}),
@@ -42,9 +42,10 @@
 								<ListRow
 									:row="row"
 									v-for="row in batch.data?.courses"
+									:key="row.name"
 									class="!rounded-none text-sm"
 								>
-									<template #default="{ column, item }">
+									<template #default="{ column }">
 										<ListRowItem :item="row[column.key]" :align="column.align">
 											<div v-if="column.key === 'progress'">
 												{{ getProgress(row.course) }}%
@@ -80,7 +81,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { inject } from 'vue'
 import {
 	createListResource,
@@ -91,11 +92,12 @@ import {
 	ListRowItem,
 } from 'frappe-ui'
 import Assessments from '@/pages/Batches/components/Assessments.vue'
-import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
+import type { SessionUser } from '@/types/api'
+import type { BatchCourse } from '@/types/lms/BatchCourse'
 
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 
 const props = defineProps({
 	batch: {
@@ -112,14 +114,19 @@ const progressList = createListResource({
 	doctype: 'LMS Enrollment',
 	filters: {
 		member: user.data?.name,
-		course: ['in', props.batch.data?.courses?.map((c) => c.course)],
+		course: [
+			'in',
+			props.batch.data?.courses?.map((c: { course: string }) => c.course),
+		],
 	},
 	fields: ['course', 'progress', 'name'],
 	auto: true,
 })
 
-const getProgress = (course) => {
-	const progress = progressList.data?.find((p) => p.course === course)
+const getProgress = (course: string) => {
+	const progress = progressList.data?.find(
+		(p: { course: string; progress: number }) => p.course === course
+	)
 	return progress ? Math.round(progress.progress) : 0
 }
 

@@ -41,7 +41,7 @@
 			}"
 		>
 			<Draggable
-				:list="outline.data"
+				:list="outline.data ?? undefined"
 				:disabled="!allowEdit"
 				item-key="name"
 				group="chapters"
@@ -132,10 +132,8 @@ const user = inject<SessionUser>('$user')!
 const router = useRouter()
 const showChapterModal = ref<boolean>(false)
 const currentChapter = ref<OutlineChapter | null>(null)
-const { $dialog } = getCurrentInstance()!.appContext.config
-	.globalProperties as {
-	$dialog: DialogFn
-}
+const $dialog = getCurrentInstance()!.appContext.config.globalProperties
+	.$dialog as DialogFn
 
 const emit = defineEmits<{
 	'select-lesson': [{ chapterNumber: string; lessonNumber: string }]

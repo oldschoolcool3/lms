@@ -41,6 +41,7 @@
 							</div>
 							<div
 								v-for="row in currentTabData"
+								:key="row.name"
 								class="hover:bg-surface-gray-1 cursor-pointer rounded-md py-1 px-2"
 							>
 								<router-link
@@ -96,14 +97,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import {
-	Avatar,
-	createListResource,
-	Dialog,
-	FormControl,
-	NumberChart,
-	TabButtons,
-} from 'frappe-ui'
+import { Avatar, createListResource, Dialog, TabButtons } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import { enablePlyr, formatTimestamp } from '@/utils'
 import VideoBlock from '@/components/VideoBlock.vue'
@@ -153,14 +147,12 @@ watch(
 )
 
 watch(searchText, () => {
-	let filterApplied = false
-	let filters: Filters = {
+	const filters: Filters = {
 		lesson: props.lessonName,
 	}
 
 	if (searchText.value) {
 		filters.member_name = ['like', `%${searchText.value}%`]
-		filterApplied = true
 	}
 
 	statistics.update({
@@ -212,13 +204,6 @@ const provider = computed(() => {
 		return 'youtube'
 	} else if (currentTab.value.includes('vimeo')) {
 		return 'vimeo'
-	}
-	return ''
-})
-
-const embedURL = computed(() => {
-	if (isPlyrSource.value) {
-		return currentTab.value.replace('watch?v=', 'embed/')
 	}
 	return ''
 })

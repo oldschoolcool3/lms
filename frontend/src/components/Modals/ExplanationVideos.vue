@@ -8,12 +8,12 @@
 	>
 		<template #body-content>
 			<div>
-				<VideoBlock :file="file" />
+				<VideoBlock :file="file!" />
 			</div>
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Dialog } from 'frappe-ui'
 import { computed } from 'vue'
 import VideoBlock from '@/components/VideoBlock.vue'
@@ -36,5 +36,6 @@ const file = computed(() => {
 	if (props.type == 'quiz') return '/assets/lms/frontend/Quiz.mp4'
 	if (props.type == 'upload') return '/assets/lms/frontend/Upload.mp4'
 	if (props.type == 'remove') return '/assets/lms/frontend/Remove.mp4'
+	return undefined
 })
 </script>

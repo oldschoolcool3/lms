@@ -11,8 +11,8 @@ import { initSocket } from './socket'
 import { FrappeUI, setConfig, frappeRequest, pageMetaPlugin } from 'frappe-ui'
 import { telemetryPlugin } from 'frappe-ui/frappe'
 
-let pinia = createPinia()
-let app = createApp(App)
+const pinia = createPinia()
+const app = createApp(App)
 setConfig('resourceFetcher', frappeRequest)
 
 app.use(FrappeUI)

@@ -13,15 +13,16 @@
 		<ApexChart :options="chartOptions" :series="chartSeries" height="240" />
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { createResource } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import ApexChart from 'vue3-apexcharts'
 import { getColor } from '@/utils'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
-const labels = ref([])
-const memberName = ref(null)
+const user = inject<SessionUser>('$user')!
+const labels = ref<string[]>([])
+const memberName = ref<string | null | undefined>(null)
 
 const props = defineProps({
 	member: {
@@ -39,7 +40,7 @@ onMounted(() => {
 
 const heatmap = createResource({
 	url: 'lms.lms.api.get_heatmap_data',
-	makeParams(values) {
+	makeParams(values: { member?: string | null }) {
 		return {
 			member: values.member,
 			base_days: props.days,
@@ -49,13 +50,13 @@ const heatmap = createResource({
 	cache: ['heatmap', memberName.value],
 })
 
-watch(memberName, (newVal) => {
+watch(memberName, (newVal: string | null | undefined) => {
 	heatmap.reload(
 		{
 			member: newVal,
 		},
 		{
-			onSuccess(data) {
+			onSuccess(data: { labels: string[] }) {
 				labels.value = data.labels
 			},
 		}
@@ -116,7 +117,17 @@ const chartOptions = computed(() => {
 			},
 		},
 		tooltip: {
-			custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+			custom: ({
+				series: _series,
+				seriesIndex,
+				dataPointIndex,
+				w: _w,
+			}: {
+				series: unknown
+				seriesIndex: number
+				dataPointIndex: number
+				w: unknown
+			}) => {
 				return `<div class="text-xs bg-surface-gray-7 text-ink-white font-medium p-1">
 					<div class="text-center">${heatmap.data.heatmap_data[seriesIndex].data[dataPointIndex].label}</div>
 				</div>`
@@ -127,12 +138,14 @@ const chartOptions = computed(() => {
 
 const chartSeries = computed(() => {
 	if (!heatmap.data) return []
-	let series = heatmap.data.heatmap_data.map((row) => {
-		return {
-			name: row.name,
-			data: row.data.map((value) => value.count),
+	const series = heatmap.data.heatmap_data.map(
+		(row: { name: string; data: { count: number }[] }) => {
+			return {
+				name: row.name,
+				data: row.data.map((value: { count: number }) => value.count),
+			}
 		}
-	})
+	)
 	return series
 })
 </script>

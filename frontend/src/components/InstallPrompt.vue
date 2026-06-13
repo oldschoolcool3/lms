@@ -60,11 +60,15 @@
 	</Popover>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { Button, Dialog, FeatherIcon, Popover } from 'frappe-ui'
 
-const deferredPrompt = ref(null)
+interface BeforeInstallPromptEvent extends Event {
+	prompt(): void
+}
+
+const deferredPrompt = ref<BeforeInstallPromptEvent | null>(null)
 const showDialog = ref(false)
 const iosInstallMessage = ref(false)
 
@@ -87,7 +91,7 @@ if (
 
 window.addEventListener('beforeinstallprompt', (e) => {
 	e.preventDefault()
-	deferredPrompt.value = e
+	deferredPrompt.value = e as BeforeInstallPromptEvent
 	if (isIos() && !isInStandaloneMode()) iosInstallMessage.value = true
 	else showDialog.value = true
 })
@@ -98,7 +102,7 @@ window.addEventListener('appinstalled', () => {
 })
 
 const install = () => {
-	deferredPrompt.value.prompt()
+	deferredPrompt.value!.prompt()
 	showDialog.value = false
 }
 </script>

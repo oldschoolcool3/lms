@@ -8,7 +8,7 @@
 				{
 					label: __('Submit'),
 					variant: 'solid',
-					onClick: (close) => submitEvaluation(close),
+					onClick: submitEvaluation,
 				},
 			],
 		}"
@@ -26,7 +26,7 @@
 						{{ __('Available Slots') }}
 					</div>
 					<div class="space-y-5">
-						<div v-for="row in slots.data" class="space-y-2">
+						<div v-for="row in slots.data" :key="row.date" class="space-y-2">
 							<div class="flex items-center text-ink-gray-7 gap-x-2">
 								<Calendar class="size-3" />
 								<div class="text-ink-gray-9">
@@ -40,6 +40,7 @@
 							<div class="grid grid-cols-3 gap-2">
 								<div
 									v-for="slot in row.slots"
+									:key="slot.start_time"
 									class="text-base text-center border rounded-md text-ink-gray-8 p-2 cursor-pointer text-ink-gray-7 hover:bg-surface-gray-2 hover:border-outline-gray-3"
 									@click="saveSlot(slot, row)"
 									:class="{
@@ -65,21 +66,24 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { call, createResource, Dialog, FormControl, toast } from 'frappe-ui'
 import { ref, watch, inject } from 'vue'
 import { Calendar } from 'lucide-vue-next'
 import { formatTime } from '@/utils/'
+import type { PropType } from 'vue'
+import type { SessionUser } from '@/types/api'
+import type { BatchCourse } from '@/types/lms/BatchCourse'
 
-const dayjs = inject('$dayjs')
-const user = inject('$user')
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
+const user = inject<SessionUser>('$user')!
 const show = defineModel()
-const evaluations = defineModel('reloadEvals')
+const evaluations = defineModel<{ reload: () => void }>('reloadEvals')
 
 const props = defineProps({
 	courses: {
-		type: Array,
-		default: [],
+		type: Array as PropType<BatchCourse[]>,
+		default: () => [],
 	},
 	batch: {
 		type: String,
@@ -98,10 +102,10 @@ const evaluation = ref({
 	end_time: '',
 	day: '',
 	batch: props.batch,
-	member: user.data.name,
+	member: user.data?.name,
 })
 
-function submitEvaluation(close) {
+function submitEvaluation(close: () => void) {
 	if (!evaluation.value.date || !evaluation.value.start_time) {
 		toast.warning(__('Please select a slot for your evaluation.'), {
 			duration: 10,
@@ -116,12 +120,14 @@ function submitEvaluation(close) {
 		},
 	})
 		.then(() => {
-			evaluations.value.reload()
+			evaluations.value?.reload()
 			close()
 		})
-		.catch((err) => {
+		.catch((err: { messages?: string[] }) => {
 			console.log(err.messages?.[0] || err)
-			toast.warning(__(err.messages?.[0] || err), { duration: 20 })
+			toast.warning(__(err.messages?.[0] || (err as unknown as string)), {
+				duration: 20,
+			})
 		})
 }
 
@@ -145,7 +151,7 @@ const getCourses = () => {
 
 const slots = createResource({
 	url: 'lms.lms.doctype.course_evaluator.course_evaluator.get_schedule',
-	makeParams(values) {
+	makeParams(values: { course: string }) {
 		return {
 			course: values.course,
 			batch: props.batch,
@@ -155,12 +161,15 @@ const slots = createResource({
 
 watch(
 	() => evaluation.value.course,
-	(course) => {
+	() => {
 		slots.reload(evaluation.value)
 	}
 )
 
-const saveSlot = (slot, row) => {
+const saveSlot = (
+	slot: { start_time: string; end_time: string },
+	row: { date: string; day: string }
+) => {
 	evaluation.value.start_time = slot.start_time
 	evaluation.value.end_time = slot.end_time
 	evaluation.value.date = row.date

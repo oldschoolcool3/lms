@@ -7,7 +7,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { Calendar } from 'lucide-vue-next'
 import { getFormattedDateRange } from '@/utils'
 

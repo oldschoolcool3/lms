@@ -29,12 +29,13 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { inject } from 'vue'
 import { Button, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '../stores/session'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const { brand } = sessionStore()
 
 const redirectToLogin = () => {

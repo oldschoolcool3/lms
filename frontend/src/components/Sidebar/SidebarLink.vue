@@ -15,7 +15,11 @@
 				<slot name="icon">
 					<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 						<component
-							:is="typeof link.icon === 'string' ? icons[link.icon] : link.icon"
+							:is="
+								typeof link.icon === 'string'
+									? iconsByName[link.icon]
+									: link.icon
+							"
 							class="h-4 w-4 stroke-1.5 text-ink-gray-8"
 						/>
 					</span>
@@ -61,12 +65,24 @@
 	</button>
 	<ContactUsEmail v-model="showContactForm" />
 </template>
-<script setup>
+<script setup lang="ts">
 import { Tooltip } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ContactUsEmail from '@/components/ContactUsEmail.vue'
 import * as icons from 'lucide-vue-next'
+import type { Component } from 'vue'
+
+interface SidebarLinkData {
+	label?: string
+	icon?: string | object
+	to?: string
+	count?: number
+	onlyMobile?: boolean
+	activeFor?: string[]
+}
+
+const iconsByName = icons as unknown as Record<string, Component>
 
 const router = useRouter()
 const emit = defineEmits(['openModal', 'deletePage'])
@@ -112,11 +128,11 @@ const isActive = computed(() => {
 	)
 })
 
-const openModal = (link) => {
+const openModal = (link: SidebarLinkData) => {
 	emit('openModal', link)
 }
 
-const deletePage = (link) => {
+const deletePage = (link: SidebarLinkData) => {
 	emit('deletePage', link)
 }
 </script>

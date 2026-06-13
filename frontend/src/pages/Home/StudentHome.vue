@@ -9,6 +9,7 @@
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
 					<div
 						v-for="cls in myLiveClasses.data"
+						:key="cls.name"
 						class="border rounded-md hover:border-outline-gray-3 p-3"
 					>
 						<div class="font-semibold text-ink-gray-9 leading-5 mb-1">
@@ -97,6 +98,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 				<router-link
 					v-for="course in myCourses.data"
+					:key="course.name"
 					:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
 				>
 					<CourseCard :course="course" />
@@ -129,6 +131,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 				<router-link
 					v-for="batch in myBatches.data"
+					:key="batch.name"
 					:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
 				>
 					<BatchCard :batch="batch" />
@@ -156,7 +159,7 @@ import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
 const dayjs = inject<any>('$dayjs')
 const user = inject<any>('$user')
 
-const props = defineProps<{
+defineProps<{
 	myLiveClasses: any
 }>()
 

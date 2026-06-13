@@ -15,31 +15,33 @@
 		</div>
 	</div>
 	<div v-if="topics.data?.length && !singleThread">
-		<div v-if="showTopics" v-for="(topic, index) in topics.data">
-			<div
-				@click="showReplies(topic)"
-				class="flex items-center cursor-pointer py-5 w-full"
-				:class="{ 'border-b': index + 1 != topics.data.length }"
-			>
-				<UserAvatar :user="topic.user" size="2xl" class="me-4" />
-				<div>
-					<div class="text-lg font-semibold mb-1 text-ink-gray-7">
-						{{ topic.title }}
-					</div>
-					<div class="flex items-center text-ink-gray-5">
-						<span>
-							{{ topic.user.full_name }}
-						</span>
-						<span class="text-sm ms-3">
-							{{ timeAgo(topic.creation) }}
-						</span>
+		<template v-if="showTopics">
+			<div v-for="(topic, index) in topics.data" :key="index">
+				<div
+					@click="showReplies(topic)"
+					class="flex items-center cursor-pointer py-5 w-full"
+					:class="{ 'border-b': index + 1 != topics.data.length }"
+				>
+					<UserAvatar :user="topic.user" size="2xl" class="me-4" />
+					<div>
+						<div class="text-lg font-semibold mb-1 text-ink-gray-7">
+							{{ topic.title }}
+						</div>
+						<div class="flex items-center text-ink-gray-5">
+							<span>
+								{{ topic.user.full_name }}
+							</span>
+							<span class="text-sm ms-3">
+								{{ timeAgo(topic.creation) }}
+							</span>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</template>
 		<div v-else>
 			<DiscussionReplies
-				:topic="currentTopic"
+				:topic="currentTopic!"
 				v-model:showTopics="showTopics"
 			/>
 		</div>
@@ -69,20 +71,29 @@
 		v-model:reloadTopics="topics"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import { createResource, Button } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { singularize, timeAgo } from '@/utils'
 import { ref, onMounted, inject, onUnmounted } from 'vue'
+import type { Socket } from 'socket.io-client'
 import DiscussionReplies from '@/components/DiscussionReplies.vue'
 import DiscussionModal from '@/components/Modals/DiscussionModal.vue'
 import { MessageSquareText, Plus } from 'lucide-vue-next'
 import { getScrollContainer } from '@/utils/scrollContainer'
+import type { SessionUser } from '@/types/api'
+
+interface DiscussionTopic {
+	name: string
+	title: string
+	creation: string
+	user: { full_name: string }
+}
 
 const showTopics = ref(true)
-const currentTopic = ref(null)
-const socket = inject('$socket')
-const user = inject('$user')
+const currentTopic = ref<DiscussionTopic | null>(null)
+const socket = inject<Socket>('$socket')!
+const user = inject<SessionUser>('$user')!
 const showTopicModal = ref(false)
 const readOnlyMode = window.read_only_mode
 
@@ -120,7 +131,7 @@ const props = defineProps({
 onMounted(() => {
 	if (user.data) topics.reload()
 
-	socket.on('new_discussion_topic', (data) => {
+	socket.on('new_discussion_topic', () => {
 		topics.refresh()
 	})
 
@@ -132,7 +143,7 @@ onMounted(() => {
 })
 
 const scrollToEnd = () => {
-	let scrollContainer = getScrollContainer()
+	const scrollContainer = getScrollContainer()!
 	scrollContainer.scrollTop = scrollContainer.scrollHeight
 }
 
@@ -148,7 +159,7 @@ const topics = createResource({
 	},
 })
 
-const showReplies = (topic) => {
+const showReplies = (topic: DiscussionTopic) => {
 	showTopics.value = false
 	currentTopic.value = topic
 }

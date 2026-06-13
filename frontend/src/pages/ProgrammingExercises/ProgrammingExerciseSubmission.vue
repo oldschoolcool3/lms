@@ -156,12 +156,33 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Play, X, Check, Settings } from 'lucide-vue-next'
+import { Play, Settings } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { openSettings } from '@/utils'
 import { useSettings } from '@/stores/settings'
 import { getLmsRoute } from '@/utils/basePath'
+import type { TestCase } from '@/pages/ProgrammingExercises/types'
+
+// `LiveCodeSession` is a global injected at runtime by the falcon/livecode
+// script loaded in loadFalcon(); declare the minimal surface this file uses.
+interface LiveCodeMessage {
+	msgtype: string
+	file: string
+	data: string
+	exitstatus: number
+}
+declare global {
+	class LiveCodeSession {
+		constructor(options: {
+			base_url: string
+			runtime: string
+			code: string | null
+			files: { filename: string; contents: string }[]
+			onMessage: (msg: LiveCodeMessage) => void
+		})
+	}
+}
 
 const user = inject<any>('$user')
 const code = ref<string | null>('')
@@ -327,16 +348,17 @@ const runCode = async () => {
 	}
 
 	for (const test_case of exercise.doc.test_cases) {
-		let result = await execute(test_case.input)
+		const result = await execute(test_case.input)
 		if (error.value) {
 			errorMessage.value = result
 			break
 		} else {
 			output.value = result
 		}
-		let status =
+		const status =
 			result.trim() === test_case.expected_output.trim() ? 'Passed' : 'Failed'
 		testCases.value.push({
+			name: test_case.name,
 			input: test_case.input,
 			output: result,
 			expected_output: test_case.expected_output,
@@ -347,7 +369,7 @@ const runCode = async () => {
 
 const createSubmission = () => {
 	if (!testCases.value.length) return
-	let codeToSave = code.value?.replace(boilerplate.value, '') || ''
+	const codeToSave = code.value?.replace(boilerplate.value, '') || ''
 
 	call('lms.lms.api.create_programming_exercise_submission', {
 		exercise: props.exerciseID,
@@ -377,16 +399,15 @@ const createSubmission = () => {
 
 const execute = (stdin = ''): Promise<string> => {
 	return new Promise((resolve, reject) => {
-		let outputChunks: string[] = []
+		const outputChunks: string[] = []
 		let hasExited = false
-		let hasError = false
 
-		let session = new LiveCodeSession({
+		new LiveCodeSession({
 			base_url: falconURL.value,
 			runtime: exercise.doc?.language.toLowerCase() || 'python',
 			code: code.value,
 			files: [{ filename: 'stdin', contents: stdin }],
-			onMessage: (msg: any) => {
+			onMessage: (msg: LiveCodeMessage) => {
 				console.log('msg', msg)
 
 				if (msg.msgtype === 'write' && msg.file === 'stdout') {
@@ -394,7 +415,6 @@ const execute = (stdin = ''): Promise<string> => {
 				}
 
 				if (msg.msgtype === 'write' && msg.file === 'stderr') {
-					hasError = true
 					errorMessage.value = msg.data
 				}
 

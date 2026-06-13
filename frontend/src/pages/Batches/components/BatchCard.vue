@@ -64,6 +64,7 @@
 			>
 				<UserAvatar
 					v-for="instructor in batch.instructors"
+					:key="instructor"
 					:user="instructor"
 				/>
 			</div>
@@ -71,7 +72,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Badge } from 'frappe-ui'
 import { formatTime } from '@/utils'
 import { Clock, Globe } from 'lucide-vue-next'
@@ -79,7 +80,7 @@ import DateRange from '@/components/Common/DateRange.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 
-const props = defineProps({
+defineProps({
 	batch: {
 		type: Object,
 		default: null,

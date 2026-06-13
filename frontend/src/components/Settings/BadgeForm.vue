@@ -219,7 +219,7 @@ const referenceDoctypeOptions = computed(() => {
 })
 
 const eventOptions = computed(() => {
-	let options = ['New', 'Value Change', 'Manual Assignment']
+	const options = ['New', 'Value Change', 'Manual Assignment']
 	return options.map((event) => ({ label: __(event), value: event }))
 })
 

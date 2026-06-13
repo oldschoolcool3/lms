@@ -33,6 +33,7 @@
 		>
 			<div
 				v-for="cls in liveClasses.data"
+				:key="cls.name"
 				class="flex flex-col border rounded-md h-full text-ink-gray-7 hover:border-outline-gray-3 p-3"
 				:class="{
 					'cursor-pointer': isAdmin() && cls.attendees > 0,
@@ -122,7 +123,7 @@
 		:live_class="attendanceFor"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import { createListResource, Button, Tooltip } from 'frappe-ui'
 import {
 	Plus,
@@ -134,16 +135,18 @@ import {
 	AlertCircle,
 } from 'lucide-vue-next'
 import { inject, ref } from 'vue'
-import { formatTime } from '@/utils/'
 import LiveClassModal from '@/components/Modals/LiveClassModal.vue'
 import LiveClassAttendance from '@/components/Modals/LiveClassAttendance.vue'
+import type { SessionUser } from '@/types/api'
+import type { LMSLiveClass } from '@/types/lms/LMSLiveClass'
+import type dayjsType from 'dayjs'
 
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const showLiveClassModal = ref(false)
-const dayjs = inject('$dayjs')
+const dayjs = inject<typeof dayjsType>('$dayjs')!
 const readOnlyMode = window.read_only_mode
 const showAttendance = ref(false)
-const attendanceFor = ref(null)
+const attendanceFor = ref<LMSLiveClass | null>(null)
 
 const props = defineProps({
 	batch: {
@@ -199,31 +202,31 @@ const isAdmin = () => {
 	return user.data?.is_moderator || user.data?.is_evaluator
 }
 
-const canAccessClass = (cls) => {
+const canAccessClass = (cls: LMSLiveClass) => {
 	if (cls.date < dayjs().format('YYYY-MM-DD')) return false
 	if (cls.date > dayjs().format('YYYY-MM-DD')) return false
 	if (hasClassEnded(cls)) return false
 	return true
 }
 
-const getClassStart = (cls) => {
+const getClassStart = (cls: LMSLiveClass) => {
 	return new Date(`${cls.date}T${cls.time}`)
 }
 
-const getClassEnd = (cls) => {
+const getClassEnd = (cls: LMSLiveClass) => {
 	const classStart = getClassStart(cls)
 	return new Date(classStart.getTime() + cls.duration * 60000)
 }
 
-const hasClassEnded = (cls) => {
+const hasClassEnded = (cls: LMSLiveClass) => {
 	const classEnd = getClassEnd(cls)
 	const now = new Date()
 	return now > classEnd
 }
 
-const openAttendanceModal = (cls) => {
+const openAttendanceModal = (cls: LMSLiveClass) => {
 	if (!isAdmin()) return
-	if (cls.attendees <= 0) return
+	if (Number(cls.attendees) <= 0) return
 	attendanceFor.value = cls
 	showAttendance.value = true
 }

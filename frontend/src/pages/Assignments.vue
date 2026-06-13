@@ -50,18 +50,18 @@
 			:options="{
 				showTooltip: false,
 				selectable: true,
-				onRowClick: (row) => {
-					if (readOnlyMode) return
-					assignmentID = row.name
-					showAssignmentForm = true
-				},
+				onRowClick: onAssignmentRowClick,
 			}"
 			class="flex-1 px-5"
 		>
 			<ListHeader
 				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
 			>
-				<ListHeaderItem :item="item" v-for="item in assignmentColumns">
+				<ListHeaderItem
+					:item="item"
+					v-for="item in assignmentColumns"
+					:key="item.key"
+				>
 					<template #prefix="{ item }">
 						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
 					</template>
@@ -70,10 +70,11 @@
 			<ListRows>
 				<ListRow
 					v-for="row in assignments.data"
+					:key="row.name"
 					:row="row"
 					class="hover:bg-surface-gray-2"
 				>
-					<template #default="{ column, item }">
+					<template #default="{ column }">
 						<ListRowItem :item="row[column.key]" :align="column.align">
 							<div v-if="column.key == 'show_answers'">
 								<Checkbox v-model="row[column.key]" :disabled="true" />
@@ -138,7 +139,7 @@
 		:assignmentID="assignmentID"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Breadcrumbs,
 	Button,
@@ -166,9 +167,19 @@ import { sessionStore } from '../stores/session'
 import AssignmentForm from '@/components/Modals/AssignmentForm.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
-const dayjs = inject('$dayjs')
+interface AssignmentRow {
+	name: string
+	title?: string
+	type?: string
+	modified: string
+	question?: string
+	course?: string
+}
+
+const user = inject<SessionUser>('$user')!
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
 const titleFilter = ref('')
 const typeFilter = ref('')
 const showAssignmentForm = ref(false)
@@ -186,8 +197,8 @@ onMounted(() => {
 		assignmentID.value = 'new'
 		showAssignmentForm.value = true
 	}
-	titleFilter.value = router.currentRoute.value.query.title
-	typeFilter.value = router.currentRoute.value.query.type
+	titleFilter.value = router.currentRoute.value.query.title as string
+	typeFilter.value = router.currentRoute.value.query.type as string
 })
 
 watch([titleFilter, typeFilter], () => {
@@ -212,7 +223,7 @@ const reloadAssignments = () => {
 }
 
 const assignmentFilter = computed(() => {
-	let filters = {}
+	const filters: Record<string, unknown> = {}
 	if (titleFilter.value) {
 		filters.title = ['like', `%${titleFilter.value}%`]
 	}
@@ -227,7 +238,7 @@ const assignments = createListResource({
 	fields: ['name', 'title', 'type', 'modified', 'question', 'course'],
 	orderBy: 'modified desc',
 	cache: ['assignments'],
-	transform(data) {
+	transform(data: AssignmentRow[]) {
 		return data.map((row) => {
 			return {
 				...row,
@@ -253,7 +264,7 @@ const totalAssignments = createResource({
 	},
 	auto: true,
 	cache: ['assignments_count', user.data?.name],
-	onError(err) {
+	onError(err: { messages?: string[] }) {
 		toast.error(err.messages?.[0] || err)
 		console.error(err)
 	},
@@ -285,7 +296,7 @@ const assignmentColumns = computed(() => {
 })
 
 const assignmentTypes = computed(() => {
-	let types = [' ', 'Document', 'Image', 'PDF', 'URL', 'Text']
+	const types = [' ', 'Document', 'Image', 'PDF', 'URL', 'Text']
 	return types.map((type) => {
 		return {
 			label: __(type),
@@ -294,7 +305,13 @@ const assignmentTypes = computed(() => {
 	})
 })
 
-const deleteAssignment = (selections, unselectAll) => {
+const onAssignmentRowClick = (row: AssignmentRow) => {
+	if (readOnlyMode) return
+	assignmentID.value = row.name
+	showAssignmentForm.value = true
+}
+
+const deleteAssignment = (selections: Set<string>, unselectAll: () => void) => {
 	Array.from(selections).forEach(async (assignmentName) => {
 		await assignments.delete.submit(assignmentName)
 	})

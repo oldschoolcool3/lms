@@ -12,15 +12,16 @@
 		<Quiz :quizName="quizID" />
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import Quiz from '@/components/Quiz.vue'
 import { createResource, Breadcrumbs, usePageMeta } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
+import type { SessionUser } from '@/types/api'
 
 const { brand } = sessionStore()
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const router = useRouter()
 const fromLesson = ref(false)
 

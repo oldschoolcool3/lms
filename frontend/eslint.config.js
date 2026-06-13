@@ -76,8 +76,9 @@ export default defineConfigWithVueTs(
 			'@typescript-eslint/no-explicit-any': 'off',
 			// Single-word component names (Sidebar, Uploader, …) are intentional.
 			'vue/multi-word-component-names': 'off',
-			// SFCs are mid-migration to `<script lang="ts">`; don't force it (PR-A3).
-			'vue/block-lang': 'off',
+			// The JS->TS migration is complete (PR-A3): every SFC uses
+			// `<script lang="ts">`, so enforce it going forward.
+			'vue/block-lang': ['error', { script: { lang: 'ts' } }],
 		},
 	},
 

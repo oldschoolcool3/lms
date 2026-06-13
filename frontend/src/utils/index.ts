@@ -21,13 +21,61 @@ import Plyr from 'plyr'
 import 'plyr/dist/plyr.css'
 import DOMPurify from 'dompurify'
 
+export interface SidebarLinkItem {
+	label: string
+	icon: string
+	to?: string
+	condition?: () => unknown
+	activeFor?: string[]
+	await?: boolean
+	hideLabel?: boolean
+	count?: number
+}
+
+export interface SidebarGroup {
+	label: string
+	hideLabel: boolean
+	items: SidebarLinkItem[]
+}
+
+interface UploadContext {
+	docname?: string | null
+	fieldname?: string
+}
+
+interface MetaInfo {
+	description?: string
+	keywords?: string
+}
+
+interface EditorJsBlock {
+	type?: string
+	data?: unknown
+}
+
+interface EditorJsOutput {
+	blocks?: EditorJsBlock[]
+}
+
+interface TextMatch {
+	node: Node
+	startIndex: number
+	endIndex: number
+}
+
+interface HighlightNote {
+	highlighted_text?: string
+	color?: string
+	name: string
+}
+
 const readOnlyMode = window.read_only_mode
 
-export function timeAgo(date) {
+export function timeAgo(date: Date | number | string): string {
 	return useTimeAgo(date).value
 }
 
-export function formatTime(timeString) {
+export function formatTime(timeString?: string | null): string {
 	if (!timeString) return ''
 	const [hour, minute] = timeString.split(':').map(Number)
 	const dummyDate = new Date(0, 0, 0, hour, minute)
@@ -39,19 +87,22 @@ export function formatTime(timeString) {
 	return formattedTime
 }
 
-export const formatSeconds = (time) => {
+export const formatSeconds = (time: number): string => {
 	const minutes = Math.floor(time / 60)
 	const seconds = Math.floor(time % 60)
 	return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
 }
 
-export function formatNumber(number) {
+export function formatNumber(number: number): string {
 	return number.toLocaleString('en-IN', {
 		maximumFractionDigits: 0,
 	})
 }
 
-export function formatNumberIntoCurrency(number, currency) {
+export function formatNumberIntoCurrency(
+	number: number | null | undefined,
+	currency: string
+): string {
 	if (number) {
 		return number.toLocaleString('en-IN', {
 			maximumFractionDigits: 0,
@@ -64,20 +115,22 @@ export function formatNumberIntoCurrency(number, currency) {
 
 // create a function that formats numbers in thousands to k
 
-export function formatAmount(amount) {
+export function formatAmount(amount: number): string | number {
 	if (amount > 999) {
 		return (amount / 1000).toFixed(1) + 'k'
 	}
 	return amount
 }
 
-export function formatRating(value) {
+export function formatRating(
+	value: string | number | null | undefined
+): string {
 	const n = Number(value)
 	if (!isFinite(n)) return ''
 	return (Math.round(n * 10) / 10).toString()
 }
 
-export function convertToTitleCase(str) {
+export function convertToTitleCase(str?: string | null): string {
 	if (!str) {
 		return ''
 	}
@@ -90,8 +143,8 @@ export function convertToTitleCase(str) {
 		})
 		.join(' ')
 }
-export function getFileSize(file_size) {
-	let value = parseInt(file_size)
+export function getFileSize(file_size: string | number): string | number {
+	const value = parseInt(String(file_size))
 	if (value > 1048576) {
 		return (value / 1048576).toFixed(2) + 'M'
 	} else if (value > 1024) {
@@ -100,24 +153,29 @@ export function getFileSize(file_size) {
 	return value
 }
 
-export function getImgDimensions(imgSrc) {
+export function getImgDimensions(
+	imgSrc: string
+): Promise<{ width: number; height: number; ratio: number }> {
 	return new Promise((resolve) => {
-		let img = new Image()
+		const img = new Image()
 		img.onload = function () {
-			let { width, height } = img
+			const { width, height } = img
 			resolve({ width, height, ratio: width / height })
 		}
 		img.src = imgSrc
 	})
 }
 
-export function htmlToText(html) {
+export function htmlToText(html: string): string {
 	const div = document.createElement('div')
 	div.innerHTML = html
 	return div.textContent || div.innerText || ''
 }
 
-export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
+export function getEditorTools(
+	_isInstructorEditor = false,
+	uploadContext: UploadContext = {}
+) {
 	return {
 		header: {
 			class: Header,
@@ -171,38 +229,40 @@ export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 			config: {
 				services: {
 					youtube: {
-						regex: /^(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)$/,
+						regex:
+							/^(?:https?:\/\/)?(?:www\.)?(?:(?:youtu\.be\/)|(?:youtube\.com)\/(?:v\/|u\/\w\/|embed\/|watch))(?:(?:\?v=)?([^#&?=]*))?((?:[?&]\w*=\w*)*)$/,
 						embedUrl: '<%= remote_id %>',
 						/* 'https://www.youtube.com/embed/<%= remote_id %>?origin=https://plyr.io&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1' */
 						html: `<div class="video-player" data-plyr-provider="youtube"></div>`,
-						id: ([id]) => id,
+						id: ([id]: string[]) => id,
 					},
 					vimeo: {
-						regex: /^(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)(?:\/([a-zA-Z0-9]+))?(?:\?[^\s]*)?$/,
-						embedUrl:
-							'https://player.vimeo.com/video/<%= remote_id %>',
+						regex:
+							/^(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)(?:\/([a-zA-Z0-9]+))?(?:\?[^\s]*)?$/,
+						embedUrl: 'https://player.vimeo.com/video/<%= remote_id %>',
 						html: `<div class="video-player" data-plyr-provider="vimeo"></div>`,
-						id: ([id, hash]) => (hash ? `${id}?h=${hash}` : id),
+						id: ([id, hash]: string[]) => (hash ? `${id}?h=${hash}` : id),
 					},
 					cloudflareStream: {
-						regex: /^https:\/\/customer-[a-z0-9]+\.cloudflarestream\.com\/([a-f0-9]{32})\/watch$/,
-						embedUrl:
-							'https://iframe.videodelivery.net/<%= remote_id %>',
+						regex:
+							/^https:\/\/customer-[a-z0-9]+\.cloudflarestream\.com\/([a-f0-9]{32})\/watch$/,
+						embedUrl: 'https://iframe.videodelivery.net/<%= remote_id %>',
 						html: `<iframe style="width:100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
 						};" frameborder="0" allowfullscreen></iframe>`,
 					},
 					bunnyStream: {
-						regex: /^https:\/\/(?:iframe\.mediadelivery\.net|video\.bunnycdn\.com|player\.mediadelivery\.net)\/play\/([a-zA-Z0-9]+\/[a-zA-Z0-9-]+)$/,
-						embedUrl:
-							'https://player.mediadelivery.net/embed/<%= remote_id %>',
+						regex:
+							/^https:\/\/(?:iframe\.mediadelivery\.net|video\.bunnycdn\.com|player\.mediadelivery\.net)\/play\/([a-zA-Z0-9]+\/[a-zA-Z0-9-]+)$/,
+						embedUrl: 'https://player.mediadelivery.net/embed/<%= remote_id %>',
 						html: `<iframe style="width:100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
 						};" frameborder="0" allowfullscreen></iframe>`,
 					},
 					codepen: true,
 					aparat: {
-						regex: /^(?:http[s]?:\/\/)?(?:www.)?aparat\.com\/v\/([^\/\?\&]+)\/?$/,
+						regex:
+							/^(?:http[s]?:\/\/)?(?:www.)?aparat\.com\/v\/([^\/\?\&]+)\/?$/,
 						embedUrl:
 							'https://www.aparat.com/video/video/embed/videohash/<%= remote_id %>/vt/frame',
 						html: `<iframe style="margin: 0 auto; width: 100%; height: ${
@@ -211,7 +271,8 @@ export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 					},
 					github: true,
 					slides: {
-						regex: /^https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/pub$/,
+						regex:
+							/^https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/pub$/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
 						html: `<iframe style='width: 100%; height: ${
@@ -219,7 +280,8 @@ export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 						}; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					drive: {
-						regex: /^https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)\/view(\?.+)?$/,
+						regex:
+							/^https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)\/view(\?.+)?$/,
 						embedUrl:
 							'https://drive.google.com/file/d/<%= remote_id %>/preview',
 						html: `<iframe style='width: 100%; height: ${
@@ -227,25 +289,29 @@ export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 						}; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					docsPublic: {
-						regex: /^https:\/\/docs\.google\.com\/document\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?$/,
+						regex:
+							/^https:\/\/docs\.google\.com\/document\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?$/,
 						embedUrl:
 							'https://docs.google.com/document/d/<%= remote_id %>/preview',
 						html: "<iframe style='width: 100%; height: 40rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
 					},
 					sheetsPublic: {
-						regex: /^https:\/\/docs\.google\.com\/spreadsheets\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?$/,
+						regex:
+							/^https:\/\/docs\.google\.com\/spreadsheets\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?$/,
 						embedUrl:
 							'https://docs.google.com/spreadsheets/d/<%= remote_id %>/preview',
 						html: "<iframe style='width: 100%; height: 40rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
 					},
 					slidesPublic: {
-						regex: /^https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?$/,
+						regex:
+							/^https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?$/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
 						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0;' frameborder='0' allowfullscreen='true'></iframe>",
 					},
 					codesandbox: {
-						regex: /^https:\/\/codesandbox\.io\/(?:(?:p\/(?:sandbox|devbox)\/)|(?:embed\/)|(?:s\/))?([A-Za-z0-9_-]+)(?:[\/\?].*)?$/,
+						regex:
+							/^https:\/\/codesandbox\.io\/(?:(?:p\/(?:sandbox|devbox)\/)|(?:embed\/)|(?:s\/))?([A-Za-z0-9_-]+)(?:[\/\?].*)?$/,
 						embedUrl:
 							'https://codesandbox.io/embed/<%= remote_id %>?view=editor+%2B+preview&module=%2Findex.html',
 						html: "<iframe style='width: 100%; height: 500px; border: 0; border-radius: 4px; overflow: hidden;' sandbox='allow-modals allow-forms allow-popups allow-scripts allow-same-origin' frameborder='0' allowfullscreen='true'></iframe>",
@@ -256,7 +322,7 @@ export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 	}
 }
 
-export function getTimezones() {
+export function getTimezones(): string[] {
 	return [
 		'Pacific/Midway',
 		'Pacific/Pago_Pago',
@@ -396,7 +462,7 @@ export function getTimezones() {
 	]
 }
 
-export function getUserTimezone() {
+export function getUserTimezone(): string | null {
 	try {
 		const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 		const supportedTimezones = getTimezones()
@@ -412,7 +478,7 @@ export function getUserTimezone() {
 	}
 }
 
-export function getSidebarLinks(forMobile = false) {
+export function getSidebarLinks(forMobile = false): SidebarGroup[] {
 	let links = getSidebarItems(forMobile)
 
 	links.forEach((link) => {
@@ -428,7 +494,7 @@ export function getSidebarLinks(forMobile = false) {
 	return links
 }
 
-const getSidebarItems = (forMobile = false) => {
+const getSidebarItems = (forMobile = false): SidebarGroup[] => {
 	const { userResource } = usersStore()
 	const { settings } = useSettings()
 
@@ -595,25 +661,22 @@ const checkIfCanAddProgram = (forMobile = false) => {
 		return true
 	}
 	return (
-		programs.data?.enrolled.length > 0 ||
-		programs.data?.published.length > 0
+		programs.data?.enrolled.length > 0 || programs.data?.published.length > 0
 	)
 }
 
 export function getFormattedDateRange(
-	startDate,
-	endDate,
+	startDate: string | number | Date | null | undefined,
+	endDate: string | number | Date | null | undefined,
 	format = 'DD MMM YYYY'
 ) {
 	if (startDate === endDate) {
 		return dayjs(startDate).format(format)
 	}
-	return `${dayjs(startDate).format(format)} - ${dayjs(endDate).format(
-		format
-	)}`
+	return `${dayjs(startDate).format(format)} - ${dayjs(endDate).format(format)}`
 }
 
-export function getLineStartPosition(string, position) {
+export function getLineStartPosition(string: string, position: number): number {
 	const charLength = 1
 	let char = ''
 
@@ -629,8 +692,8 @@ export function getLineStartPosition(string, position) {
 	return position
 }
 
-export function singularize(word) {
-	const endings = {
+export function singularize(word: string): string {
+	const endings: Record<string, string> = {
 		ves: 'fe',
 		ies: 'y',
 		i: 'us',
@@ -646,12 +709,12 @@ export function singularize(word) {
 }
 
 export const validateFile = async (
-	file,
+	file: File,
 	showToast = true,
 	fileType = 'image'
-) => {
-	const extension = file.name.split('.').pop().toLowerCase()
-	const error = (msg) => {
+): Promise<string | null> => {
+	const extension = (file.name.split('.').pop() ?? '').toLowerCase()
+	const error = (msg: string) => {
 		if (showToast) toast.error(msg)
 		console.error(msg)
 		return msg
@@ -660,9 +723,7 @@ export const validateFile = async (
 	if (fileType == 'pdf' && extension != 'pdf') {
 		return error(__('Only PDF files are allowed.'))
 	} else if (fileType == 'document' && !['doc', 'docx'].includes(extension)) {
-		return error(
-			__('Only document file of type .doc or .docx are allowed.')
-		)
+		return error(__('Only document file of type .doc or .docx are allowed.'))
 	} else if (fileType == 'zip' && extension != 'zip') {
 		return error(__('Only ZIP files are allowed.'))
 	} else if (
@@ -694,9 +755,9 @@ export const validateFile = async (
 	return null
 }
 
-export const escapeHTML = (text) => {
+export const escapeHTML = (text: string | null | undefined): string => {
 	if (!text) return ''
-	let escape_html_mapping = {
+	const escape_html_mapping: Record<string, string> = {
 		'<': '&lt;',
 		'>': '&gt;',
 		'"': '&quot;',
@@ -710,25 +771,25 @@ export const escapeHTML = (text) => {
 	)
 }
 
-const sanitizeJSON = (node) => {
+const sanitizeJSON = (node: unknown): unknown => {
 	if (Array.isArray(node)) return node.map(sanitizeJSON)
 	if (node && typeof node === 'object') {
-		const temp = {}
-		for (const n in node) {
-			temp[n] = sanitizeJSON(node[n])
+		const temp: Record<string, unknown> = {}
+		const obj = node as Record<string, unknown>
+		for (const n in obj) {
+			temp[n] = sanitizeJSON(obj[n])
 		}
 		return temp
 	}
-	if (
-		typeof node === 'string' &&
-		(node.includes('<') || node.includes('>'))
-	) {
+	if (typeof node === 'string' && (node.includes('<') || node.includes('>'))) {
 		return DOMPurify.sanitize(node)
 	}
 	return node
 }
 
-export const sanitizeEditorJs = (data) => {
+export const sanitizeEditorJs = (
+	data: EditorJsOutput | null | undefined
+): EditorJsOutput | null | undefined => {
 	if (!data || !Array.isArray(data.blocks)) return data
 	for (const node of data.blocks) {
 		if (node && node.type !== 'code') {
@@ -738,7 +799,7 @@ export const sanitizeEditorJs = (data) => {
 	return data
 }
 
-export const sanitizeHTML = (text) => {
+export const sanitizeHTML = (text: string): string => {
 	text = DOMPurify.sanitize(decodeEntities(text), {
 		ALLOWED_TAGS: [
 			'b',
@@ -780,10 +841,10 @@ export const canCreateCourse = () => {
 	)
 }
 
-export const enablePlyr = async () => {
+export const enablePlyr = async (): Promise<Plyr[]> => {
 	await wait(500)
 
-	const players = []
+	const players: Plyr[] = []
 	const videoElements = document.getElementsByClassName('video-player')
 
 	if (videoElements.length === 0) return players
@@ -795,9 +856,10 @@ export const enablePlyr = async () => {
 	return players
 }
 
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+const wait = (ms: number) =>
+	new Promise<void>((resolve) => setTimeout(resolve, ms))
 
-const setupPlyrForVideo = (video, players) => {
+const setupPlyrForVideo = (video: Element, players: Plyr[]) => {
 	const src = video.getAttribute('src')
 
 	if (src) {
@@ -805,7 +867,7 @@ const setupPlyrForVideo = (video, players) => {
 		video.setAttribute('data-plyr-embed-id', videoID)
 	}
 
-	let controls = [
+	const controls = [
 		'play-large',
 		'play',
 		'progress',
@@ -815,16 +877,16 @@ const setupPlyrForVideo = (video, players) => {
 		'fullscreen',
 	]
 
-	const player = new Plyr(video, {
+	const player = new Plyr(video as HTMLElement, {
 		youtube: { noCookie: true },
 		controls: controls,
 		listeners: {
-			seek: function customSeekBehavior(e) {
+			seek: function customSeekBehavior(e: Event) {
 				const current_time = player.currentTime
 				const newTime = getTargetTime(player, e)
 				if (
 					useSettings().settings.data?.prevent_skipping_videos &&
-					parseFloat(newTime) > current_time
+					parseFloat(String(newTime)) > current_time
 				) {
 					e.preventDefault()
 					player.currentTime = current_time
@@ -837,48 +899,53 @@ const setupPlyrForVideo = (video, players) => {
 	players.push(player)
 }
 
-const getTargetTime = (plyr, input) => {
+const getTargetTime = (plyr: Plyr, input: Event | number): number => {
 	if (
 		typeof input === 'object' &&
 		(input.type === 'input' || input.type === 'change')
 	) {
-		return (input.target.value / input.target.max) * plyr.duration
+		const target = input.target as HTMLInputElement
+		return (Number(target.value) / Number(target.max)) * plyr.duration
 	} else {
 		return Number(input)
 	}
 }
 
-const extractYouTubeId = (url) => {
+const extractYouTubeId = (url: string): string => {
 	try {
 		const parsedUrl = new URL(url)
 		return (
 			parsedUrl.searchParams.get('v') ||
-			parsedUrl.pathname.split('/').pop()
+			parsedUrl.pathname.split('/').pop() ||
+			''
 		)
 	} catch {
-		return url.split('/').pop()
+		return url.split('/').pop() || ''
 	}
 }
 
-export const createLMSCategory = (name) => {
+export const createLMSCategory = (name: string) => {
 	return call('frappe.client.insert', {
 		doc: {
 			doctype: 'LMS Category',
 			category: name,
 		},
 	})
-		.then((data) => {
+		.then((data: { name?: string }) => {
 			toast.success(__('Category created successfully'))
 			return data.name
 		})
-		.catch((err) => {
+		.catch((err: { messages?: string[] }) => {
 			toast.error(
-				cleanError(err.messages?.[0]) || __('Unable to create category')
+				cleanError(err.messages?.[0] ?? '') || __('Unable to create category')
 			)
 		})
 }
 
-export const openSettings = (category, close = null) => {
+export const openSettings = (
+	category: string,
+	close: (() => void) | null = null
+) => {
 	const settingsStore = useSettings()
 	if (close) {
 		close()
@@ -887,7 +954,7 @@ export const openSettings = (category, close = null) => {
 	settingsStore.isSettingsOpen = true
 }
 
-export const cleanError = (message) => {
+export const cleanError = (message: string) => {
 	const cleanMessage = message.replace(/<[^>]+>/g, (match) => {
 		return match.replace(/<\/?[^>]+(>|$)/g, '')
 	})
@@ -906,11 +973,11 @@ export const cleanError = (message) => {
 		.replace(/&#x3A;/g, ':')
 }
 
-export const getMetaInfo = (type, route, meta) => {
+export const getMetaInfo = (type: string, route: string, meta: MetaInfo) => {
 	call('lms.lms.api.get_meta_info', {
 		type: type,
 		route: route,
-	}).then((data) => {
+	}).then((data: { key: string; value: string }[]) => {
 		if (data.length) {
 			data.forEach((row) => {
 				if (row.key == 'description') {
@@ -923,7 +990,7 @@ export const getMetaInfo = (type, route, meta) => {
 	})
 }
 
-export const updateMetaInfo = (type, route, meta) => {
+export const updateMetaInfo = (type: string, route: string, meta: MetaInfo) => {
 	call('lms.lms.api.update_meta_info', {
 		meta_type: type,
 		route: route,
@@ -931,21 +998,23 @@ export const updateMetaInfo = (type, route, meta) => {
 			{ key: 'description', value: meta.description },
 			{ key: 'keywords', value: meta.keywords },
 		],
-	}).catch((error) => {
+	}).catch((error: unknown) => {
 		toast.error(__('Failed to update meta tags {0}').format(error))
 		console.error(error)
 	})
 }
 
-export const formatTimestamp = (seconds) => {
+export const formatTimestamp = (seconds: number): string => {
 	const date = new Date(seconds * 1000)
 	const hours = String(date.getUTCHours()).padStart(2, '0')
 	const minutes = String(date.getUTCMinutes()).padStart(2, '0')
 	const secs = String(date.getUTCSeconds()).padStart(2, '0')
-	return hours > 0 ? `${hours}:${minutes}:${secs}` : `${minutes}:${secs}`
+	return Number(hours) > 0
+		? `${hours}:${minutes}:${secs}`
+		: `${minutes}:${secs}`
 }
 
-const getRootNode = (selector = '#editor') => {
+const getRootNode = (selector = '#editor'): Element | null => {
 	const root = document.querySelector(selector)
 	if (!root) {
 		console.warn(`Root node not found for selector: ${selector}`)
@@ -953,29 +1022,35 @@ const getRootNode = (selector = '#editor') => {
 	return root
 }
 
-const createTextWalker = (root, phrase) => {
+const createTextWalker = (root: Node, phrase: string): TreeWalker => {
 	return document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-		acceptNode(node) {
-			return node.nodeValue.toLowerCase().includes(phrase.toLowerCase())
+		acceptNode(node: Node) {
+			return node.nodeValue?.toLowerCase().includes(phrase.toLowerCase())
 				? NodeFilter.FILTER_ACCEPT
 				: NodeFilter.FILTER_SKIP
 		},
 	})
 }
 
-const findMatchingTextNode = (walker, phrase) => {
+const findMatchingTextNode = (
+	walker: TreeWalker,
+	phrase: string
+): TextMatch | null => {
 	const node = walker.nextNode()
 	if (!node) return null
 
-	const startIndex = node.nodeValue
-		.toLowerCase()
-		.indexOf(phrase.toLowerCase())
+	const value = node.nodeValue ?? ''
+	const startIndex = value.toLowerCase().indexOf(phrase.toLowerCase())
 	const endIndex = startIndex + phrase.length
 
 	return { node, startIndex, endIndex }
 }
 
-const createHighlightSpan = (color, name, scrollIntoView) => {
+const createHighlightSpan = (
+	color: string,
+	name: string,
+	scrollIntoView: boolean
+): HTMLSpanElement => {
 	const span = document.createElement('span')
 	span.className = 'highlighted-text'
 	if (scrollIntoView) {
@@ -989,10 +1064,10 @@ const createHighlightSpan = (color, name, scrollIntoView) => {
 }
 
 const wrapRangeInHighlight = (
-	{ node, startIndex, endIndex },
-	color,
-	name,
-	scrollIntoView
+	{ node, startIndex, endIndex }: TextMatch,
+	color: string,
+	name: string,
+	scrollIntoView: boolean
 ) => {
 	const range = document.createRange()
 	range.setStart(node, startIndex)
@@ -1002,14 +1077,17 @@ const wrapRangeInHighlight = (
 	range.surroundContents(span)
 }
 
-export const highlightText = (note, scrollIntoView = false) => {
+export const highlightText = (
+	note: HighlightNote | null | undefined,
+	scrollIntoView = false
+) => {
 	if (!note?.highlighted_text) return
 
 	const root = getRootNode()
 	if (!root) return
 
 	const phrase = note.highlighted_text
-	const color = note.color.toLowerCase()
+	const color = (note.color ?? 'yellow').toLowerCase()
 
 	const walker = createTextWalker(root, phrase)
 	const match = findMatchingTextNode(walker, phrase)
@@ -1018,13 +1096,13 @@ export const highlightText = (note, scrollIntoView = false) => {
 	wrapRangeInHighlight(match, color, note.name, scrollIntoView)
 
 	if (scrollIntoView) {
-		match.node.parentElement.scrollIntoView({
+		match.node.parentElement?.scrollIntoView({
 			behavior: 'smooth',
 			block: 'center',
 		})
 		setTimeout(() => {
 			const highlightedElements =
-				document.querySelectorAll('.highlighted-text')
+				document.querySelectorAll<HTMLElement>('.highlighted-text')
 			highlightedElements.forEach((el) => {
 				if (el.dataset.name === note.name) {
 					el.style.border = 'none'
@@ -1035,14 +1113,14 @@ export const highlightText = (note, scrollIntoView = false) => {
 	}
 }
 
-export const scrollToReference = (text) => {
+export const scrollToReference = (text: string) => {
 	highlightText({ highlighted_text: text, color: 'yellow', name: '' }, true)
 }
 
 export const blockQuotesClick = () => {
 	document.querySelectorAll('blockquote').forEach((el) => {
 		el.addEventListener('click', (e) => {
-			const text = e.target.textContent || ''
+			const text = (e.target as HTMLElement | null)?.textContent || ''
 			if (text) {
 				scrollToReference(text)
 			}
@@ -1050,14 +1128,18 @@ export const blockQuotesClick = () => {
 	})
 }
 
-export const decodeEntities = (encodedString) => {
+export const decodeEntities = (encodedString: string): string => {
 	const textarea = document.createElement('textarea')
 	textarea.innerHTML = encodedString
 	return textarea.value
 }
 
-export const getColor = (color, shade) => {
-	let theme =
+export const getColor = (color: string, shade: number | string): string => {
+	const theme =
 		localStorage.getItem('theme') == 'light' ? 'lightMode' : 'darkMode'
-	return colorsJSON[theme][color][shade]
+	const palette = colorsJSON as unknown as Record<
+		string,
+		Record<string, Record<string, string>>
+	>
+	return palette[theme][color][shade]
 }

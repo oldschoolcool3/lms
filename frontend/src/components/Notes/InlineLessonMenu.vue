@@ -14,6 +14,7 @@
 			<div class="">
 				<div
 					v-for="color in colors"
+					:key="color"
 					class="flex items-center gap-x-2 px-3 py-2 cursor-pointer hover:bg-surface-gray-2"
 					@click="saveHighLight(color)"
 				>
@@ -140,7 +141,7 @@ const saveHighLight = (color: string) => {
 }
 
 const deleteHighlight = () => {
-	let notesToDelete = notes.value?.data.find(
+	const notesToDelete = notes.value?.data.find(
 		(note: Note) => note.highlighted_text === selectedText.value
 	)
 	if (!notesToDelete) return
@@ -163,7 +164,7 @@ const deleteHighlight = () => {
 
 const addToNotes = () => {
 	if (!selectedText.value) return
-	let noteToUpdate = notes.value?.data.find((note: Note) => {
+	const noteToUpdate = notes.value?.data.find((note: Note) => {
 		return !note.highlighted_text && note.note !== ''
 	})
 	if (!noteToUpdate) {
@@ -183,7 +184,7 @@ const createNote = () => {
 			name: '',
 		},
 		{
-			onSuccess(data: Note) {
+			onSuccess(_data: Note) {
 				emit('updateNotes')
 				setTimeout(() => {
 					scrollToText(selectedText.value)
@@ -206,7 +207,7 @@ const updateNote = (noteToUpdate: Note) => {
 			note: `${noteToUpdate.note}\n\n<blockquote><p>${selectedText.value}</p></blockquote><br>`,
 		},
 		{
-			onSuccess(data: Note) {
+			onSuccess(_data: Note) {
 				emit('updateNotes')
 				setTimeout(() => {
 					scrollToText(selectedText.value)

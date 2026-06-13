@@ -69,6 +69,7 @@
 			<ListRows>
 				<router-link
 					v-for="row in submissions.data"
+					:key="row.name"
 					:to="{
 						name: 'ProgrammingExerciseSubmission',
 						params: {
@@ -212,7 +213,7 @@ const submissions = createListResource({
 		'modified',
 	],
 	orderBy: 'modified desc',
-	transform(data: ProgrammingExercise[]) {
+	transform(data: ProgrammingExerciseSubmission[]) {
 		return data.map((submission: ProgrammingExerciseSubmission) => {
 			return {
 				...submission,
@@ -223,7 +224,7 @@ const submissions = createListResource({
 })
 
 watch(filters.value, () => {
-	let filtersToApply: Record<string, any> = {}
+	const filtersToApply: Record<string, any> = {}
 	filterFields.forEach((field) => {
 		if (filters.value[field as keyof Filters]) {
 			filtersToApply[field] = filters.value[field as keyof Filters]

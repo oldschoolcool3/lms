@@ -34,7 +34,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Breadcrumbs,
 	Button,
@@ -47,10 +47,11 @@ import {
 import { computed, inject, onBeforeMount, ref } from 'vue'
 import { useSidebar } from '@/stores/sidebar'
 import { sessionStore } from '../stores/session'
+import type { SessionUser } from '@/types/api'
 
 const { brand } = sessionStore()
 const sidebarStore = useSidebar()
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const readyToRender = ref(false)
 const isSuccessfullyCompleted = ref(false)
 
@@ -80,7 +81,7 @@ const chapter = createDocumentResource({
 	name: props.chapterName,
 	auto: true,
 	cache: ['chapter', props.chapterName],
-	onSuccess(data) {
+	onSuccess(_data: unknown) {
 		progress.submit()
 	},
 })
@@ -96,7 +97,7 @@ const enrollment = createListResource({
 	cache: ['enrollments', props.courseName, user.data?.name],
 })
 
-const getDataFromLMS = (key) => {
+const getDataFromLMS = (key: string) => {
 	if (key === 'cmi.core.lesson_status') {
 		return progress.data?.status === 'Complete' ? 'passed' : 'incomplete'
 	} else if (key === 'cmi.launch_data') {
@@ -107,16 +108,21 @@ const getDataFromLMS = (key) => {
 	return ''
 }
 
-let saveTimeout = null
-const debouncedSaveProgress = (scormDetails) => {
+interface ScormDetails {
+	is_complete: boolean
+	scorm_content: string
+}
+
+let saveTimeout: ReturnType<typeof setTimeout> | null = null
+const debouncedSaveProgress = (scormDetails: ScormDetails) => {
 	if (isSuccessfullyCompleted.value) return
-	clearTimeout(saveTimeout)
+	if (saveTimeout) clearTimeout(saveTimeout)
 	saveTimeout = setTimeout(() => {
 		if (!isSuccessfullyCompleted.value) saveProgress(scormDetails)
 	}, 300)
 }
 
-const saveDataToLMS = (key, value) => {
+const saveDataToLMS = (key: string, value: string) => {
 	const isLessonStatus = key === 'cmi.core.lesson_status' && value === 'passed'
 	const isCompletionStatus =
 		key === 'cmi.completion_status' && value === 'completed'
@@ -149,7 +155,7 @@ const saveDataToLMS = (key, value) => {
 	}
 }
 
-const saveProgress = (scormDetails = null) => {
+const saveProgress = (scormDetails: ScormDetails | null = null) => {
 	call('lms.lms.doctype.course_lesson.course_lesson.save_progress', {
 		lesson: chapter.doc.lessons[0].lesson,
 		course: props.courseName,
@@ -159,7 +165,7 @@ const saveProgress = (scormDetails = null) => {
 
 const progress = createResource({
 	url: 'frappe.client.get_value',
-	makeParams(values) {
+	makeParams(_values: unknown) {
 		return {
 			doctype: 'LMS Course Progress',
 			fieldname: ['status', 'scorm_content'],
@@ -171,7 +177,7 @@ const progress = createResource({
 			},
 		}
 	},
-	onSuccess(data) {
+	onSuccess(_data: unknown) {
 		readyToRender.value = true
 	},
 })
@@ -183,7 +189,7 @@ const enrollStudent = () => {
 			member: user.data?.name,
 		},
 		{
-			onSuccess(data) {
+			onSuccess(_data: unknown) {
 				window.location.reload()
 			},
 		}

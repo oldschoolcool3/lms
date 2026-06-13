@@ -76,7 +76,7 @@
 							</div>
 							<TextEditor
 								:fixedMenu="true"
-								@change="(val) => (profile.bio = val)"
+								@change="setBio"
 								:content="profile.bio"
 								:rows="15"
 								editorClass="prose-sm py-2 px-2 min-h-[280px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-md bg-surface-gray-3"
@@ -88,7 +88,7 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Badge,
 	Button,
@@ -100,12 +100,19 @@ import {
 } from 'frappe-ui'
 import { ref, reactive, watch } from 'vue'
 import { sanitizeHTML } from '@/utils'
+import type { Resource, UserInfo } from '@/types/api'
 import Link from '@/components/Controls/Link.vue'
 
-const show = defineModel()
-const reloadProfile = defineModel('reloadProfile')
+const show = defineModel<boolean>()
+const reloadProfile = defineModel<Resource<unknown> | undefined>(
+	'reloadProfile'
+)
 const hasLanguageChanged = ref(false)
 const isDirty = ref(false)
+
+const setBio = (val: string) => {
+	profile.bio = val
+}
 
 const props = defineProps({
 	profile: {
@@ -121,6 +128,7 @@ const profile = reactive({
 	bio: '',
 	image: '',
 	open_to: '',
+	language: '',
 	linkedin: '',
 	github: '',
 	twitter: '',
@@ -128,7 +136,7 @@ const profile = reactive({
 
 const updateProfile = createResource({
 	url: 'frappe.client.set_value',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doctype: 'User',
 			name: props.profile.data.name,
@@ -138,13 +146,13 @@ const updateProfile = createResource({
 			},
 		}
 	},
-	onSuccess(data) {
+	onSuccess(data: UserInfo) {
 		props.profile.data = data
 	},
 })
 
 const validateMandatoryFields = () => {
-	let missingFields = []
+	const missingFields = []
 	if (!profile.first_name) missingFields.push(__('First Name'))
 	if (!profile.last_name) missingFields.push(__('Last Name'))
 	if (!profile.image) missingFields.push(__('Profile Image'))
@@ -160,7 +168,7 @@ const validateMandatoryFields = () => {
 }
 
 const saveProfile = () => {
-	let missingMandatoryFields = validateMandatoryFields()
+	const missingMandatoryFields = validateMandatoryFields()
 	if (missingMandatoryFields) return
 	profile.bio = sanitizeHTML(profile.bio)
 	updateProfile.submit(
@@ -168,13 +176,13 @@ const saveProfile = () => {
 		{
 			onSuccess() {
 				show.value = false
-				reloadProfile.value.reload()
+				reloadProfile.value?.reload()
 				if (hasLanguageChanged.value) {
 					hasLanguageChanged.value = false
 					window.location.reload()
 				}
 			},
-			onError(err) {
+			onError(err: { messages?: string[] }) {
 				toast.error(err.messages?.[0] || err)
 			},
 		}
@@ -185,9 +193,9 @@ watch(
 	() => profile,
 	(newVal) => {
 		if (!props.profile.data) return
-		let keys = Object.keys(newVal)
+		const keys = Object.keys(newVal) as (keyof typeof profile)[]
 		keys.splice(keys.indexOf('image'), 1)
-		for (let key of keys) {
+		for (const key of keys) {
 			if (newVal[key] !== props.profile.data[key]) {
 				isDirty.value = true
 				return

@@ -19,15 +19,13 @@
 				row-key="name"
 				:options="{
 					showTooltip: false,
-					onRowClick: (row) => {
-						openForm(row.name)
-					},
+					onRowClick,
 				}"
 			>
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in columns">
+					<ListHeaderItem :item="item" v-for="item in columns" :key="item.key">
 						<template #prefix="{ item }">
 							<FeatherIcon
 								v-if="item.icon"
@@ -39,7 +37,7 @@
 				</ListHeader>
 
 				<ListRows>
-					<ListRow :row="row" v-for="row in zoomAccounts.data">
+					<ListRow :row="row" v-for="row in zoomAccounts.data" :key="row.name">
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<template #prefix>
@@ -122,7 +120,7 @@ import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 const view = ref<'list' | 'form'>('list')
 const currentAccount = ref<string | null>(null)
 
-const props = defineProps<{
+defineProps<{
 	label: string
 	description?: string
 }>()
@@ -153,6 +151,10 @@ const fetchZoomAccounts = () => {
 const openForm = (accountID: string) => {
 	currentAccount.value = accountID
 	view.value = 'form'
+}
+
+const onRowClick = (row: { name: string }) => {
+	openForm(row.name)
 }
 
 const removeAccount = (selections: Set<string>, unselectAll: () => void) => {

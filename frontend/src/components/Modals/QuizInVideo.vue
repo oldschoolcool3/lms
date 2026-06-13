@@ -46,7 +46,11 @@
 						<ListHeader
 							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 						>
-							<ListHeaderItem :item="item" v-for="item in columns">
+							<ListHeaderItem
+								:item="item"
+								v-for="item in columns"
+								:key="item.key"
+							>
 								<template #prefix="{ item }">
 									<component
 										v-if="item.icon"
@@ -58,14 +62,16 @@
 						</ListHeader>
 
 						<ListRows>
-							<ListRow :row="row" v-for="row in allQuizzes">
-								<template #default="{ column, item }">
+							<ListRow :row="row" v-for="row in allQuizzes" :key="row.quiz">
+								<template #default="{ column }">
 									<ListRowItem
 										:item="row[column.key as keyof Quiz]"
 										:align="column.align"
 									>
 										<div v-if="column.key == 'time'" class="leading-5 text-sm">
-											{{ formatTimestamp(row[column.key as keyof Quiz]) }}
+											{{
+												formatTimestamp(Number(row[column.key as keyof Quiz]))
+											}}
 										</div>
 										<div v-else class="leading-5 text-sm">
 											{{ row[column.key as keyof Quiz] }}
@@ -117,13 +123,21 @@ import { formatTimestamp } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 
 type Quiz = {
+	// VideoBlock coerces stored timestamps to seconds (number) in place, so the
+	// shared quizzes array can hold either the raw "mm:ss" string or a number.
+	time: string | number
+	quiz: string
+}
+
+// The in-progress edit form always works with the raw "mm:ss" string.
+type QuizForm = {
 	time: string
 	quiz: string
 }
 
 const show = defineModel()
 const allQuizzes = ref<Quiz[]>([])
-const quiz = reactive<Quiz>({
+const quiz = reactive<QuizForm>({
 	time: '',
 	quiz: '',
 })

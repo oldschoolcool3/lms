@@ -4,7 +4,7 @@
 			{{ __('Announcements') }}
 		</div>
 		<div v-if="communications.data?.length">
-			<div v-for="comm in communications.data">
+			<div v-for="(comm, index) in communications.data" :key="index">
 				<div class="mb-8">
 					<div class="flex items-center justify-between mb-2">
 						<div class="flex items-center">
@@ -29,7 +29,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { createResource, Avatar } from 'frappe-ui'
 import { timeAgo } from '@/utils'
 
@@ -42,7 +42,7 @@ const props = defineProps({
 
 const communications = createResource({
 	url: 'lms.lms.api.get_announcements',
-	makeParams(value) {
+	makeParams() {
 		return {
 			batch: props.batch.data?.name,
 		}

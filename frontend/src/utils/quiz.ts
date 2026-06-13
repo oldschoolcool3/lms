@@ -1,16 +1,19 @@
-import QuizBlock from '@/components/QuizBlock.vue'
 import AssessmentPlugin from '@/components/AssessmentPlugin.vue'
 import { createApp, h } from 'vue'
-import { usersStore } from '../stores/user'
 import translationPlugin from '../translation'
 import { CircleHelp } from 'lucide-vue-next'
 import { getLmsRoute } from '@/utils/basePath'
-import { useRouter } from 'vue-router'
 
-const router = useRouter()
+interface QuizData {
+	quiz?: string
+}
 
 export class Quiz {
-	constructor({ data, api, readOnly }) {
+	data: QuizData
+	readOnly: boolean
+	wrapper!: HTMLDivElement
+
+	constructor({ data, readOnly }: { data: QuizData; readOnly: boolean }) {
 		this.data = data
 		this.readOnly = readOnly
 	}
@@ -43,7 +46,7 @@ export class Quiz {
 		return this.wrapper
 	}
 
-	renderQuiz(quiz) {
+	renderQuiz(quiz: string | undefined) {
 		if (this.readOnly) {
 			const quizPath = getLmsRoute(`quiz/${quiz}?fromLesson=1`)
 			this.wrapper.innerHTML = `<iframe src="${quizPath}" class="w-full h-[700px]"></iframe>`
@@ -63,7 +66,7 @@ export class Quiz {
 		}
 		const app = createApp(AssessmentPlugin, {
 			type: 'quiz',
-			onAddition: (quiz) => {
+			onAddition: (quiz: string) => {
 				this.data.quiz = quiz
 				this.renderQuiz(quiz)
 			},

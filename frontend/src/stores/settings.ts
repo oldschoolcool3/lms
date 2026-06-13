@@ -5,7 +5,7 @@ import { createResource } from 'frappe-ui'
 export const useSettings = defineStore('settings', () => {
 	const isSettingsOpen = ref(false)
 	const isCommandPaletteOpen = ref(false)
-	const activeTab = ref(null)
+	const activeTab = ref<string | null>(null)
 
 	const settings = createResource({
 		url: 'lms.lms.api.get_lms_settings',

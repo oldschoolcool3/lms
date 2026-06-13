@@ -1,6 +1,6 @@
 <template>
 	<Popover transition="default">
-		<template #target="{ isOpen, togglePopover }" class="flex w-full">
+		<template #target="{ isOpen, togglePopover }">
 			<slot v-bind="{ isOpen, togglePopover }"></slot>
 		</template>
 		<template #body>
@@ -19,10 +19,8 @@
 								:debounce="300"
 							/>
 						</div>
-						<FileUploader @success="(file) => $emit('select', file.file_url)">
-							<template
-								v-slot="{ file, progress, uploading, openFileSelector }"
-							>
+						<FileUploader @success="onUploadSuccess">
+							<template v-slot="{ progress, uploading, openFileSelector }">
 								<div class="w-full text-center">
 									<Button @click="openFileSelector" :loading="uploading">
 										{{ uploading ? `Uploading ${progress}%` : 'Upload Image' }}
@@ -60,9 +58,9 @@
 	</Popover>
 </template>
 
-<script>
+<script lang="ts">
 // import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
-import { Popover, FileUploader, Button } from 'frappe-ui'
+import { Popover, FileUploader } from 'frappe-ui'
 
 export default {
 	name: 'UnsplashImageBrowser',
@@ -85,6 +83,11 @@ export default {
 		return {
 			search: '',
 		}
+	},
+	methods: {
+		onUploadSuccess(file: { file_url: string }) {
+			this.$emit('select', file.file_url)
+		},
 	},
 }
 </script>

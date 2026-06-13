@@ -15,7 +15,8 @@
 				</thead>
 				<tbody>
 					<tr
-						v-for="row in rows"
+						v-for="(row, index) in rows"
+						:key="index"
 						class="bg-white dark:bg-gray-800 dark:border-gray-700 border-gray-200"
 					>
 						<td class="px-6 py-2">
@@ -31,7 +32,10 @@
 						<td class="px-6 py-2">
 							<Link
 								:doctype="row.reference_doctype"
-								v-model="row.reference_name"
+								:model-value="row.reference_name ?? undefined"
+								@update:model-value="
+									(value: string) => (row.reference_name = value)
+								"
 								class="bg-white w-full"
 							/>
 						</td>
@@ -123,7 +127,7 @@ watch(
 	{ immediate: true }
 )
 
-const saveItems = (parent = null) => {
+const saveItems = (_parent = null) => {
 	return rows.value
 }
 

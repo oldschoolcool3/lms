@@ -76,7 +76,7 @@
 			<ListHeader
 				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
 			>
-				<ListHeaderItem :item="item" v-for="item in columns">
+				<ListHeaderItem :item="item" v-for="item in columns" :key="item.key">
 					<template #prefix="{ item }">
 						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
 					</template>
@@ -86,9 +86,10 @@
 				<ListRow
 					:row="row"
 					v-for="row in exercises.data"
+					:key="row.name"
 					class="hover:bg-surface-gray-1"
 				>
-					<template #default="{ column, item }">
+					<template #default="{ column }">
 						<ListRowItem :item="row[column.key]" :align="column.align">
 							<div
 								v-if="column.key == 'modified'"
@@ -189,8 +190,9 @@ const dayjs = inject<typeof dayjsType>('$dayjs')!
 const titleFilter = ref<string>('')
 const languageFilter = ref<string>('')
 const router = useRouter()
-const app = getCurrentInstance()
-const { $dialog } = app?.appContext.config.globalProperties
+// getCurrentInstance() is always non-null within <script setup>.
+const app = getCurrentInstance()!
+const { $dialog } = app.appContext.config.globalProperties
 
 onMounted(() => {
 	validatePermissions()
@@ -217,7 +219,7 @@ const exercises = createListResource({
 })
 
 const updateList = () => {
-	let filters = getFilters()
+	const filters = getFilters()
 	exercises.update({
 		filters: filters,
 	})
@@ -229,7 +231,7 @@ const updateList = () => {
 }
 
 const getFilters = () => {
-	let filters: any = {}
+	const filters: any = {}
 	if (titleFilter.value) {
 		filters['title'] = ['like', `%${titleFilter.value}%`]
 	}

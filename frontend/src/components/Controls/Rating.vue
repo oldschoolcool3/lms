@@ -6,6 +6,7 @@
 		<div class="flex text-center">
 			<div
 				v-for="index in 5"
+				:key="index"
 				@mouseover="hoveredRating = index"
 				@mouseleave="hoveredRating = 0"
 			>
@@ -19,7 +20,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { Star } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 
@@ -42,8 +43,8 @@ const props = defineProps({
 	},
 })
 
-const iconClasses = (index) => {
-	let classes = [
+const iconClasses = (index: number) => {
+	const classes = [
 		{
 			sm: 'size-4',
 			md: 'size-5',
@@ -63,11 +64,11 @@ const emit = defineEmits(['update:modelValue'])
 const rating = ref(props.modelValue)
 const hoveredRating = ref(0)
 
-let emitChange = (value) => {
+const emitChange = (value: number) => {
 	emit('update:modelValue', value)
 }
 
-function markRating(index) {
+function markRating(index: number) {
 	emitChange(index)
 	rating.value = index
 }

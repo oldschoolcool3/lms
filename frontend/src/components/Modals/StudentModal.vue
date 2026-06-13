@@ -8,7 +8,7 @@
 				{
 					label: 'Submit',
 					variant: 'solid',
-					onClick: (close) => addStudent(close),
+					onClick: addStudent,
 				},
 			],
 		}"
@@ -17,7 +17,8 @@
 			<div class="flex flex-col gap-4">
 				<Link
 					doctype="User"
-					v-model="student"
+					:modelValue="student ?? undefined"
+					@update:modelValue="(val) => (student = val)"
 					placeholder=" "
 					:label="__('Student')"
 					:onCreate="
@@ -30,7 +31,8 @@
 				/>
 				<Link
 					doctype="LMS Payment"
-					v-model="payment"
+					:modelValue="payment ?? undefined"
+					@update:modelValue="(val) => (payment = val)"
 					placeholder=" "
 					:label="__('Payment')"
 					:onCreate="
@@ -44,16 +46,17 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
-import { call, Dialog, toast } from 'frappe-ui'
+<script setup lang="ts">
+import { Dialog, toast } from 'frappe-ui'
 import { ref, inject } from 'vue'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
+import type { SessionUser } from '@/types/api'
 
-const student = ref(null)
-const payment = ref(null)
-const user = inject('$user')
+const student = ref<string | null>(null)
+const payment = ref<string | null>(null)
+const user = inject<SessionUser>('$user')!
 const { updateOnboardingStep } = useOnboarding('learning')
 const show = defineModel()
 
@@ -68,7 +71,7 @@ const props = defineProps({
 	},
 })
 
-const addStudent = (close) => {
+const addStudent = (close: () => void) => {
 	props.students.insert.submit(
 		{
 			member: student.value,
@@ -85,7 +88,7 @@ const addStudent = (close) => {
 				props.batch.reload()
 				close()
 			},
-			onError(err) {
+			onError(err: { messages?: string[] }) {
 				toast.error(err.messages?.[0] || err)
 				console.error(err)
 			},

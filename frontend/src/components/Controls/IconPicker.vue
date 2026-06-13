@@ -13,7 +13,7 @@
 						<component
 							v-if="selectedIcon"
 							class="w-4 h-4 text-ink-gray-7 stroke-1.5"
-							:is="icons[selectedIcon]"
+							:is="iconsByName[selectedIcon]"
 						/>
 						<component
 							v-else
@@ -28,7 +28,7 @@
 						</span>
 					</button>
 				</template>
-				<template #body-main="{ close, isOpen }" class="w-full">
+				<template #body-main="{ close }">
 					<div class="p-3 max-h-56 overflow-auto w-full">
 						<FormControl
 							ref="search"
@@ -37,7 +37,10 @@
 							autocomplete="off"
 						/>
 						<div class="grid grid-cols-10 gap-4 mt-4">
-							<div v-for="(iconComponent, iconName) in filteredIcons">
+							<div
+								v-for="(iconComponent, iconName) in filteredIcons"
+								:key="iconName"
+							>
 								<component
 									:is="iconComponent"
 									class="h-4 w-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
@@ -51,10 +54,15 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { FormControl, Popover } from 'frappe-ui'
 import * as icons from 'lucide-vue-next'
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import type { Component } from 'vue'
+
+type IconMap = Record<string, Component>
+
+const iconsByName = icons as unknown as Record<string, Component>
 
 const iconQuery = ref('')
 const selectedIcon = ref('')
@@ -65,8 +73,8 @@ const iconArray = ref(
 	Object.keys(icons)
 		.sort(() => 0.5 - Math.random())
 		.slice(0, 100)
-		.reduce((result, key) => {
-			result[key] = icons[key]
+		.reduce((result: IconMap, key) => {
+			result[key] = iconsByName[key]
 			return result
 		}, {})
 )
@@ -86,7 +94,7 @@ onMounted(() => {
 	selectedIcon.value = props.modelValue
 })
 
-const setIcon = (icon, close) => {
+const setIcon = (icon: string, close: () => void) => {
 	emit('update:modelValue', icon)
 	selectedIcon.value = icon
 	iconQuery.value = ''
@@ -102,13 +110,13 @@ const filteredIcons = computed(() => {
 		.filter((icon) =>
 			icon.toLowerCase().includes(iconQuery.value.toLowerCase())
 		)
-		.reduce((result, key) => {
-			result[key] = icons[key]
+		.reduce((result: IconMap, key) => {
+			result[key] = iconsByName[key]
 			return result
 		}, {})
 })
 
-const openPopover = (togglePopover) => {
+const openPopover = (togglePopover: () => void) => {
 	togglePopover()
 }
 </script>

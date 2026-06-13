@@ -149,7 +149,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Badge,
 	Button,
@@ -170,11 +170,11 @@ import {
 	FileText,
 	ClipboardType,
 	BriefcaseBusiness,
-	Users,
 } from 'lucide-vue-next'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
-const dayjs = inject('$dayjs')
+const user = inject<SessionUser>('$user')!
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
 const { brand } = sessionStore()
 const showApplicationModal = ref(false)
 const readOnlyMode = window.read_only_mode
@@ -236,11 +236,11 @@ const openApplicationModal = () => {
 	showApplicationModal.value = true
 }
 
-const redirectToLogin = (job) => {
+const redirectToLogin = (job: string) => {
 	window.location.href = `/login?redirect-to=/job-openings/${job}`
 }
 
-const redirectToWebsite = (url) => {
+const redirectToWebsite = (url: string) => {
 	window.open(url, '_blank')
 }
 

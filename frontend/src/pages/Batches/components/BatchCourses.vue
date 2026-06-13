@@ -20,21 +20,27 @@
 				:options="{
 					showTooltip: false,
 					selectable: user.data?.is_student ? false : true,
-					getRowRoute: (row) => ({
-						name: 'CourseDetail',
-						params: { courseName: row.name },
-					}),
+					getRowRoute,
 				}"
 			>
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in getCoursesColumns()">
+					<ListHeaderItem
+						:item="item"
+						v-for="item in getCoursesColumns()"
+						:key="item.key"
+					>
 					</ListHeaderItem>
 				</ListHeader>
 				<ListRows>
-					<ListRow :row="row" v-for="row in courses.data" class="!rounded-none">
-						<template #default="{ column, item }">
+					<ListRow
+						:row="row"
+						v-for="row in courses.data"
+						:key="row.name"
+						class="!rounded-none"
+					>
+						<template #default="{ column }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div>
 									{{ row[column.key] }}
@@ -67,8 +73,8 @@
 		/>
 	</div>
 </template>
-<script setup>
-import { ref, inject, nextTick } from 'vue'
+<script setup lang="ts">
+import { ref, inject } from 'vue'
 import BatchCourseModal from '@/components/Modals/BatchCourseModal.vue'
 import {
 	createListResource,
@@ -83,10 +89,12 @@ import {
 	toast,
 } from 'frappe-ui'
 import { Plus, Trash2 } from 'lucide-vue-next'
+import type { SessionUser } from '@/types/api'
+import type { BatchCourse } from '@/types/lms/BatchCourse'
 const readOnlyMode = window.read_only_mode
 
 const showCourseModal = ref(false)
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 
 const props = defineProps({
 	batch: {
@@ -111,6 +119,11 @@ const openCourseModal = () => {
 	showCourseModal.value = true
 }
 
+const getRowRoute = (row: BatchCourse) => ({
+	name: 'CourseDetail',
+	params: { courseName: row.name },
+})
+
 const getCoursesColumns = () => {
 	return [
 		{
@@ -125,7 +138,10 @@ const getCoursesColumns = () => {
 	]
 }
 
-const removeCourses = async (selections, unselectAll) => {
+const removeCourses = async (
+	selections: Set<string>,
+	unselectAll: () => void
+) => {
 	for (const course of selections) {
 		await courses.delete.submit(course)
 	}

@@ -201,7 +201,7 @@
 							<TextEditor
 								:id="batchDetailsId"
 								:content="batchDetail.doc.batch_details"
-								@change="(val) => (batchDetail.doc.batch_details = val)"
+								@change="onBatchDetailsChange"
 								:editable="true"
 								:fixedMenu="true"
 								editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-md py-1 px-2 min-h-[7rem] max-h-[16rem] overflow-y-scroll transition-colors"
@@ -300,7 +300,7 @@
 		@created="onEmailTemplateCreated"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	computed,
 	getCurrentInstance,
@@ -342,19 +342,20 @@ import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'
 import Assessments from '@/pages/Batches/components/Assessments.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
+import type { SessionUser } from '@/types/api'
 
 const router = useRouter()
-const user = inject('$user')
-const instructors = ref([])
+const user = inject<SessionUser>('$user')!
+const instructors = ref<string[]>([])
 const app = getCurrentInstance()
-const { capture } = useTelemetry()
-const { $dialog } = app.appContext.config.globalProperties
+const { capture: _capture } = useTelemetry()
+const { $dialog } = app!.appContext.config.globalProperties
 const isDirty = ref(false)
-const originalDoc = ref(null)
+const originalDoc = ref<Record<string, unknown> | null>(null)
 const batchDetailsId = useId()
 const showMemberModal = ref(false)
 const showEmailTemplateModal = ref(false)
-const emailTemplateLinkRef = ref(null)
+const emailTemplateLinkRef = ref<{ reload: () => void } | null>(null)
 
 const emailTemplates = createListResource({
 	doctype: 'Email Template',
@@ -364,21 +365,26 @@ const emailTemplates = createListResource({
 	cache: 'email-templates',
 })
 
-const onEmailTemplateCreated = (name) => {
+const onEmailTemplateCreated = (name: string) => {
 	batchDetail.doc.confirmation_email_template = name
 	emailTemplateLinkRef.value?.reload()
 }
 
-const createCategory = (name, done) => {
-	createLMSCategory(name).then((categoryName) => {
+const createCategory = (name: string | null, done?: () => void) => {
+	if (!name) return
+	createLMSCategory(name).then((categoryName: string | undefined) => {
 		if (!categoryName) return
 		batchDetail.doc.category = categoryName
-		done()
+		done?.()
 	})
 }
 
-const onInstructorCreated = (user) => {
+const onInstructorCreated = (user: { name: string }) => {
 	instructors.value = [...instructors.value, user.name]
+}
+
+const onBatchDetailsChange = (val: string) => {
+	batchDetail.doc.batch_details = val
 }
 
 const meta = reactive({
@@ -398,11 +404,11 @@ onMounted(() => {
 	window.addEventListener('keydown', keyboardShortcut)
 })
 
-const keyboardShortcut = (e) => {
+const keyboardShortcut = (e: KeyboardEvent) => {
 	if (
 		e.key === 's' &&
 		(e.ctrlKey || e.metaKey) &&
-		!e.target.classList.contains('ProseMirror')
+		!(e.target as HTMLElement).classList.contains('ProseMirror')
 	) {
 		submitBatch()
 		e.preventDefault()
@@ -439,30 +445,32 @@ const updateBatchData = () => {
 	Object.keys(batchDetail.doc).forEach((key) => {
 		if (key == 'instructors') {
 			instructors.value = []
-			batchDetail.doc.instructors.forEach((instructor) => {
-				instructors.value.push(instructor.instructor)
-			})
+			batchDetail.doc.instructors.forEach(
+				(instructor: { instructor: string }) => {
+					instructors.value.push(instructor.instructor)
+				}
+			)
 		} else if (['start_time', 'end_time'].includes(key)) {
 			batchDetail.doc[key] = formatTime(batchDetail.doc[key])
 		}
 	})
-	let checkboxes = [
+	const checkboxes = [
 		'published',
 		'paid_batch',
 		'allow_self_enrollment',
 		'certification',
 		'evaluation',
 	]
-	for (let idx in checkboxes) {
-		let key = checkboxes[idx]
+	for (const idx in checkboxes) {
+		const key = checkboxes[idx]
 		batchDetail.doc[key] = batchDetail.doc[key] ? true : false
 	}
 	originalDoc.value = structuredClone(toRaw(batchDetail.doc))
 }
 
-const formatTime = (timeStr) => {
-	let [hours, minutes, seconds] = timeStr.split(':')
-	hours = hours.length == 1 ? '0' + hours : hours
+const formatTime = (timeStr: string) => {
+	const [rawHours, minutes] = timeStr.split(':')
+	const hours = rawHours.length == 1 ? '0' + rawHours : rawHours
 	return `${hours}:${minutes}`
 }
 
@@ -479,7 +487,7 @@ const updateBatch = () => {
 			})),
 		},
 		{
-			onSuccess(data) {
+			onSuccess(data: { name: string }) {
 				updateMetaInfo('batches', data.name, meta)
 				toast.success(__('Batch updated successfully'))
 				nextTick(() => {
@@ -487,7 +495,7 @@ const updateBatch = () => {
 					isDirty.value = false
 				})
 			},
-			onError(err) {
+			onError(err: { messages?: string[] }) {
 				toast.error(err.messages?.[0] || err)
 				console.error(err)
 			},
@@ -506,7 +514,7 @@ const deleteBatch = () => {
 				label: __('Delete'),
 				theme: 'red',
 				variant: 'solid',
-				onClick({ close }) {
+				onClick({ close }: { close: () => void }) {
 					trashBatch(close)
 					close()
 				},
@@ -515,7 +523,7 @@ const deleteBatch = () => {
 	})
 }
 
-const trashBatch = (close) => {
+const trashBatch = (close: () => void) => {
 	call('lms.lms.api.delete_batch', {
 		batch: props.batch.data.name,
 	}).then(() => {
@@ -547,11 +555,14 @@ const conferencingOptions = computed(() => {
 const timezoneResource = createResource({
 	url: 'frappe.geo.country_info.get_country_timezone_info',
 	auto: true,
-	transform: (data) => data.all_timezones,
+	transform: (data: { all_timezones: string[] }) => data.all_timezones,
 })
 
 const timezoneOptions = computed(() =>
-	(timezoneResource.data || []).map((tz) => ({ label: tz, value: tz }))
+	((timezoneResource.data as string[] | undefined) || []).map((tz) => ({
+		label: tz,
+		value: tz,
+	}))
 )
 
 const mediumOptions = computed(() => {

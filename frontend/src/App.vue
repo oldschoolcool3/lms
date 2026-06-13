@@ -7,7 +7,7 @@
 		<Dialogs />
 	</FrappeUIProvider>
 </template>
-<script setup>
+<script setup lang="ts">
 import { FrappeUIProvider } from 'frappe-ui'
 import { Dialogs } from '@/utils/dialogs'
 import { computed, onUnmounted, ref } from 'vue'

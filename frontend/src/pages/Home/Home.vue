@@ -74,7 +74,7 @@ const isAdmin = computed(() => {
 })
 
 const isPersonaCaptured = async () => {
-	let persona = await call('frappe.client.get_single_value', {
+	const persona = await call('frappe.client.get_single_value', {
 		doctype: 'LMS Settings',
 		field: 'persona_captured',
 	})
@@ -83,9 +83,9 @@ const isPersonaCaptured = async () => {
 
 const identifyUserPersona = async () => {
 	if (user.data?.is_system_manager && !user.data?.developer_mode) {
-		let personaCaptured = await isPersonaCaptured()
+		const personaCaptured = await isPersonaCaptured()
 		if (personaCaptured) return
-		let courseCount = await call('frappe.client.get_count', {
+		const courseCount = await call('frappe.client.get_count', {
 			doctype: 'LMS Course',
 			filters: {
 				title: ['not like', '%A guide to Frappe Learning%'],
@@ -129,9 +129,9 @@ const streakInfo = createResource({
 
 const subtitle = computed(() => {
 	if (isAdmin.value) {
-		let liveClassSuffix =
+		const liveClassSuffix =
 			adminLiveClasses.data?.length > 1 ? __('live classes') : __('live class')
-		let evalSuffix =
+		const evalSuffix =
 			adminEvals.data?.length > 1 ? __('evaluations') : __('evaluation')
 		if (adminLiveClasses.data?.length > 0 && adminEvals.data?.length > 0) {
 			return __('You have {0} upcoming {1} and {2} {3} scheduled.').format(
@@ -153,9 +153,10 @@ const subtitle = computed(() => {
 		}
 		return __('Manage your courses and batches at a glance')
 	} else {
-		let liveClassSuffix =
+		const liveClassSuffix =
 			myLiveClasses.data?.length > 1 ? __('live classes') : __('live class')
-		let evalSuffix = evalCount.value > 1 ? __('evaluations') : __('evaluation')
+		const evalSuffix =
+			evalCount.value > 1 ? __('evaluations') : __('evaluation')
 		if (myLiveClasses.data?.length > 0 && evalCount.value > 0) {
 			return __('You have {0} upcoming {1} and {2} {3} scheduled.').format(
 				myLiveClasses.data.length,

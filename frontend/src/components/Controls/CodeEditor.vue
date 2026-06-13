@@ -147,7 +147,7 @@ function resetEditor(value: string, resetHistory = false) {
 	aceEditor?.setValue(value)
 	aceEditor?.clearSelection()
 	aceEditor?.setTheme(isDark.value ? 'ace/theme/twilight' : 'ace/theme/chrome')
-	props.autofocus && aceEditor?.focus()
+	if (props.autofocus) aceEditor?.focus()
 	if (resetHistory) {
 		aceEditor?.session.getUndoManager().reset()
 	}

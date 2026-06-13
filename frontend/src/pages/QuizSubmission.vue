@@ -50,6 +50,7 @@
 		<div class="divide-y">
 			<div
 				v-for="(row, index) in submissionDetails.doc.result"
+				:key="index"
 				class="py-5 px-10 space-y-4"
 			>
 				<div class="text-ink-gray-9">
@@ -72,7 +73,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	createDocumentResource,
 	Breadcrumbs,
@@ -85,10 +86,11 @@ import {
 import { computed, onBeforeUnmount, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
+import type { SessionUser } from '@/types/api'
 
 const { brand } = sessionStore()
 const router = useRouter()
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 
 onMounted(() => {
 	if (!user.data?.is_instructor && !user.data?.is_moderator)
@@ -101,11 +103,11 @@ onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
 })
 
-const keyboardShortcut = (e) => {
+const keyboardShortcut = (e: KeyboardEvent) => {
 	if (
 		e.key === 's' &&
 		(e.ctrlKey || e.metaKey) &&
-		!e.target.classList.contains('ProseMirror')
+		!(e.target as HTMLElement).classList.contains('ProseMirror')
 	) {
 		saveSubmission()
 		e.preventDefault()
@@ -146,7 +148,7 @@ const saveSubmission = () => {
 	submissionDetails.save.submit(
 		{},
 		{
-			onError(err) {
+			onError(err: { messages?: string[] }) {
 				toast.error(err.messages?.[0] || err)
 			},
 		}

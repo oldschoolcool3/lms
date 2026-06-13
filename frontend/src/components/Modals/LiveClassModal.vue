@@ -8,7 +8,7 @@
 				{
 					label: 'Submit',
 					variant: 'solid',
-					onClick: ({ close }) => submitLiveClass(close),
+					onClick: onSubmitClick,
 				},
 			],
 		}"
@@ -58,8 +58,8 @@
 								<span class="text-ink-red-3">*</span>
 							</label>
 							<Autocomplete
-								@update:modelValue="(opt) => (liveClass.timezone = opt.value)"
-								:modelValue="liveClass.timezone"
+								@update:modelValue="onTimezoneChange"
+								:modelValue="liveClass.timezone ?? undefined"
 								:options="getTimezoneOptions()"
 								:required="true"
 							/>
@@ -82,16 +82,17 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Dialog, createResource, Tooltip, FormControl, toast } from 'frappe-ui'
 import { reactive, inject, onMounted } from 'vue'
 import { getTimezones, getUserTimezone } from '@/utils/'
 import Autocomplete from '@/components/Controls/Autocomplete.vue'
+import type { SessionUser } from '@/types/api'
 
-const liveClasses = defineModel('reloadLiveClasses')
+const liveClasses = defineModel<{ reload: () => void }>('reloadLiveClasses')
 const show = defineModel()
-const user = inject('$user')
-const dayjs = inject('$dayjs')
+const user = inject<SessionUser>('$user')!
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
 
 const props = defineProps({
 	batch: {
@@ -103,7 +104,19 @@ const props = defineProps({
 	conferencingProvider: String,
 })
 
-let liveClass = reactive({
+interface LiveClass {
+	title: string
+	description: string
+	date: string
+	time: string
+	duration: string
+	timezone: string | null
+	auto_recording: string
+	batch: string
+	host?: string
+}
+
+const liveClass = reactive<LiveClass>({
 	title: '',
 	description: '',
 	date: '',
@@ -112,7 +125,7 @@ let liveClass = reactive({
 	timezone: '',
 	auto_recording: 'No Recording',
 	batch: props.batch,
-	host: user.data.name,
+	host: user.data?.name,
 })
 
 onMounted(() => {
@@ -126,6 +139,10 @@ const getTimezoneOptions = () => {
 			value: timezone,
 		}
 	})
+}
+
+const onTimezoneChange = (opt: { value: string }) => {
+	liveClass.timezone = opt.value
 }
 
 const getRecordingOptions = () => {
@@ -147,7 +164,7 @@ const getRecordingOptions = () => {
 
 const createLiveClass = createResource({
 	url: 'lms.lms.doctype.lms_batch.lms_batch.create_live_class',
-	makeParams(values) {
+	makeParams(values: LiveClass) {
 		return {
 			doctype: 'LMS Live Class',
 			batch_name: values.batch,
@@ -159,7 +176,7 @@ const createLiveClass = createResource({
 
 const createGoogleMeetLiveClass = createResource({
 	url: 'lms.lms.doctype.lms_batch.lms_batch.create_google_meet_live_class',
-	makeParams(values) {
+	makeParams(values: LiveClass) {
 		return {
 			batch_name: values.batch,
 			google_meet_account: props.googleMeetAccount,
@@ -168,7 +185,7 @@ const createGoogleMeetLiveClass = createResource({
 	},
 })
 
-const submitLiveClass = (close) => {
+const submitLiveClass = (close: () => void) => {
 	const resource =
 		props.conferencingProvider === 'Google Meet'
 			? createGoogleMeetLiveClass
@@ -178,15 +195,19 @@ const submitLiveClass = (close) => {
 			validateFormFields()
 		},
 		onSuccess() {
-			liveClasses.value.reload()
+			liveClasses.value?.reload()
 			refreshForm()
 			close()
 		},
-		onError(err) {
+		onError(err: { messages?: string[] }) {
 			toast.error(err.messages?.[0] || err)
 			console.error(err)
 		},
 	})
+}
+
+const onSubmitClick = ({ close }: { close: () => void }) => {
+	submitLiveClass(close)
 }
 
 const validateFormFields = () => {
@@ -223,14 +244,14 @@ const validateFormFields = () => {
 }
 
 const valideTime = () => {
-	let time = liveClass.time.split(':')
+	const time = liveClass.time.split(':')
 	if (time.length != 2) {
 		return false
 	}
-	if (time[0] < 0 || time[0] > 23) {
+	if (Number(time[0]) < 0 || Number(time[0]) > 23) {
 		return false
 	}
-	if (time[1] < 0 || time[1] > 59) {
+	if (Number(time[1]) < 0 || Number(time[1]) > 59) {
 		return false
 	}
 	return true

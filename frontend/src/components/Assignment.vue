@@ -82,11 +82,8 @@
 						:uploadArgs="{
 							private: true,
 						}"
-						:validateFile="
-							(file) =>
-								validateFile(file, true, assignment.data.type.toLowerCase())
-						"
-						@success="(file) => saveSubmission(file)"
+						:validateFile="validateSubmissionFile"
+						@success="saveSubmission"
 					>
 						<template #default="{ uploading, progress, openFileSelector }">
 							<Button @click="openFileSelector" :loading="uploading">
@@ -138,7 +135,7 @@
 					</div>
 					<TextEditor
 						:content="answer"
-						@change="(val) => (answer = val)"
+						@change="onAnswerChange"
 						:editable="true"
 						:fixedMenu="true"
 						:readonly="!canModifyAssignment"
@@ -183,12 +180,7 @@
 						</div>
 						<TextEditor
 							:content="comments"
-							@change="
-								(val) => {
-									comments = val
-									isDirty = true
-								}
-							"
+							@change="onCommentsChange"
 							:editable="true"
 							:fixedMenu="true"
 							:uploadArgs="{
@@ -202,7 +194,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Badge,
 	Button,
@@ -218,12 +210,30 @@ import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { validateFile } from '@/utils'
+import type { SessionUser } from '@/types/api'
 
-const answer = ref(null)
-const attachment = ref(null)
-const comments = ref(null)
+interface FrappeError {
+	messages?: string[]
+}
+
+interface UploadedFile {
+	file_url: string
+	file_type?: string
+}
+
+interface SubmissionDoc {
+	doctype: string
+	assignment: string
+	member?: string
+	answer?: string | null
+	assignment_attachment?: string | null
+}
+
+const answer = ref<string | null>(null)
+const attachment = ref<string | null>(null)
+const comments = ref<string | null>(null)
 const router = useRouter()
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const isDirty = ref(false)
 
 const props = defineProps({
@@ -245,7 +255,7 @@ onMounted(() => {
 	window.addEventListener('keydown', keyboardShortcut)
 })
 
-const keyboardShortcut = (e) => {
+const keyboardShortcut = (e: KeyboardEvent) => {
 	if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
 		submitAssignment()
 		e.preventDefault()
@@ -263,7 +273,7 @@ const assignment = createResource({
 		name: props.assignmentID,
 	},
 	auto: true,
-	onSuccess(data) {
+	onSuccess() {
 		if (props.submissionName != 'new') {
 			submissionResource.reload()
 		}
@@ -274,7 +284,7 @@ const submissionResource = createDocumentResource({
 	doctype: 'LMS Assignment Submission',
 	name: props.submissionName,
 	auto: false,
-	onError(err) {
+	onError(err: FrappeError) {
 		toast.error(err.messages?.[0] || err)
 	},
 })
@@ -301,7 +311,7 @@ const submitAssignment = () => {
 }
 
 const prepareSubmissionDoc = () => {
-	let doc = {
+	const doc: SubmissionDoc = {
 		doctype: 'LMS Assignment Submission',
 		assignment: props.assignmentID,
 		member: user.data?.name,
@@ -315,7 +325,7 @@ const prepareSubmissionDoc = () => {
 }
 
 const addNewSubmission = () => {
-	let doc = prepareSubmissionDoc()
+	const doc = prepareSubmissionDoc()
 	if (!doc.assignment_attachment && !doc.answer) {
 		toast.error(
 			__('Please provide an answer or upload a file before submitting.')
@@ -325,7 +335,7 @@ const addNewSubmission = () => {
 	call('frappe.client.insert', {
 		doc: doc,
 	})
-		.then((data) => {
+		.then((data: { name: string }) => {
 			toast.success(__('Assignment submitted successfully'))
 			router.push({
 				name: 'AssignmentSubmission',
@@ -340,14 +350,14 @@ const addNewSubmission = () => {
 			submissionResource.name = data.name
 			submissionResource.reload()
 		})
-		.catch((err) => {
+		.catch((err: FrappeError) => {
 			toast.error(err.messages?.[0] || err)
 			console.error(err)
 		})
 }
 
 const updateSubmission = () => {
-	let evaluator =
+	const evaluator =
 		submissionResource.doc && submissionResource.doc.owner != user.data?.name
 			? user.data?.name
 			: null
@@ -361,11 +371,11 @@ const updateSubmission = () => {
 			assignment_attachment: attachment.value,
 		},
 		{
-			onSuccess(data) {
+			onSuccess() {
 				isDirty.value = false
 				toast.success(__('Changes saved successfully'))
 			},
-			onError(err) {
+			onError(err: FrappeError) {
 				toast.error(err.messages?.[0] || err)
 				console.error(err)
 			},
@@ -373,9 +383,22 @@ const updateSubmission = () => {
 	)
 }
 
-const saveSubmission = (file) => {
+const saveSubmission = (file: UploadedFile) => {
 	isDirty.value = true
 	attachment.value = file.file_url
+}
+
+const validateSubmissionFile = (file: File) => {
+	return validateFile(file, true, assignment.data.type.toLowerCase())
+}
+
+const onAnswerChange = (val: string) => {
+	answer.value = val
+}
+
+const onCommentsChange = (val: string) => {
+	comments.value = val
+	isDirty.value = true
 }
 
 const markLessonProgress = () => {
@@ -383,7 +406,7 @@ const markLessonProgress = () => {
 	if (!pathname.includes('courses'))
 		pathname = window.parent.location.pathname.split('/')
 	if (pathname[2] != 'courses') return
-	let lessonIndex = pathname.pop().split('-')
+	const lessonIndex = (pathname.pop() ?? '').split('-')
 
 	if (lessonIndex.length == 2) {
 		call('lms.lms.api.mark_lesson_progress', {

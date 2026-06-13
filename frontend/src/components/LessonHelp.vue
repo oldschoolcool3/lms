@@ -32,15 +32,15 @@
 	</div>
 	<ExplanationVideos v-model="showExplanation" :title="title" :type="type" />
 </template>
-<script setup>
+<script setup lang="ts">
 import { Info } from 'lucide-vue-next'
 import { ref } from 'vue'
 import ExplanationVideos from '@/components/Modals/ExplanationVideos.vue'
 
 const showExplanation = ref(false)
-const type = ref(null)
-const title = ref(null)
-const contentMap = {
+const type = ref<string | null>(null)
+const title = ref<string | null>(null)
+const contentMap: Record<string, { title: string; description: string }> = {
 	quiz: {
 		title: 'How to add a Quiz?',
 		description:
@@ -63,7 +63,7 @@ const contentMap = {
 	},
 }
 
-const openHelpDialog = (contentType) => {
+const openHelpDialog = (contentType: string) => {
 	type.value = contentType
 	title.value = contentMap[contentType].title
 	showExplanation.value = true

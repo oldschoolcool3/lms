@@ -93,7 +93,9 @@ interface TagOption {
 
 const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
 
-const doc = computed(() => resource.doc)
+// This section only renders behind CourseForm's loaded-doc gate
+// (SkeletonLoader v-if="!courseResource.doc"), so the doc is present here.
+const doc = computed(() => resource.doc!)
 
 const parsedTags = computed<string[]>(() => {
 	const tags = resource.doc?.tags
@@ -124,7 +126,7 @@ const tagOptions = computed<TagOption[]>(() => {
 
 const tagsSelectedLabels = computed<string>(() => tagsArray.value.join(', '))
 
-function createCategory(name: string, done?: () => void) {
+function createCategory(name: string | null, done?: () => void) {
 	if (!name) return
 	createLMSCategory(name).then((categoryName: string | undefined) => {
 		if (!categoryName || !resource.doc) return

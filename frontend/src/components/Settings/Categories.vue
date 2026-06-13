@@ -35,39 +35,43 @@
 		</template>
 
 		<div class="divide-y divide-outline-gray-modals space-y-2">
-			<div
-				v-if="categories.data?.length"
-				v-for="(cat, index) in categories.data"
-				:key="cat.name"
-				class="pt-2"
-			>
+			<template v-if="categories.data?.length">
 				<div
-					v-if="editing?.name !== cat.name"
-					class="flex items-center justify-between group text-sm text-ink-gray-9"
+					v-for="(cat, index) in categories.data"
+					:key="cat.name"
+					class="pt-2"
 				>
-					<div class="text-ink-gray-9" @dblclick="allowEdit(cat, index)">
-						{{ cat.category }}
-					</div>
-					<Button
-						variant="ghost"
-						theme="red"
-						class="invisible group-hover:visible"
-						@click="deleteCategory(cat.name)"
+					<div
+						v-if="editing?.name !== cat.name"
+						class="flex items-center justify-between group text-sm text-ink-gray-9"
 					>
-						<template #icon>
-							<Trash2 class="size-4 stroke-1.5 text-ink-red-4" />
-						</template>
-					</Button>
+						<div class="text-ink-gray-9" @dblclick="allowEdit(cat, index)">
+							{{ cat.category }}
+						</div>
+						<Button
+							variant="ghost"
+							theme="red"
+							class="invisible group-hover:visible"
+							@click="deleteCategory(cat.name)"
+						>
+							<template #icon>
+								<Trash2 class="size-4 stroke-1.5 text-ink-red-4" />
+							</template>
+						</Button>
+					</div>
+					<FormControl
+						v-else
+						:ref="
+							(el: Element | ComponentPublicInstance | null) =>
+								setEditInputRef(el, index)
+						"
+						v-model="editedValue"
+						type="text"
+						class="w-full"
+						@keyup.enter="saveChanges(cat.name, editedValue)"
+					/>
 				</div>
-				<FormControl
-					v-else
-					:ref="(el) => (editInputRef[index] = el)"
-					v-model="editedValue"
-					type="text"
-					class="w-full"
-					@keyup.enter="saveChanges(cat.name, editedValue)"
-				/>
-			</div>
+			</template>
 			<EmptyStateLayout
 				v-else
 				name="Categories"
@@ -77,7 +81,7 @@
 		</div>
 	</SettingsLayout>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Button,
 	FormControl,
@@ -88,19 +92,25 @@ import {
 } from 'frappe-ui'
 import { Plus, Trash2, X, Network } from 'lucide-vue-next'
 import { ref } from 'vue'
+import type { ComponentPublicInstance } from 'vue'
 import { cleanError } from '@/utils'
+import type { LMSCategory } from '@/types/lms/LMSCategory'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 
-const showForm = ref(false)
-const category = ref(null)
-const categoryInput = ref(null)
-const saving = ref(false)
-const editing = ref(null)
-const editedValue = ref('')
-const editInputRef = ref([])
+interface SubmitError {
+	messages: string[]
+}
 
-const props = defineProps({
+const showForm = ref(false)
+const category = ref<string | null>(null)
+const categoryInput = ref<ComponentPublicInstance | null>(null)
+const saving = ref(false)
+const editing = ref<LMSCategory | null>(null)
+const editedValue = ref('')
+const editInputRef = ref<(ComponentPublicInstance | null)[]>([])
+
+defineProps({
 	label: {
 		type: String,
 		required: true,
@@ -123,13 +133,13 @@ const addCategory = () => {
 			category: category.value,
 		},
 		{
-			onSuccess(data) {
+			onSuccess() {
 				categories.reload()
 				category.value = null
 				showForm.value = false
 				toast.success(__('Category added successfully'))
 			},
-			onError(err) {
+			onError(err: SubmitError) {
 				toast.error(__(cleanError(err.messages[0]) || 'Unable to add category'))
 			},
 		}
@@ -139,13 +149,13 @@ const addCategory = () => {
 const showCategoryForm = () => {
 	showForm.value = !showForm.value
 	setTimeout(() => {
-		categoryInput.value.$el.querySelector('input').focus()
+		categoryInput.value?.$el.querySelector('input').focus()
 	}, 0)
 }
 
 const updateCategory = createResource({
 	url: 'frappe.client.rename_doc',
-	makeParams(values) {
+	makeParams(values: { name: string; category: string }) {
 		return {
 			doctype: 'LMS Category',
 			old_name: values.name,
@@ -154,7 +164,7 @@ const updateCategory = createResource({
 	},
 })
 
-const update = (name, value) => {
+const update = (name: string, value: string) => {
 	saving.value = true
 	updateCategory.submit(
 		{
@@ -169,7 +179,7 @@ const update = (name, value) => {
 				editedValue.value = ''
 				toast.success(__('Category updated successfully'))
 			},
-			onError(err) {
+			onError(err: SubmitError) {
 				saving.value = false
 				editing.value = null
 				editedValue.value = ''
@@ -181,7 +191,7 @@ const update = (name, value) => {
 	)
 }
 
-const deleteCategory = (name) => {
+const deleteCategory = (name: string) => {
 	saving.value = true
 	categories.delete.submit(name, {
 		onSuccess() {
@@ -189,7 +199,7 @@ const deleteCategory = (name) => {
 			categories.reload()
 			toast.success(__('Category deleted successfully'))
 		},
-		onError(err) {
+		onError(err: SubmitError) {
 			saving.value = false
 			toast.error(
 				__(cleanError(err.messages[0]) || 'Unable to delete category')
@@ -198,16 +208,23 @@ const deleteCategory = (name) => {
 	})
 }
 
-const saveChanges = (name, value) => {
+const saveChanges = (name: string, value: string) => {
 	saving.value = true
 	update(name, value)
 }
 
-const allowEdit = (cat, index) => {
+const setEditInputRef = (
+	el: Element | ComponentPublicInstance | null,
+	index: number
+) => {
+	editInputRef.value[index] = el as ComponentPublicInstance | null
+}
+
+const allowEdit = (cat: LMSCategory, index: number) => {
 	editing.value = cat
 	editedValue.value = cat.category
 	setTimeout(() => {
-		editInputRef.value[index].$el.querySelector('input').focus()
+		editInputRef.value[index]?.$el.querySelector('input').focus()
 	}, 0)
 }
 </script>

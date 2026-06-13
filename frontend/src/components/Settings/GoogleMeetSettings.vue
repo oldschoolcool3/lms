@@ -1,6 +1,6 @@
 <template>
 	<template v-if="view === 'list'">
-		<SettingsLayout :title="label" :description="__(description)">
+		<SettingsLayout :title="label" :description="__(description || '')">
 			<template #header-actions>
 				<Button variant="solid" @click="openForm('new')">
 					<template #prefix>
@@ -16,15 +16,17 @@
 					row-key="name"
 					:options="{
 						showTooltip: false,
-						onRowClick: (row) => {
-							openForm(row.name)
-						},
+						onRowClick,
 					}"
 				>
 					<ListHeader
 						class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 					>
-						<ListHeaderItem :item="item" v-for="item in columns">
+						<ListHeaderItem
+							:item="item"
+							v-for="item in columns"
+							:key="item.key"
+						>
 							<template #prefix="{ item }">
 								<FeatherIcon
 									v-if="item.icon"
@@ -36,7 +38,11 @@
 					</ListHeader>
 
 					<ListRows>
-						<ListRow :row="row" v-for="row in googleMeetAccounts.data">
+						<ListRow
+							:row="row"
+							v-for="row in googleMeetAccounts.data"
+							:key="row.name"
+						>
 							<template #default="{ column, item }">
 								<ListRowItem :item="row[column.key]" :align="column.align">
 									<template #prefix>
@@ -90,7 +96,7 @@
 	</template>
 	<GoogleMeetAccountForm
 		v-else
-		:accountID="currentAccount"
+		:accountID="currentAccount ?? undefined"
 		v-model:googleMeetAccounts="googleMeetAccounts"
 		@updateStep="(step) => (view = step)"
 	/>
@@ -120,14 +126,18 @@ import GoogleMeetAccountForm from '@/components/Settings/GoogleMeetAccountForm.v
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 
+interface SubmitError {
+	messages: string[]
+}
+
 const user = inject<User | null>('$user')
 const view = ref<'list' | 'form'>('list')
 const currentAccount = ref<string | null>(null)
 
-const props = defineProps({
-	label: String,
-	description: String,
-})
+defineProps<{
+	label: string
+	description?: string
+}>()
 
 const googleMeetAccounts = createListResource({
 	doctype: 'LMS Google Meet Settings',
@@ -164,7 +174,11 @@ const openForm = (accountID: string) => {
 	view.value = 'form'
 }
 
-const removeAccount = (selections, unselectAll) => {
+const onRowClick = (row: { name: string }) => {
+	openForm(row.name)
+}
+
+const removeAccount = (selections: Set<string>, unselectAll: () => void) => {
 	call('lms.lms.api.delete_documents', {
 		doctype: 'LMS Google Meet Settings',
 		documents: Array.from(selections),
@@ -174,7 +188,7 @@ const removeAccount = (selections, unselectAll) => {
 			toast.success(__('Google Meet Account deleted successfully'))
 			unselectAll()
 		})
-		.catch((err) => {
+		.catch((err: SubmitError) => {
 			toast.error(
 				cleanError(err.messages[0]) || __('Error deleting Google Meet Account')
 			)

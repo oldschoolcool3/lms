@@ -11,13 +11,14 @@
 		</Button>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { inject } from 'vue'
 import { Button } from 'frappe-ui'
 import Quiz from '@/components/Quiz.vue'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
-const props = defineProps({
+const user = inject<SessionUser>('$user')!
+defineProps({
 	quiz: {
 		type: String,
 		required: true,

@@ -20,11 +20,11 @@
 		</div>
 	</div>
 </template>
-<script setup>
-const props = defineProps({
+<script setup lang="ts">
+defineProps({
 	course: {
 		type: Object,
-		default: {},
+		default: () => ({}),
 	},
 })
 </script>

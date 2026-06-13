@@ -34,8 +34,8 @@
 				</div>
 
 				<div
-					v-if="evaluator.data"
-					v-for="slot in evaluator.data.slots.schedule"
+					v-for="(slot, index) in evaluator.data?.slots?.schedule"
+					:key="index"
 					class="grid grid-cols-3 md:grid-cols-4 gap-4 mb-4 group"
 				>
 					<FormControl
@@ -149,13 +149,14 @@
 		</div>
 	</div>
 </template>
-<script setup>
-import { createResource, FormControl, Button, Badge, toast } from 'frappe-ui'
+<script setup lang="ts">
+import { createResource, FormControl, Button, toast } from 'frappe-ui'
 import { computed, reactive, ref, onMounted, inject, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { Plus, X, Check, CircleAlert } from 'lucide-vue-next'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
@@ -180,8 +181,8 @@ const isSessionUser = () => {
 }
 
 const showSlotsTemplate = ref(0)
-const from = ref(null)
-const to = ref(null)
+const from = ref<string | null>(null)
+const to = ref<string | null>(null)
 
 const newSlot = reactive({
 	day: '',
@@ -195,7 +196,7 @@ const evaluator = createResource({
 		evaluator: props.profile.data?.name,
 	},
 	auto: true,
-	onError(err) {
+	onError(err: { messages?: string[] }) {
 		toast.error(err.messages?.[0] || err)
 		console.error(err)
 	},
@@ -207,13 +208,15 @@ watch(evaluator, () => {
 	if (evaluator.data?.slots?.unavailable_to)
 		to.value = evaluator.data.slots.unavailable_to
 
-	evaluator.data?.slots?.schedule.forEach((slot) => {
-		slot.start_time = formatTime(slot.start_time)
-		slot.end_time = formatTime(slot.end_time)
-	})
+	evaluator.data?.slots?.schedule.forEach(
+		(slot: { start_time: string; end_time: string }) => {
+			slot.start_time = formatTime(slot.start_time)
+			slot.end_time = formatTime(slot.end_time)
+		}
+	)
 })
 
-const formatTime = (time) => {
+const formatTime = (time: string | null | undefined) => {
 	if (!time) return ''
 	const [hour, minute] = time.split(':')
 	return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
@@ -221,7 +224,7 @@ const formatTime = (time) => {
 
 const createSlot = createResource({
 	url: 'frappe.client.insert',
-	makeParams(values) {
+	makeParams() {
 		console.log(evaluator.data)
 		return {
 			doc: {
@@ -241,14 +244,14 @@ const createSlot = createResource({
 		newSlot.start_time = ''
 		newSlot.end_time = ''
 	},
-	onError(err) {
+	onError(err: { messages?: string[] }) {
 		toast.error(err.messages?.[0] || err)
 	},
 })
 
 const updateSlot = createResource({
 	url: 'frappe.client.set_value',
-	makeParams(values) {
+	makeParams(values: { name: string; field: string; value: unknown }) {
 		return {
 			doctype: 'Evaluator Schedule',
 			name: values.name,
@@ -259,14 +262,14 @@ const updateSlot = createResource({
 	onSuccess() {
 		toast.success(__('Availability updated successfully'))
 	},
-	onError(err) {
+	onError(err: { messages?: string[] }) {
 		toast.error(err.messages?.[0] || err)
 	},
 })
 
 const deleteSlot = createResource({
 	url: 'frappe.client.delete',
-	makeParams(values) {
+	makeParams(values: { name: string }) {
 		return {
 			doctype: 'Evaluator Schedule',
 			name: values.name,
@@ -276,14 +279,14 @@ const deleteSlot = createResource({
 		toast.success(__('Slot deleted successfully'))
 		evaluator.reload()
 	},
-	onError(err) {
+	onError(err: { messages?: string[] }) {
 		toast.error(err.messages?.[0] || err)
 	},
 })
 
 const updateUnavailability = createResource({
 	url: 'frappe.client.set_value',
-	makeParams(values) {
+	makeParams(values: { field: string; value: unknown }) {
 		return {
 			doctype: 'Course Evaluator',
 			name: evaluator.data?.slots.name,
@@ -294,12 +297,12 @@ const updateUnavailability = createResource({
 	onSuccess() {
 		toast.success(__('Unavailability updated successfully'))
 	},
-	onError(err) {
+	onError(err: { messages?: string[] }) {
 		toast.error(err.messages?.[0] || err)
 	},
 })
 
-const update = (name, field, value) => {
+const update = (name: string, field: string, value: unknown) => {
 	updateSlot.submit(
 		{
 			name,
@@ -323,7 +326,7 @@ const add = () => {
 	createSlot.submit()
 }
 
-const deleteRow = (name) => {
+const deleteRow = (name: string) => {
 	deleteSlot.submit({ name })
 }
 
@@ -335,7 +338,7 @@ const authorizeCalendar = createResource({
 			reauthorize: 1,
 		}
 	},
-	onSuccess(data) {
+	onSuccess(data: { url: string }) {
 		window.open(data.url)
 	},
 })

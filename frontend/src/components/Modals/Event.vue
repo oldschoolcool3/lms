@@ -132,7 +132,8 @@
 								:disabled="!userIsEvaluator()"
 							/>
 							<Link
-								v-model="certificate.template"
+								:modelValue="certificate.template ?? undefined"
+								@update:modelValue="(val) => (certificate.template = val)"
 								:label="__('Template')"
 								doctype="Print Format"
 								:disabled="!userIsEvaluator()"
@@ -166,7 +167,16 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script lang="ts">
+import type { LMSCertificateRequest } from '@/types/lms/LMSCertificateRequest'
+
+export interface EventDetail extends LMSCertificateRequest {
+	title?: string
+	venue?: string
+}
+</script>
+
+<script setup lang="ts">
 import {
 	Dialog,
 	Button,
@@ -193,18 +203,37 @@ import { inject, reactive, watch, ref, computed } from 'vue'
 import { formatTime } from '@/utils'
 import Rating from '@/components/Controls/Rating.vue'
 import Link from '@/components/Controls/Link.vue'
+import type { PropType } from 'vue'
+import type { SessionUser } from '@/types/api'
+
+interface Evaluation {
+	rating?: number
+	status?: string
+	summary?: string
+	name?: string
+	[key: string]: string | number | null | undefined
+}
+
+interface Certificate {
+	name?: string | null
+	published?: boolean
+	template?: string | null
+	issue_date?: string | null
+	expiry_date?: string | null
+	[key: string]: string | number | boolean | null | undefined
+}
 
 const show = defineModel()
-const user = inject('$user')
-const dayjs = inject('$dayjs')
+const user = inject<SessionUser>('$user')!
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
 const tabIndex = ref(0)
 const showCertification = ref(false)
-const evaluation = reactive({})
-const certificate = reactive({})
+const evaluation = reactive<Evaluation>({})
+const certificate = reactive<Certificate>({})
 
 const props = defineProps({
 	event: {
-		type: [Object, null],
+		type: [Object, null] as PropType<EventDetail>,
 		required: true,
 	},
 })
@@ -221,7 +250,7 @@ const userIsEvaluator = () => {
 
 const defaultTemplate = createResource({
 	url: 'frappe.client.get_value',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doctype: 'Property Setter',
 			fieldname: 'value',
@@ -231,18 +260,18 @@ const defaultTemplate = createResource({
 			},
 		}
 	},
-	onSuccess(data) {
+	onSuccess(data: { value: string }) {
 		certificate.template = data.value
 	},
 })
 
-const openCallLink = (link) => {
+const openCallLink = (link?: string) => {
 	window.open(link, '_blank')
 }
 
 const evaluationResource = createResource({
 	url: 'lms.lms.api.save_evaluation_details',
-	makeParams(values) {
+	makeParams() {
 		return {
 			member: props.event.member,
 			course: props.event.course,
@@ -256,14 +285,19 @@ const evaluationResource = createResource({
 		}
 	},
 	auto: false,
-	onSuccess(data) {
+	onSuccess(data: { name: string }) {
 		evaluation.name = data.name
 	},
 })
 
+interface EvaluationData {
+	rating: number
+	[key: string]: string | number | null | undefined
+}
+
 const evaluationDetails = createResource({
 	url: 'frappe.client.get',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doctype: 'LMS Certificate Evaluation',
 			filters: {
@@ -272,7 +306,7 @@ const evaluationDetails = createResource({
 			},
 		}
 	},
-	onSuccess(data) {
+	onSuccess(data: EvaluationData) {
 		for (const key in data) {
 			if (key in evaluation) evaluation[key] = data[key]
 			if (key == 'rating') evaluation.rating = data.rating * 5
@@ -294,8 +328,8 @@ const saveEvaluation = () => {
 				}
 				toast.success(__('Evaluation saved successfully'))
 			},
-			onError(err) {
-				toast.warning(__(err.messages?.[0] || err))
+			onError(err: { messages?: string[] }) {
+				toast.warning(__(err.messages?.[0] || (err as unknown as string)))
 			},
 		}
 	)
@@ -303,7 +337,7 @@ const saveEvaluation = () => {
 
 const certificateResource = createResource({
 	url: 'lms.lms.api.save_certificate_details',
-	makeParams(values) {
+	makeParams() {
 		return {
 			member: props.event.member,
 			course: props.event.course,
@@ -315,17 +349,17 @@ const certificateResource = createResource({
 		}
 	},
 	auto: false,
-	onSuccess(data) {
+	onSuccess(data: string) {
 		certificate.name = data
 	},
-	onError(err) {
-		toast.warning(__(err.messages?.[0] || err))
+	onError(err: { messages?: string[] }) {
+		toast.warning(__(err.messages?.[0] || (err as unknown as string)))
 	},
 })
 
 const certificateDetails = createResource({
 	url: 'frappe.client.get',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doctype: 'LMS Certificate',
 			filters: {
@@ -334,14 +368,17 @@ const certificateDetails = createResource({
 			},
 		}
 	},
-	onSuccess(data) {
+	onSuccess(data: {
+		name?: string | null
+		[key: string]: string | number | boolean | null | undefined
+	}) {
 		for (const key in data) {
 			if (key in certificate) certificate[key] = data[key]
 			certificate.name = data.name
 			showCertification.value = true
 		}
 	},
-	onError(err) {
+	onError() {
 		certificate.template = defaultTemplate.data?.value
 	},
 	auto: false,
@@ -354,8 +391,8 @@ const saveCertificate = () => {
 			onSuccess: () => {
 				toast.success(__('Certificate saved successfully'))
 			},
-			onError(err) {
-				toast.error(__(err.messages?.[0] || err))
+			onError(err: { messages?: string[] }) {
+				toast.error(__(err.messages?.[0] || (err as unknown as string)))
 			},
 		}
 	)
@@ -377,15 +414,15 @@ watch(show, () => {
 	}
 })
 
-const openCertificate = (certificate) => {
+const openCertificate = (certificate: Certificate) => {
 	window.open(
 		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 			certificate.name
-		}&format=${encodeURIComponent(certificate.template)}`
+		}&format=${encodeURIComponent(String(certificate.template))}`
 	)
 }
 
-const openLink = (type, name) => {
+const openLink = (type: string, name?: string) => {
 	let url = ''
 	if (type === 'course') {
 		url = `/lms/courses/${name}`

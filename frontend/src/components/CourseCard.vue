@@ -110,6 +110,7 @@
 					>
 						<UserAvatar
 							v-for="instructor in course.instructors"
+							:key="instructor.username"
 							:user="instructor"
 						/>
 					</div>
@@ -132,13 +133,13 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Award, BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils'
 import { theme } from '@/utils/theme'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
@@ -154,9 +155,13 @@ const props = defineProps({
 })
 
 const gradientColor = computed(() => {
-	let themeMode = theme.value === 'dark' ? 'darkMode' : 'lightMode'
-	let color = props.course.card_gradient?.toLowerCase() || 'blue'
-	let colorMap = colors[themeMode][color]
+	const themeMode = theme.value === 'dark' ? 'darkMode' : 'lightMode'
+	const color = props.course.card_gradient?.toLowerCase() || 'blue'
+	const palette = colors as unknown as Record<
+		string,
+		Record<string, Record<string, string>>
+	>
+	const colorMap = palette[themeMode][color]
 	return `linear-gradient(to top right, black, ${colorMap[400]})`
 })
 </script>

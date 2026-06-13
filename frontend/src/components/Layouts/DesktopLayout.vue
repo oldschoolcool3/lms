@@ -8,6 +8,6 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import AppSidebar from '@/components/Sidebar/AppSidebar.vue'
 </script>

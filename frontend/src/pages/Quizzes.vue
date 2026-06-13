@@ -37,7 +37,11 @@
 			<ListHeader
 				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
 			>
-				<ListHeaderItem :item="item" v-for="item in quizColumns">
+				<ListHeaderItem
+					:item="item"
+					v-for="item in quizColumns"
+					:key="item.key"
+				>
 					<template #prefix="{ item }">
 						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
 					</template>
@@ -46,6 +50,7 @@
 			<ListRows>
 				<router-link
 					v-for="row in quizzes.data"
+					:key="row.name"
 					:to="{
 						name: 'QuizForm',
 						params: {
@@ -54,7 +59,7 @@
 					}"
 				>
 					<ListRow :row="row" class="hover:bg-surface-gray-2">
-						<template #default="{ column, item }">
+						<template #default="{ column }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div v-if="column.key == 'show_answers'">
 									<Checkbox v-model="row[column.key]" :disabled="true" />
@@ -114,22 +119,7 @@
 			</template>
 		</ListFooter>
 	</div>
-	<Dialog
-		v-model="showForm"
-		:options="{
-			title: __('Create a Quiz'),
-			size: 'sm',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick({ close }) {
-						insertQuiz(close)
-					},
-				},
-			],
-		}"
-	>
+	<Dialog v-model="showForm" :options="dialogOptions">
 		<template #body-content>
 			<FormControl
 				v-model="title"
@@ -141,7 +131,7 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Breadcrumbs,
 	Button,
@@ -170,16 +160,28 @@ import { sanitizeHTML } from '@/utils'
 import { useTelemetry } from 'frappe-ui/frappe'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import type { SessionUser } from '@/types/api'
+import type dayjsType from 'dayjs'
+
+interface QuizRow {
+	name: string
+	title: string
+	passing_percentage: number
+	total_marks: number
+	show_answers: 0 | 1
+	max_attempts: number
+	modified: string
+}
 
 const { brand } = sessionStore()
 const { capture } = useTelemetry()
-const user = inject('$user')
-const dayjs = inject('$dayjs')
+const user = inject<SessionUser>('$user')!
+const dayjs = inject<typeof dayjsType>('$dayjs')!
 const router = useRouter()
 const route = useRoute()
 const search = ref('')
 const readOnlyMode = window.read_only_mode
-const quizFilters = ref({})
+const quizFilters = ref<Record<string, unknown>>({})
 const showForm = ref(false)
 const title = ref('')
 
@@ -223,7 +225,7 @@ const quizzes = createListResource({
 	auto: true,
 	cache: ['quizzes', user.data?.name],
 	orderBy: 'modified desc',
-	transform(data) {
+	transform(data: QuizRow[]) {
 		return data.map((quiz) => {
 			return {
 				...quiz,
@@ -249,7 +251,7 @@ const totalQuizzes = createResource({
 	},
 	auto: true,
 	cache: ['quizzes_count', user.data?.name],
-	onError(err) {
+	onError(err: { messages?: string[] }) {
 		toast.error(err.messages?.[0] || err)
 		console.error(err)
 	},
@@ -259,14 +261,14 @@ const validateTitle = () => {
 	title.value = sanitizeHTML(title.value.trim())
 }
 
-const insertQuiz = (close) => {
+const insertQuiz = (close: () => void) => {
 	validateTitle()
 	quizzes.insert.submit(
 		{
 			title: title.value,
 		},
 		{
-			onSuccess(data) {
+			onSuccess(data: { name: string }) {
 				toast.success(__('Quiz created successfully'))
 				close()
 				title.value = ''
@@ -278,14 +280,28 @@ const insertQuiz = (close) => {
 					},
 				})
 			},
-			onError(error) {
+			onError(error: { message: string }) {
 				toast.error(__('Error creating quiz: {0}', error.message))
 			},
 		}
 	)
 }
 
-const deleteQuiz = (selections, unselectAll) => {
+const dialogOptions = computed(() => ({
+	title: __('Create a Quiz'),
+	size: 'sm',
+	actions: [
+		{
+			label: __('Save'),
+			variant: 'solid',
+			onClick: ({ close }: { close: () => void }) => {
+				insertQuiz(close)
+			},
+		},
+	],
+}))
+
+const deleteQuiz = (selections: Set<string>, unselectAll: () => void) => {
 	Array.from(selections).forEach(async (quizName) => {
 		await quizzes.delete.submit(quizName)
 	})

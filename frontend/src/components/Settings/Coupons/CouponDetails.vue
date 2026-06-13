@@ -114,7 +114,7 @@ const editCoupon = () => {
 			...props.data,
 		},
 		{
-			onSuccess(data: Coupon) {
+			onSuccess(_data: Coupon) {
 				if (couponItems.value) {
 					couponItems.value.saveItems()
 				}
@@ -125,7 +125,7 @@ const editCoupon = () => {
 
 const createCoupon = () => {
 	if (couponItems.value) {
-		let rows = couponItems.value.saveItems()
+		const rows = couponItems.value.saveItems()
 		props.data.applicable_items = rows
 	}
 	props.coupons.insert.submit(

@@ -7,17 +7,24 @@ import { call } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { getLmsRoute } from '@/utils/basePath'
 
+interface AssignmentData {
+	assignment?: string
+}
+
 const router = useRouter()
 export class Assignment {
-	constructor({ data, api, readOnly }) {
+	data: AssignmentData
+	readOnly: boolean
+	wrapper!: HTMLDivElement
+
+	constructor({ data, readOnly }: { data: AssignmentData; readOnly: boolean }) {
 		this.data = data
 		this.readOnly = readOnly
 	}
 
 	static get toolbox() {
 		const app = createApp({
-			render: () =>
-				h(Pencil, { size: 18, strokeWidth: 1.5, color: 'black' }),
+			render: () => h(Pencil, { size: 18, strokeWidth: 1.5, color: 'black' }),
 		})
 
 		const div = document.createElement('div')
@@ -43,7 +50,7 @@ export class Assignment {
 		return this.wrapper
 	}
 
-	renderAssignment(assignment) {
+	renderAssignment(assignment: string | undefined) {
 		if (this.readOnly) {
 			const { userResource } = usersStore()
 			call('frappe.client.get_value', {
@@ -53,8 +60,8 @@ export class Assignment {
 					member: userResource.data?.name,
 				},
 				fieldname: ['name'],
-			}).then((data) => {
-				let submission = data.name || 'new'
+			}).then((data: { name?: string }) => {
+				const submission = data.name || 'new'
 				const submissionPath = getLmsRoute(
 					`assignment-submission/${assignment}/${submission}?fromLesson=1`
 				)
@@ -68,7 +75,7 @@ export class Assignment {
 				name: assignment,
 			},
 			fieldname: ['title'],
-		}).then((data) => {
+		}).then((data: { title?: string }) => {
 			this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-menu-bar mb-4'>
 				<span class="font-medium">
 					Assignment: ${data.title}
@@ -84,7 +91,7 @@ export class Assignment {
 		}
 		const app = createApp(AssessmentPlugin, {
 			type: 'assignment',
-			onAddition: (assignment) => {
+			onAddition: (assignment: string) => {
 				this.data.assignment = assignment
 				this.renderAssignment(assignment)
 			},

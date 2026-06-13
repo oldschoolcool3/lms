@@ -13,7 +13,7 @@
 	</Tooltip>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { Tooltip } from 'frappe-ui'
 
@@ -43,5 +43,6 @@ const progressBarHeight = computed(() => {
 	if (props.size === 'lg') {
 		return 'h-3'
 	}
+	return undefined
 })
 </script>

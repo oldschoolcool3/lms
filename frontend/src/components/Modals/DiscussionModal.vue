@@ -7,7 +7,7 @@
 				{
 					label: 'Post',
 					variant: 'solid',
-					onClick: (close) => submitTopic(close),
+					onClick: (close: () => void) => submitTopic(close),
 				},
 			],
 		}"
@@ -23,7 +23,7 @@
 					</div>
 					<TextEditor
 						:content="topic.reply"
-						@change="(val) => (topic.reply = val)"
+						@change="setReply"
 						:editable="true"
 						:fixedMenu="true"
 						editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
@@ -33,13 +33,14 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { call, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { reactive } from 'vue'
 import { singularize } from '@/utils'
 import { useTelemetry } from 'frappe-ui/frappe'
+import type { Resource } from '@/types/api'
 
-const topics = defineModel('reloadTopics')
+const topics = defineModel<Resource<unknown> | undefined>('reloadTopics')
 const { capture } = useTelemetry()
 
 const props = defineProps({
@@ -57,12 +58,16 @@ const props = defineProps({
 	},
 })
 
+const setReply = (val: string) => {
+	topic.reply = val
+}
+
 const topic = reactive({
 	title: '',
 	reply: '',
 })
 
-const submitTopic = (close) => {
+const submitTopic = (close: () => void) => {
 	if (!topic.title) {
 		toast.error(__('Title cannot be empty.'))
 		return
@@ -79,16 +84,16 @@ const submitTopic = (close) => {
 			title: topic.title,
 		},
 	})
-		.then((data) => {
+		.then((data: { name: string }) => {
 			createReply(data.name, close)
 		})
-		.catch((err) => {
+		.catch((err: { messages?: string[] }) => {
 			toast.error(err.messages?.[0] || err)
 			console.error(err)
 		})
 }
 
-const createReply = (topicName, close) => {
+const createReply = (topicName: string, close: () => void) => {
 	call('frappe.client.insert', {
 		doc: {
 			doctype: 'Discussion Reply',
@@ -96,14 +101,14 @@ const createReply = (topicName, close) => {
 			reply: topic.reply,
 		},
 	})
-		.then((data) => {
+		.then(() => {
 			topic.title = ''
 			topic.reply = ''
-			topics.value.reload()
+			topics.value?.reload()
 			capture('discussion_topic_created')
 			close()
 		})
-		.catch((err) => {
+		.catch((err: { messages?: string[] }) => {
 			toast.error(err.messages?.[0] || err)
 			console.error(err)
 		})

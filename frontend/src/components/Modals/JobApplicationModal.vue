@@ -9,9 +9,7 @@
 				{
 					label: 'Submit',
 					variant: 'solid',
-					onClick: (close) => {
-						submitResume(close)
-					},
+					onClick: submitResume,
 				},
 			],
 		}"
@@ -30,13 +28,9 @@
 						:fileTypes="['.pdf']"
 						:validateFile="validateFile"
 						:uploadArgs="{ private: 1 }"
-						@success="
-							(file) => {
-								resume = file
-							}
-						"
+						@success="onUploadSuccess"
 					>
-						<template v-slot="{ file, progress, uploading, openFileSelector }">
+						<template v-slot="{ progress, uploading, openFileSelector }">
 							<div class="">
 								<Button @click="openFileSelector" :loading="uploading">
 									<template #prefix>
@@ -67,16 +61,23 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Dialog, FileUploader, Button, createResource, toast } from 'frappe-ui'
 import { FileText, Upload } from 'lucide-vue-next'
 import { ref, inject } from 'vue'
 import { getFileSize } from '@/utils/'
+import type { SessionUser } from '@/types/api'
 
-const resume = ref(null)
+interface UploadedFile {
+	file_url: string
+	file_name: string
+	file_size: string | number
+}
+
+const resume = ref<UploadedFile | null>(null)
 const show = defineModel()
-const user = inject('$user')
-const application = defineModel('application')
+const user = inject<SessionUser>('$user')!
+const application = defineModel<{ reload: () => void }>('application')
 
 const props = defineProps({
 	job: {
@@ -85,8 +86,12 @@ const props = defineProps({
 	},
 })
 
-const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
+const onUploadSuccess = (file: UploadedFile) => {
+	resume.value = file
+}
+
+const validateFile = (file: File) => {
+	const extension = file.name.split('.').pop()?.toLowerCase()
 	if (extension != 'pdf') {
 		return 'Only PDF file is allowed'
 	}
@@ -94,7 +99,7 @@ const validateFile = (file) => {
 
 const jobApplication = createResource({
 	url: 'frappe.client.insert',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doc: {
 				doctype: 'LMS Job Application',
@@ -106,7 +111,7 @@ const jobApplication = createResource({
 	},
 })
 
-const submitResume = (close) => {
+const submitResume = (close: () => void) => {
 	jobApplication.submit(
 		{},
 		{
@@ -117,10 +122,10 @@ const submitResume = (close) => {
 			},
 			onSuccess() {
 				toast.success('Your application has been submitted successfully')
-				application.value.reload()
+				application.value?.reload()
 				close()
 			},
-			onError(err) {
+			onError(err: { messages?: string[] }) {
 				toast.error(err.messages?.[0] || err)
 			},
 		}

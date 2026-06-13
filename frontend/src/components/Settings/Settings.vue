@@ -17,12 +17,12 @@
 								<span>{{ __(tab.label) }}</span>
 							</div>
 							<nav class="space-y-1">
-								<div v-for="item in tab.items" @click="activeTab = item">
-									<SidebarLink
-										:link="item"
-										:key="item.label"
-										:activeTab="activeTab?.label"
-									/>
+								<div
+									v-for="item in tab.items"
+									:key="item.label"
+									@click="activeTab = item"
+								>
+									<SidebarLink :link="item" :activeTab="activeTab?.label" />
 								</div>
 							</nav>
 						</div>
@@ -41,13 +41,13 @@
 							description: activeTab.description,
 							...(activeTab.label == 'Members' ||
 							activeTab.label == 'Transactions'
-								? { 'onUpdate:show': (val) => (show = val), show }
+								? { 'onUpdate:show': updateShow, show }
 								: {}),
 						}"
 					/>
 					<SettingDetails
 						v-else
-						:sections="activeTab.sections"
+						:sections="activeTab.sections || []"
 						:label="activeTab.label"
 						:description="activeTab.description"
 						:data="data"
@@ -57,9 +57,10 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Dialog, createDocumentResource } from 'frappe-ui'
 import { computed, markRaw, ref, watch } from 'vue'
+import type { SettingsTabGroup, SettingsTabItem } from '@/types/api'
 import { useSettings } from '@/stores/settings'
 import SettingDetails from '@/components/Settings/SettingDetails.vue'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
@@ -74,10 +75,14 @@ import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 import GoogleMeetSettings from '@/components/Settings/GoogleMeetSettings.vue'
 import Badges from '@/components/Settings/Badges.vue'
 
-const show = defineModel()
+const show = defineModel<boolean>()
 const doctype = ref('LMS Settings')
-const activeTab = ref(null)
+const activeTab = ref<SettingsTabItem | null>(null)
 const settingsStore = useSettings()
+
+const updateShow = (val: boolean) => {
+	show.value = val
+}
 
 const data = createDocumentResource({
 	doctype: doctype.value,
@@ -87,7 +92,7 @@ const data = createDocumentResource({
 	auto: true,
 })
 
-const tabsStructure = computed(() => {
+const tabsStructure = computed<SettingsTabGroup[]>(() => {
 	return [
 		{
 			label: 'Configuration',

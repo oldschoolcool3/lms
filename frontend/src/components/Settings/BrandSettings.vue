@@ -31,12 +31,7 @@
 						size="md"
 						:placeholder="__('Enter Brand Name')"
 						:modelValue="branding.data.app_name"
-						@input="
-							(e) => {
-								branding.data.app_name = e.target.value
-								isDirty = true
-							}
-						"
+						@input="updateAppName"
 					/>
 				</div>
 			</div>
@@ -112,7 +107,7 @@
 		</div>
 	</SettingsLayout>
 </template>
-<script setup>
+<script setup lang="ts">
 import { createResource, Button, FormControl } from 'frappe-ui'
 import { Image as ImageIcon } from 'lucide-vue-next'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
@@ -126,6 +121,11 @@ defineProps({
 
 const isDirty = ref(false)
 
+const updateAppName = (e: Event) => {
+	branding.data.app_name = (e.target as HTMLInputElement).value
+	isDirty.value = true
+}
+
 const branding = createResource({
 	url: 'lms.lms.api.get_branding',
 	auto: true,
@@ -134,7 +134,7 @@ const branding = createResource({
 
 const saveSettings = createResource({
 	url: 'frappe.client.set_value',
-	makeParams(values) {
+	makeParams(values: { fields: Record<string, string | null> }) {
 		return {
 			doctype: 'Website Settings',
 			name: 'Website Settings',
@@ -143,15 +143,15 @@ const saveSettings = createResource({
 	},
 })
 
-const setImage = (field, url) => {
+const setImage = (field: string, url: string | null) => {
 	branding.data[field] = url ? { file_url: url } : null
 	isDirty.value = true
 }
 
 const getFieldsToSave = () => {
-	const imageUrl = (field) =>
+	const imageUrl = (field: string) =>
 		branding.data[field]?.file_url ? branding.data[field].file_url : null
-	const fields = {
+	const fields: Record<string, string | null> = {
 		app_name: branding.data.app_name,
 		banner_image: imageUrl('banner_image'),
 		favicon: imageUrl('favicon'),

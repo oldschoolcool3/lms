@@ -19,7 +19,7 @@
 	</details>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ChevronDown } from 'lucide-vue-next'
 
 defineProps({

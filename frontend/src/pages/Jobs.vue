@@ -69,7 +69,8 @@
 					<Link
 						v-if="user.data"
 						doctype="Country"
-						v-model="country"
+						:modelValue="country ?? undefined"
+						@update:modelValue="(val) => (country = val)"
 						:placeholder="__('Country')"
 						class="w-full"
 					/>
@@ -139,7 +140,7 @@
 		</ListFooter>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Button,
 	Breadcrumbs,
@@ -160,16 +161,17 @@ import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
-const jobType = ref(null)
-const workMode = ref(null)
+const user = inject<SessionUser>('$user')!
+const jobType = ref<string | null>(null)
+const workMode = ref<string | null>(null)
 const { brand } = sessionStore()
 const { settings } = useSettings()
 const searchQuery = ref('')
-const country = ref(null)
-const filters = ref({})
-const orFilters = ref({})
+const country = ref<string | null>(null)
+const filters = ref<Record<string, unknown>>({})
+const orFilters = ref<Record<string, unknown>>({})
 const closedJobs = ref(0)
 const activeTab = ref('Open')
 const readOnlyMode = window.read_only_mode
@@ -187,7 +189,7 @@ const isModerator = computed(() => {
 const getClosedJobCount = () => {
 	if (!user.data?.name) return
 
-	const filters = {
+	const filters: Record<string, unknown> = {
 		status: 'Closed',
 	}
 
@@ -198,7 +200,7 @@ const getClosedJobCount = () => {
 	call('frappe.client.get_count', {
 		doctype: 'Job Opportunity',
 		filters: filters,
-	}).then((count) => {
+	}).then((count: number) => {
 		closedJobs.value = count
 	})
 }
@@ -215,7 +217,7 @@ const jobCount = createResource({
 })
 
 const setFiltersFromURL = () => {
-	let queries = new URLSearchParams(location.search)
+	const queries = new URLSearchParams(location.search)
 	if (queries.has('type')) {
 		jobType.value = queries.get('type')
 	}
@@ -294,11 +296,11 @@ const updateCountryFilter = () => {
 	}
 }
 
-watch(activeTab, (val) => {
+watch(activeTab, () => {
 	updateJobs()
 })
 
-watch(country, (val) => {
+watch(country, () => {
 	updateJobs()
 })
 

@@ -1,6 +1,6 @@
 <template>
 	<Popover placement="right-start" trigger="hover" class="flex w-full">
-		<template #target="{ togglePopover }">
+		<template #target>
 			<button
 				:class="[
 					'group w-full flex h-7 items-center justify-between rounded px-2 text-base text-ink-gray-7 hover:bg-surface-gray-2',
@@ -19,7 +19,7 @@
 			<div
 				class="grid grid-cols-3 justify-between mx-3 p-2 rounded-lg bg-surface-modal shadow-2xl ring-1 ring-black ring-opacity-5"
 			>
-				<div v-for="app in apps.data" key="name">
+				<div v-for="app in apps.data" :key="app.name">
 					<a
 						:href="app.route"
 						class="flex flex-col gap-1.5 rounded justify-center items-center py-2 px-3 hover:bg-surface-gray-2"
@@ -34,16 +34,23 @@
 		</template>
 	</Popover>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Popover, createResource } from 'frappe-ui'
 import { LayoutGrid, ChevronRight } from 'lucide-vue-next'
+
+interface AppInfo {
+	name: string
+	logo: string
+	title: string
+	route: string
+}
 
 const apps = createResource({
 	url: 'frappe.apps.get_apps',
 	cache: 'apps',
 	auto: true,
-	transform: (data) => {
-		let _apps = [
+	transform: (data: AppInfo[]) => {
+		const _apps = [
 			{
 				name: 'frappe',
 				logo: '/assets/lms/images/desk.png',

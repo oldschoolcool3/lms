@@ -29,9 +29,7 @@
 				class="absolute bottom-[30%] md:bottom-0 start-[50%] mb-4 flex -translate-x-1/2 gap-x-2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
 				v-if="isSessionUser()"
 			>
-				<EditCoverImage
-					@select="(imageUrl) => coverImage.submit({ url: imageUrl })"
-				>
+				<EditCoverImage @select="onCoverImageSelect">
 					<template v-slot="{ togglePopover }">
 						<Button
 							v-if="!readOnlyMode"
@@ -141,7 +139,7 @@
 		:profile="profile"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Breadcrumbs,
 	Button,
@@ -164,13 +162,13 @@ import {
 } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
-import UserAvatar from '@/components/UserAvatar.vue'
 import NoPermission from '@/components/NoPermission.vue'
 import EditProfile from '@/components/Modals/EditProfile.vue'
 import EditCoverImage from '@/components/Modals/EditCoverImage.vue'
+import type { SessionUser } from '@/types/api'
 
 const { user, brand } = sessionStore()
-const $user = inject('$user')
+const $user = inject<SessionUser>('$user')!
 const route = useRoute()
 const router = useRouter()
 const activeTab = ref('')
@@ -200,7 +198,7 @@ const profile = createResource({
 
 const coverImage = createResource({
 	url: 'frappe.client.set_value',
-	makeParams(values) {
+	makeParams(values: { url: string }) {
 		return {
 			doctype: 'User',
 			name: profile.data?.name,
@@ -214,8 +212,8 @@ const coverImage = createResource({
 })
 
 const setActiveTab = () => {
-	let fragments = route.path.split('/')
-	let sections = ['certificates', 'roles', 'slots', 'schedule']
+	const fragments = route.path.split('/')
+	const sections = ['certificates', 'roles', 'slots', 'schedule']
 	sections.forEach((section) => {
 		if (fragments.includes(section)) {
 			activeTab.value = convertToTitleCase(section)
@@ -226,14 +224,14 @@ const setActiveTab = () => {
 
 watchEffect(() => {
 	if (activeTab.value) {
-		let route = {
+		const route: Record<string, { name: string }> = {
 			About: { name: 'ProfileAbout' },
 			Certificates: { name: 'ProfileCertificates' },
 			Roles: { name: 'ProfileRoles' },
 			Slots: { name: 'ProfileEvaluator' },
 			Schedule: { name: 'ProfileEvaluationSchedule' },
-		}[activeTab.value]
-		router.push(route)
+		}
+		router.push(route[activeTab.value])
 	}
 })
 
@@ -264,7 +262,7 @@ const isEvaluatorOrModerator = () => {
 }
 
 const getTabButtons = () => {
-	let buttons = [
+	const buttons = [
 		{ label: __('About'), value: 'About' },
 		{ label: __('Certificates'), value: 'Certificates' },
 	]
@@ -287,18 +285,22 @@ const reloadUser = () => {
 				toast.success(__('Session refreshed successfully'))
 			})
 		})
-		.catch((err) => {
+		.catch((err: unknown) => {
 			toast.error(__('Failed to refresh session'))
 			console.error(err)
 		})
 }
 
-const navigateTo = (url) => {
+const navigateTo = (url: string) => {
 	window.open(url, '_blank')
 }
 
+const onCoverImageSelect = (imageUrl: string) => {
+	coverImage.submit({ url: imageUrl })
+}
+
 const breadcrumbs = computed(() => {
-	let crumbs = [
+	const crumbs = [
 		{
 			label: __('People'),
 		},
@@ -307,7 +309,11 @@ const breadcrumbs = computed(() => {
 			route: {
 				name: 'Profile',
 				params: {
-					username: user.doc?.username,
+					// `user` is the session-store user id string; `.doc` is absent
+					// at runtime, so this has always resolved to `undefined`. Cast
+					// preserves that pre-existing behaviour without changing logic.
+					username: (user as unknown as { doc?: { username?: string } })?.doc
+						?.username,
 				},
 			},
 		},

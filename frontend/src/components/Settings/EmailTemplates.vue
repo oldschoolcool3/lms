@@ -20,15 +20,13 @@
 				row-key="name"
 				:options="{
 					showTooltip: false,
-					onRowClick: (row) => {
-						openTemplateForm(row.name)
-					},
+					onRowClick,
 				}"
 			>
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in columns">
+					<ListHeaderItem :item="item" v-for="item in columns" :key="item.key">
 						<template #prefix="{ item }">
 							<component
 								v-if="item.icon"
@@ -40,8 +38,12 @@
 				</ListHeader>
 
 				<ListRows>
-					<ListRow :row="row" v-for="row in emailTemplates.data">
-						<template #default="{ column, item }">
+					<ListRow
+						:row="row"
+						v-for="row in emailTemplates.data"
+						:key="row.name"
+					>
+						<template #default="{ column }">
 							<ListRowItem
 								:item="row[column.key]"
 								:align="column.align"
@@ -101,8 +103,13 @@ import { Plus, Trash2, MailPlus } from 'lucide-vue-next'
 import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import { cleanError } from '@/utils'
 
-const props = defineProps({
+interface SubmitError {
+	messages: string[]
+}
+
+defineProps({
 	label: {
 		type: String,
 		required: true,
@@ -115,7 +122,7 @@ const props = defineProps({
 
 const showForm = ref(false)
 const readOnlyMode = window.read_only_mode
-const selectedTemplate = ref(null)
+const selectedTemplate = ref<string | null>(null)
 
 const emailTemplates = createListResource({
 	doctype: 'Email Template',
@@ -125,7 +132,7 @@ const emailTemplates = createListResource({
 	cache: 'email-templates',
 })
 
-const removeTemplate = (selections, unselectAll) => {
+const removeTemplate = (selections: Set<string>, unselectAll: () => void) => {
 	call('lms.lms.api.delete_documents', {
 		doctype: 'Email Template',
 		documents: Array.from(selections),
@@ -135,19 +142,23 @@ const removeTemplate = (selections, unselectAll) => {
 			toast.success(__('Email Templates deleted successfully'))
 			unselectAll()
 		})
-		.catch((err) => {
+		.catch((err: SubmitError) => {
 			toast.error(
 				cleanError(err.messages[0]) || __('Error deleting email templates')
 			)
 		})
 }
 
-const openTemplateForm = (templateID) => {
+const openTemplateForm = (templateID: string) => {
 	if (readOnlyMode) {
 		return
 	}
 	selectedTemplate.value = templateID
 	showForm.value = true
+}
+
+const onRowClick = (row: { name: string }) => {
+	openTemplateForm(row.name)
 }
 
 const columns = computed(() => {

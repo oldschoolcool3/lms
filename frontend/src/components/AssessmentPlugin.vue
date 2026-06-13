@@ -23,7 +23,8 @@
 				<div>
 					<Link
 						v-if="type == 'quiz'"
-						v-model="quiz"
+						:modelValue="quiz ?? undefined"
+						@update:modelValue="quiz = $event"
 						doctype="LMS Quiz"
 						:label="__('Select a quiz')"
 						placeholder=" "
@@ -32,7 +33,8 @@
 					<div v-else class="space-y-4">
 						<Link
 							v-if="filterAssignmentsByCourse"
-							v-model="assignment"
+							:modelValue="assignment ?? undefined"
+							@update:modelValue="assignment = $event"
 							doctype="LMS Assignment"
 							:filters="{
 								course: route.params.courseName,
@@ -43,7 +45,8 @@
 						/>
 						<Link
 							v-else
-							v-model="assignment"
+							:modelValue="assignment ?? undefined"
+							@update:modelValue="assignment = $event"
 							doctype="LMS Assignment"
 							placeholder=" "
 							:label="__('Select an Assignment')"
@@ -61,7 +64,7 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Dialog } from 'frappe-ui'
 import Switch from '@/components/Controls/Switch.vue'
 import { nextTick, onMounted, ref } from 'vue'
@@ -70,8 +73,8 @@ import { getLmsRoute } from '@/utils/basePath'
 import Link from '@/components/Controls/Link.vue'
 
 const show = ref(false)
-const quiz = ref(null)
-const assignment = ref(null)
+const quiz = ref<string | null>(null)
+const assignment = ref<string | null>(null)
 const filterAssignmentsByCourse = ref(false)
 const route = useRoute()
 

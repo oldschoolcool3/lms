@@ -40,7 +40,7 @@
 						</div>
 						<TextEditor
 							:content="assignment.question"
-							@change="(val) => (assignment.question = val)"
+							@change="(val: string) => (assignment.question = val)"
 							:editable="true"
 							:fixedMenu="true"
 							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[18rem] overflow-y-auto"
@@ -79,6 +79,7 @@ const show = defineModel()
 const assignments = defineModel<Assignments>('assignments')
 
 interface Assignment {
+	name?: string
 	title: string
 	type: string
 	question: string
@@ -89,6 +90,9 @@ interface Assignments {
 	data: Assignment[]
 	get: (params: { doctype: string; name: string }) => Promise<Assignment>
 	insert: {
+		submit: (params: Assignment, options: { onSuccess: () => void }) => void
+	}
+	setValue: {
 		submit: (params: Assignment, options: { onSuccess: () => void }) => void
 	}
 }
@@ -147,7 +151,7 @@ const saveAssignment = () => {
 }
 
 const createAssignment = () => {
-	assignments.value.insert.submit(
+	assignments.value?.insert.submit(
 		{
 			...assignment,
 		},
@@ -161,7 +165,7 @@ const createAssignment = () => {
 }
 
 const updateAssignment = () => {
-	assignments.value.setValue.submit(
+	assignments.value?.setValue.submit(
 		{
 			...assignment,
 			name: props.assignmentID,

@@ -117,7 +117,7 @@
 			</div>
 		</div>
 		<div v-else-if="!quizSubmission.data">
-			<div v-for="(question, qtidx) in questions">
+			<div v-for="(question, qtidx) in questions" :key="qtidx">
 				<div
 					v-if="qtidx == activeQuestion - 1 && questionDetails.data"
 					class="border rounded-lg p-5"
@@ -136,62 +136,67 @@
 						class="text-ink-gray-9 font-semibold mt-2 leading-5"
 						v-html="questionDetails.data.question"
 					></div>
-					<div v-if="questionDetails.data.type == 'Choices'" v-for="index in 4">
-						<label
-							v-if="questionDetails.data[`option_${index}`]"
-							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-blue-600"
-						>
-							<input
-								v-if="!showAnswers.length && !questionDetails.data.multiple"
-								type="radio"
-								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 text-ink-gray-9 focus:ring-outline-gray-modals"
-								@change="markAnswer(index)"
-								:checked="selectedOptions[index - 1]"
-							/>
+					<template v-if="questionDetails.data.type == 'Choices'">
+						<div v-for="index in 4" :key="index">
+							<label
+								v-if="questionDetails.data[`option_${index}`]"
+								class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-blue-600"
+							>
+								<input
+									v-if="!showAnswers.length && !questionDetails.data.multiple"
+									type="radio"
+									:name="encodeURIComponent(questionDetails.data.question)"
+									class="w-3.5 h-3.5 text-ink-gray-9 focus:ring-outline-gray-modals"
+									@change="markAnswer(index)"
+									:checked="!!selectedOptions[index - 1]"
+								/>
 
-							<input
-								v-else-if="!showAnswers.length && questionDetails.data.multiple"
-								type="checkbox"
-								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 text-ink-gray-9 rounded-sm focus:ring-outline-gray-modals"
-								@change="markAnswer(index)"
-								:checked="selectedOptions[index - 1]"
-							/>
-							<div
-								v-else-if="quiz.data.show_answers"
-								v-for="(answer, idx) in showAnswers"
-							>
-								<div v-if="index - 1 == idx">
-									<CheckCircle
-										v-if="answer == 1"
-										class="w-4 h-4 text-ink-green-2"
-									/>
-									<MinusCircle
-										v-else-if="answer == 2"
-										class="w-4 h-4 text-ink-green-2"
-									/>
-									<XCircle
-										v-else-if="answer == 0"
-										class="w-4 h-4 text-ink-red-3"
-									/>
-									<MinusCircle v-else class="w-4 h-4" />
+								<input
+									v-else-if="
+										!showAnswers.length && questionDetails.data.multiple
+									"
+									type="checkbox"
+									:name="encodeURIComponent(questionDetails.data.question)"
+									class="w-3.5 h-3.5 text-ink-gray-9 rounded-sm focus:ring-outline-gray-modals"
+									@change="markAnswer(index)"
+									:checked="!!selectedOptions[index - 1]"
+								/>
+								<div
+									v-else-if="quiz.data.show_answers"
+									v-for="(answer, idx) in showAnswers"
+									:key="idx"
+								>
+									<div v-if="index - 1 == idx">
+										<CheckCircle
+											v-if="answer == 1"
+											class="w-4 h-4 text-ink-green-2"
+										/>
+										<MinusCircle
+											v-else-if="answer == 2"
+											class="w-4 h-4 text-ink-green-2"
+										/>
+										<XCircle
+											v-else-if="answer == 0"
+											class="w-4 h-4 text-ink-red-3"
+										/>
+										<MinusCircle v-else class="w-4 h-4" />
+									</div>
 								</div>
-							</div>
-							<span
-								class="ms-2 text-ink-gray-9"
-								v-html="questionDetails.data[`option_${index}`]"
+								<span
+									class="ms-2 text-ink-gray-9"
+									v-html="questionDetails.data[`option_${index}`]"
+								>
+								</span>
+							</label>
+							<div
+								v-if="questionDetails.data[`explanation_${index}`]"
+								class="mt-2 text-xs text-ink-gray-7"
+								v-show="showAnswers.length"
 							>
-							</span>
-						</label>
-						<div
-							v-if="questionDetails.data[`explanation_${index}`]"
-							class="mt-2 text-xs text-ink-gray-7"
-							v-show="showAnswers.length"
-						>
-							{{ questionDetails.data[`explanation_${index}`] }}
+								{{ questionDetails.data[`explanation_${index}`] }}
+							</div>
 						</div>
-					</div>
+					</template>
 					<div v-else-if="questionDetails.data.type == 'User Input'">
 						<FormControl
 							v-model="possibleAnswer"
@@ -216,7 +221,7 @@
 						<TextEditor
 							class="mt-4"
 							:content="possibleAnswer"
-							@change="(val) => (possibleAnswer = val)"
+							@change="onEditorChange"
 							:editable="true"
 							:fixedMenu="true"
 							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
@@ -252,13 +257,14 @@
 										activeQuestion == item,
 									'text-ink-gray-5': item === '...',
 									'bg-surface-blue-3 text-ink-white':
-										attemptedQuestions.includes(item) && activeQuestion != item,
+										attemptedQuestions.includes(item as number) &&
+										activeQuestion != item,
 									'bg-surface-gray-3 text-ink-gray-6':
 										activeQuestion != item &&
 										item !== '...' &&
-										!attemptedQuestions.includes(item),
+										!attemptedQuestions.includes(item as number),
 								}"
-								@click="item !== '...' && switchQuestion(item)"
+								@click="item !== '...' && switchQuestion(item as number)"
 							>
 								{{ item }}
 							</span>
@@ -317,6 +323,7 @@
 				<div class="flex items-center gap-x-2 mt-2">
 					<div
 						v-for="index in reviewQuestions"
+						:key="index"
 						@click="switchQuestion(index)"
 						class="w-6 h-6 rounded-full flex items-center justify-center text-sm cursor-pointer bg-surface-gray-3"
 					>
@@ -437,7 +444,7 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Badge,
 	Button,
@@ -467,20 +474,45 @@ import {
 	MinusCircle,
 } from 'lucide-vue-next'
 import { timeAgo } from '@/utils'
+import type { SessionUser } from '@/types/api'
+import type { LMSQuizQuestion } from '@/types/lms/LMSQuizQuestion'
 import ProgressBar from '@/components/ProgressBar.vue'
 
-const user = inject('$user')
+// Shape of a row in the `questions_by_name` map returned by
+// `lms.lms.utils.get_quiz_with_questions` (name, question HTML, type, multiple,
+// plus the dynamic option_1..4 / explanation_1..4 fields).
+interface QuestionDetail {
+	name: string
+	question: string
+	type?: 'Choices' | 'User Input' | 'Open Ended'
+	multiple?: 0 | 1 | boolean
+	[key: `option_${number}`]: string | undefined
+	[key: `explanation_${number}`]: string | undefined
+}
+
+// A row from the LMS Quiz Submission list shown in the submission history.
+interface QuizSubmissionRow {
+	name: string
+	creation: string
+	score?: number
+	score_out_of?: number
+	percentage?: number
+	passing_percentage?: number
+	idx?: number
+}
+
+const user = inject<SessionUser>('$user')!
 const activeQuestion = ref(0)
 const currentQuestion = ref('')
 const selectedOptions = ref([0, 0, 0, 0])
-const showAnswers = reactive([])
-const questions = ref([])
-const attemptedQuestions = ref([])
-const reviewQuestions = ref([])
+const showAnswers = reactive<(number | undefined)[]>([])
+const questions = ref<LMSQuizQuestion[]>([])
+const attemptedQuestions = ref<number[]>([])
+const reviewQuestions = ref<number[]>([])
 const showSubmissionConfirmation = ref(false)
-const possibleAnswer = ref(null)
+const possibleAnswer = ref<string | null>(null)
 const timer = ref(0)
-let timerInterval = null
+let timerInterval: ReturnType<typeof setInterval> | null = null
 
 const props = defineProps({
 	quizName: {
@@ -521,7 +553,7 @@ const handlePageHide = () => {
 	}
 }
 
-const handleBeforeUnload = (event) => {
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
 	if (activeQuestion.value > 0 && !quizSubmission.data) {
 		recordCurrentAttempt()
 		event.preventDefault()
@@ -533,7 +565,7 @@ const handleBeforeUnload = (event) => {
 // quiz used to fetch the quiz, then fire one get_question_details per
 // question as the learner advanced — pulling them all up front lets the
 // activeQuestion watcher read from a local map instead of round-tripping.
-const questionsByName = ref({})
+const questionsByName = ref<Record<string, QuestionDetail>>({})
 const quiz = createResource({
 	url: 'lms.lms.utils.get_quiz_with_questions',
 	makeParams() {
@@ -544,9 +576,12 @@ const quiz = createResource({
 	// stale entry would break the transform.
 	cache: ['quiz_with_questions', props.quizName],
 	auto: true,
-	transform(data) {
+	transform(data: {
+		quiz?: Record<string, unknown>
+		questions_by_name?: Record<string, QuestionDetail>
+	}) {
 		const quizDoc = data?.quiz || {}
-		quizDoc.duration = parseInt(quizDoc.duration)
+		quizDoc.duration = parseInt(quizDoc.duration as string)
 		questionsByName.value = data?.questions_by_name || {}
 		return quizDoc
 	},
@@ -580,13 +615,13 @@ const startTimer = () => {
 	timerInterval = setInterval(() => {
 		timer.value--
 		if (timer.value == 0) {
-			clearInterval(timerInterval)
+			clearInterval(timerInterval ?? undefined)
 			submitQuiz()
 		}
 	}, 1000)
 }
 
-const formatTimer = (seconds) => {
+const formatTimer = (seconds: number) => {
 	const hrs = Math.floor(seconds / 3600)
 		.toString()
 		.padStart(2, '0')
@@ -601,7 +636,7 @@ const timerProgress = computed(() => {
 	return (timer.value / (quiz.data.duration * 60)) * 100
 })
 
-const shuffleArray = (array) => {
+const shuffleArray = <T,>(array: T[]): T[] => {
 	for (let i = array.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1))
 		;[array[i], array[j]] = [array[j], array[i]]
@@ -611,7 +646,7 @@ const shuffleArray = (array) => {
 
 const attempts = createResource({
 	url: 'frappe.client.get_list',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doctype: 'LMS Quiz Submission',
 			filters: {
@@ -629,7 +664,7 @@ const attempts = createResource({
 			order_by: 'creation desc',
 		}
 	},
-	transform(data) {
+	transform(data: QuizSubmissionRow[]) {
 		data.forEach((submission, index) => {
 			submission.creation = timeAgo(submission.creation)
 			submission.idx = index + 1
@@ -652,7 +687,7 @@ watch(
 
 const quizSubmission = createResource({
 	url: 'lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz',
-	makeParams(values) {
+	makeParams() {
 		return {
 			quiz: quiz.data.name,
 			results: localStorage.getItem(quiz.data.title) || '[]',
@@ -663,7 +698,9 @@ const quizSubmission = createResource({
 // Mirror the previous createResource shape ({ data: ... }) so existing
 // template refs (questionDetails.data.option_X, etc.) keep working —
 // we just pull the row from the pre-fetched map instead of an API call.
-const questionDetails = reactive({ data: null })
+const questionDetails = reactive<{ data: QuestionDetail | null }>({
+	data: null,
+})
 
 watch(activeQuestion, (value) => {
 	if (value <= 0) return
@@ -680,8 +717,8 @@ watch(activeQuestion, (value) => {
 	}
 })
 
-const switchQuestion = (questionNumber) => {
-	let answers = getAnswers()
+const switchQuestion = (questionNumber: number) => {
+	const answers = getAnswers()
 	if (answers.length) {
 		if (!attemptedQuestions.value.includes(activeQuestion.value)) {
 			attemptedQuestions.value.push(activeQuestion.value)
@@ -695,18 +732,19 @@ const switchQuestion = (questionNumber) => {
 }
 
 const loadSavedAnswers = () => {
-	let quizData = JSON.parse(localStorage.getItem(quiz.data.title))
+	const quizData = JSON.parse(localStorage.getItem(quiz.data.title) as string)
 	if (quizData) {
-		let localQuestion = quizData.find(
-			(q) => q.question_name == currentQuestion.value
+		const localQuestion = quizData.find(
+			(q: { question_name: string; answer: string[] }) =>
+				q.question_name == currentQuestion.value
 		)
 		if (localQuestion) {
-			let localAnswers = localQuestion.answer
+			const localAnswers = localQuestion.answer
 			if (localAnswers.length) {
-				if (questionDetails.data.type == 'Choices') {
-					localAnswers.forEach((answer) => {
+				if (questionDetails.data?.type == 'Choices') {
+					localAnswers.forEach((answer: string) => {
 						for (let i = 1; i <= 4; i++) {
-							if (questionDetails.data[`option_${i}`] == answer) {
+							if (questionDetails.data?.[`option_${i}`] == answer) {
 								selectedOptions.value[i - 1] = 1
 							}
 						}
@@ -734,8 +772,12 @@ const startQuiz = () => {
 	if (quiz.data.duration) startTimer()
 }
 
-const markAnswer = (index) => {
-	if (!questionDetails.data.multiple)
+const onEditorChange = (val: string) => {
+	possibleAnswer.value = val
+}
+
+const markAnswer = (index: number) => {
+	if (!questionDetails.data?.multiple)
 		selectedOptions.value.splice(
 			0,
 			selectedOptions.value.length,
@@ -745,12 +787,12 @@ const markAnswer = (index) => {
 }
 
 const getAnswers = () => {
-	let answers = []
-	const type = questionDetails.data.type
+	const answers: (string | null | undefined)[] = []
+	const type = questionDetails.data?.type
 	if (type == 'Choices') {
 		selectedOptions.value.forEach((value, index) => {
 			if (selectedOptions.value[index])
-				answers.push(questionDetails.data[`option_${index + 1}`])
+				answers.push(questionDetails.data?.[`option_${index + 1}`])
 		})
 	} else {
 		answers.push(possibleAnswer.value)
@@ -760,7 +802,7 @@ const getAnswers = () => {
 }
 
 const checkAnswer = () => {
-	let answers = getAnswers()
+	const answers = getAnswers()
 	if (!answers.length) {
 		toast.warning(__('Please select an option'))
 		return
@@ -771,24 +813,25 @@ const checkAnswer = () => {
 		params: {
 			quiz: quiz.data.name,
 			question: currentQuestion.value,
-			question_type: questionDetails.data.type,
+			question_type: questionDetails.data?.type,
 			answers: JSON.stringify(answers),
 		},
 		auto: true,
-		onSuccess(data) {
-			let type = questionDetails.data.type
+		onSuccess(data: number[] | number) {
+			const type = questionDetails.data?.type
 			if (type == 'Choices') {
+				const choiceData = data as number[]
 				selectedOptions.value.forEach((option, index) => {
 					if (option) {
-						showAnswers[index] = option && data[index]
-					} else if (data[index] == 2) {
+						showAnswers[index] = option && choiceData[index]
+					} else if (choiceData[index] == 2) {
 						showAnswers[index] = 2
 					} else {
 						showAnswers[index] = undefined
 					}
 				})
 			} else {
-				showAnswers.push(data)
+				showAnswers.push(data as number)
 			}
 			addToLocalStorage()
 			if (!quiz.data.show_answers) {
@@ -799,14 +842,15 @@ const checkAnswer = () => {
 }
 
 const addToLocalStorage = () => {
-	let quizData = JSON.parse(localStorage.getItem(quiz.data.title))
-	let questionData = {
+	let quizData = JSON.parse(localStorage.getItem(quiz.data.title) as string)
+	const questionData = {
 		question_name: currentQuestion.value,
 		answer: getAnswers(),
 	}
 	if (quizData) {
-		let existingQuestion = quizData.find(
-			(q) => q.question_name == questionData.question_name
+		const existingQuestion = quizData.find(
+			(q: { question_name: string; answer: unknown }) =>
+				q.question_name == questionData.question_name
 		)
 		if (existingQuestion) {
 			existingQuestion.answer = questionData.answer
@@ -838,7 +882,7 @@ const resetQuestion = () => {
 
 const submitQuiz = () => {
 	if (!quiz.data.show_answers) {
-		if (questionDetails.data.type == 'Open Ended' || getAnswers().length) {
+		if (questionDetails.data?.type == 'Open Ended' || getAnswers().length) {
 			addToLocalStorage()
 		}
 		setTimeout(() => {
@@ -853,15 +897,15 @@ const createSubmission = () => {
 	quizSubmission.submit(
 		{},
 		{
-			onSuccess(data) {
+			onSuccess() {
 				markLessonProgress()
 				if (quiz.data && quiz.data.max_attempts) attempts.reload()
-				if (quiz.data.duration) clearInterval(timerInterval)
+				if (quiz.data.duration) clearInterval(timerInterval ?? undefined)
 			},
-			onError(err) {
+			onError(err: { message?: string; messages?: string[] }) {
 				const errorTitle = err?.message || ''
 				if (errorTitle.includes('MaximumAttemptsExceededError')) {
-					const errorMessage = err.messages?.[0] || err
+					const errorMessage = err.messages?.[0] || (err as unknown as string)
 					toast.error(__(errorMessage))
 					setTimeout(() => {
 						window.location.reload()
@@ -883,7 +927,7 @@ const resetQuiz = () => {
 	setupTimer()
 }
 
-const getInstructions = (question) => {
+const getInstructions = (question: QuestionDetail) => {
 	if (question.type == 'Choices')
 		if (question.multiple) return __('Choose all answers that apply')
 		else return __('Choose one answer')
@@ -895,7 +939,7 @@ const markLessonProgress = () => {
 	if (!pathname.includes('courses'))
 		pathname = window.parent.location.pathname.split('/')
 	if (pathname[2] != 'courses') return
-	let lessonIndex = pathname.pop().split('-')
+	const lessonIndex = pathname.pop()!.split('-')
 
 	if (lessonIndex.length == 2) {
 		call('lms.lms.api.mark_lesson_progress', {
@@ -926,11 +970,11 @@ const recordCurrentAttempt = () => {
 const paginationWindow = computed(() => {
 	const total = questions.value.length
 	const current = activeQuestion.value
-	const pages = []
+	const pages: (number | string)[] = []
 	const size = 5
 
-	let start = Math.floor((current - 1) / size) * size + 1
-	let end = Math.min(start + size - 1, total)
+	const start = Math.floor((current - 1) / size) * size + 1
+	const end = Math.min(start + size - 1, total)
 
 	if (start > 1) {
 		pages.push('...')
@@ -947,8 +991,8 @@ const paginationWindow = computed(() => {
 	return pages
 })
 
-const markForReview = (event, questionNumber) => {
-	if (event.target.checked) {
+const markForReview = (event: Event, questionNumber: number) => {
+	if ((event.target as HTMLInputElement).checked) {
 		if (!reviewQuestions.value.includes(questionNumber)) {
 			reviewQuestions.value.push(questionNumber)
 		}

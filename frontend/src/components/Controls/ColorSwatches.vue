@@ -4,7 +4,7 @@
 			{{ __(label) }}
 		</div>
 		<Popover placement="bottom" class="!block">
-			<template #target="{ togglePopover, isOpen }">
+			<template #target="{ togglePopover }">
 				<div class="space-y-2">
 					<FormControl
 						type="text"
@@ -84,7 +84,7 @@ import { getColor } from '@/utils'
 
 const emit = defineEmits(['update:modelValue', 'change'])
 
-const props = defineProps<{
+defineProps<{
 	modelValue: string
 	label: string
 	description?: string

@@ -1,5 +1,5 @@
 <template>
-	<SettingsLayout :title="__(label)" :description="__(description)">
+	<SettingsLayout :title="__(label)" :description="__(description || '')">
 		<template #title-badge>
 			<Badge
 				v-if="data.isDirty"
@@ -17,14 +17,16 @@
 	</SettingsLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { Button, Badge, toast } from 'frappe-ui'
+import type { PropType } from 'vue'
 import SettingFields from '@/components/Settings/SettingFields.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import type { SettingsSection } from '@/types/api'
 
 const props = defineProps({
 	sections: {
-		type: Array,
+		type: Array as PropType<SettingsSection[]>,
 		required: true,
 	},
 	data: {
@@ -44,7 +46,7 @@ const update = () => {
 	props.data.save.submit(
 		{},
 		{
-			onError(err) {
+			onError(err: { messages?: string[] }) {
 				toast.error(err.messages?.[0] || err)
 			},
 		}

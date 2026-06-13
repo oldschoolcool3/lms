@@ -107,10 +107,11 @@ const onInput = () => {
 
 const generateSearchResults = () => {
 	search.data?.forEach((type: any) => {
-		let result: { title: string; items: any[] } = { title: '', items: [] }
+		const result: { title: string; items: any[] } = { title: '', items: [] }
 		result.title = type.title
 		type.items.forEach((item: any) => {
-			let paramName = item.doctype === 'LMS Course' ? 'courseName' : 'batchName'
+			const paramName =
+				item.doctype === 'LMS Course' ? 'courseName' : 'batchName'
 			item.route = {
 				name: item.doctype === 'LMS Course' ? 'CourseDetail' : 'BatchDetail',
 				params: {
@@ -125,7 +126,7 @@ const generateSearchResults = () => {
 }
 
 const appendSearchPage = () => {
-	let searchPage: { title: string; items: Array<any> } = {
+	const searchPage: { title: string; items: Array<any> } = {
 		title: '',
 		items: [],
 	}
@@ -181,11 +182,11 @@ const addKeyboardShortcuts = () => {
 }
 
 const shortcutForArrowKey = (direction: number) => {
-	let currentList = query.value.length
+	const currentList = query.value.length
 		? searchResults.value
 		: jumpToOptions.value
-	let allItems = currentList.flatMap((result: any) => result.items)
-	let indexOfActive = allItems.findIndex((option: any) => option.isActive)
+	const allItems = currentList.flatMap((result: any) => result.items)
+	const indexOfActive = allItems.findIndex((option: any) => option.isActive)
 	let newIndex = indexOfActive + direction
 	if (newIndex < 0) newIndex = allItems.length - 1
 	if (newIndex >= allItems.length) newIndex = 0
@@ -204,11 +205,11 @@ const scrollActiveItemIntoView = () => {
 }
 
 const shortcutForEnter = () => {
-	let currentList = query.value.length
+	const currentList = query.value.length
 		? searchResults.value
 		: jumpToOptions.value
-	let allItems = currentList.flatMap((result: any) => result.items)
-	let activeOption = allItems.find((option) => option.isActive)
+	const allItems = currentList.flatMap((result: any) => result.items)
+	const activeOption = allItems.find((option) => option.isActive)
 	if (activeOption) {
 		navigateTo(activeOption.route)
 	}

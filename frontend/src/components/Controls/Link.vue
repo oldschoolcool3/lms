@@ -124,7 +124,7 @@ const creating = ref<boolean>(false)
 const newItemName = ref<string>('')
 let loaded = false
 
-const value = computed<string>(() =>
+const value = computed<string | undefined>(() =>
 	valuePropPassed.value ? (attrs.value as string) : props.modelValue
 )
 
@@ -183,11 +183,13 @@ watchDebounced(
 )
 
 function onSelect(val: string | null): void {
-	emit(valuePropPassed.value ? 'change' : 'update:modelValue', val ?? '')
+	if (valuePropPassed.value) emit('change', val ?? '')
+	else emit('update:modelValue', val ?? '')
 }
 
 function clearValue(): void {
-	emit(valuePropPassed.value ? 'change' : 'update:modelValue', '')
+	if (valuePropPassed.value) emit('change', '')
+	else emit('update:modelValue', '')
 }
 
 function handleCreate(): void {

@@ -36,7 +36,8 @@
 				:label="__('Member')"
 				doctype="Course Evaluator"
 				:onCreate="
-					(value: string, close: () => void) => openSettings('Members', close)
+					(value: string | null, close?: () => void) =>
+						openSettings('Members', close)
 				"
 				:required="true"
 			/>
@@ -192,7 +193,7 @@ const setValue = () => {
 		{
 			...account,
 			name: account.name,
-			account_name: props.accountID,
+			account_name: props.accountID ?? '',
 		},
 		{
 			onSuccess() {

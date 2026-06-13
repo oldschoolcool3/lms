@@ -46,7 +46,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { call, createResource, toast } from 'frappe-ui'
 import Switch from '@/components/Controls/Switch.vue'
 import { ref, watch } from 'vue'
@@ -68,19 +68,19 @@ const props = defineProps({
 
 const roles = createResource({
 	url: 'lms.lms.utils.get_roles',
-	makeParams(values) {
+	makeParams(values: { member?: string }) {
 		return {
 			name: values.member,
 		}
 	},
-	onSuccess(data) {
-		let roles = [
+	onSuccess(data: Record<string, unknown>) {
+		const roles = [
 			'moderator',
 			'course_creator',
 			'batch_evaluator',
 			'lms_student',
 		]
-		for (let role of roles) {
+		for (const role of roles) {
 			if (data[role]) eval(role).value = true
 		}
 	},
@@ -96,7 +96,7 @@ watch(
 	{ immediate: true }
 )
 
-const saveRole = async (role) => {
+const saveRole = async (role: string) => {
 	const roleName =
 		role == 'lms_student'
 			? 'LMS Student'

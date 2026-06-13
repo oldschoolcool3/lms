@@ -6,7 +6,8 @@
 		<div class="flex items-center">
 			{{ tags }}
 			<div
-				v-for="tag in tags?.split(', ')"
+				v-for="(tag, index) in tags?.split(', ')"
+				:key="index"
 				class="flex items-center bg-surface-gray-2 p-2 rounded-md me-2"
 			>
 				{{ tag }}
@@ -19,7 +20,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { FormControl } from 'frappe-ui'
 import { X } from 'lucide-vue-next'
 import { ref } from 'vue'
@@ -34,23 +35,26 @@ const props = defineProps({
 		default: 'Tags',
 	},
 })
-let tags = ref(props.modelValue)
+const tags = ref(props.modelValue)
 const emit = defineEmits(['update:modelValue'])
-let newTag = ref('')
+const newTag = ref('')
 
-let emitChange = (value) => {
+const emitChange = (value: string) => {
 	emit('update:modelValue', value)
 }
 
 const updateTags = () => {
-	if (newTag) {
-		tags.value = tags.value ? `${tags.value}, ${newTag}` : newTag
+	// Fixes a latent bug surfaced by the TS conversion: the original read the
+	// `newTag` ref object instead of `newTag.value`, so adding a tag rendered
+	// "[object Object]" and stored the ref. Use `.value`.
+	if (newTag.value) {
+		tags.value = tags.value ? `${tags.value}, ${newTag.value}` : newTag.value
 		newTag.value = ''
 		emitChange(tags.value)
 	}
 }
 
-const removeTag = (tag) => {
+const removeTag = (tag: string) => {
 	tags.value = tags.value.replace(tag, '').replace(', ,', ',')
 	emitChange(tags.value)
 }

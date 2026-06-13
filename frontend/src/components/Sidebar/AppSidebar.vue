@@ -9,7 +9,7 @@
 		>
 			<UserDropdown :isCollapsed="sidebarStore.isSidebarCollapsed" />
 			<div class="flex flex-col" v-if="sidebarSettings.data">
-				<div v-for="link in sidebarLinks" class="mx-2 my-2.5">
+				<div v-for="link in sidebarLinks" :key="link.label" class="mx-2 my-2.5">
 					<div
 						v-if="!link.hideLabel"
 						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base font-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
@@ -17,7 +17,7 @@
 						<span>{{ __(link.label) }}</span>
 					</div>
 					<nav class="space-y-1">
-						<div v-for="item in link.items">
+						<div v-for="item in link.items" :key="item.label">
 							<SidebarLink
 								:link="item"
 								:isCollapsed="sidebarStore.isSidebarCollapsed"
@@ -69,6 +69,7 @@
 				>
 					<div
 						v-for="link in sidebarSettings.data.web_pages"
+						:key="link.name"
 						class="mx-2 my-0.5"
 					>
 						<SidebarLink
@@ -234,9 +235,9 @@
 			appName="learning"
 			title="Frappe Learning"
 			:logo="LMSLogo"
-			:afterSkip="(step) => capture('onboarding_step_skipped_' + step)"
+			:afterSkip="onAfterSkip"
 			:afterSkipAll="() => capture('onboarding_steps_skipped')"
-			:afterReset="(step) => capture('onboarding_step_reset_' + step)"
+			:afterReset="onAfterReset"
 			:afterResetAll="() => capture('onboarding_steps_reset')"
 			docsLink="https://docs.frappe.io/learning"
 		/>
@@ -253,8 +254,11 @@
 	/>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { getSidebarLinks } from '@/utils'
+import type { SidebarGroup } from '@/utils'
+import type { Socket } from 'socket.io-client'
+import type { LMSSidebarItem } from '@/types/lms/LMSSidebarItem'
 import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
@@ -308,16 +312,16 @@ import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
 
 const { user } = sessionStore()
 const { userResource } = usersStore()
-let sidebarStore = useSidebar()
-const socket = inject('$socket')
+const sidebarStore = useSidebar()
+const socket = inject<Socket>('$socket')!
 const unreadCount = ref(0)
-const sidebarLinks = ref(null)
+const sidebarLinks = ref<SidebarGroup[] | null>(null)
 const { capture } = useTelemetry()
 const showPageModal = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)
-const pageToEdit = ref(null)
-const { sidebarSettings, activeTab, isSettingsOpen, programs } = useSettings()
+const pageToEdit = ref<LMSSidebarItem>()
+const { sidebarSettings, programs } = useSettings()
 const settingsStore = useSettings()
 const showOnboarding = ref(false)
 const showIntermediateModal = ref(false)
@@ -337,7 +341,7 @@ onMounted(() => {
 	setUpOnboarding()
 	addKeyboardShortcut()
 	updateSidebarLinks()
-	socket.on('publish_lms_notifications', (data) => {
+	socket.on('publish_lms_notifications', (_data) => {
 		unreadNotifications.reload()
 	})
 })
@@ -346,10 +350,10 @@ const updateSidebarLinksVisibility = () => {
 	sidebarSettings.reload(
 		{},
 		{
-			onSuccess(data) {
+			onSuccess(data: Record<string, unknown>) {
 				Object.keys(data).forEach((key) => {
-					if (!parseInt(data[key])) {
-						sidebarLinks.value.forEach((link) => {
+					if (!parseInt(data[key] as string)) {
+						sidebarLinks.value?.forEach((link) => {
 							link.items = link.items.filter(
 								(item) => item.label.toLowerCase().split(' ').join('_') !== key
 							)
@@ -366,7 +370,7 @@ const addKeyboardShortcut = () => {
 		if (
 			e.key === 'k' &&
 			(e.ctrlKey || e.metaKey) &&
-			!e.target.classList.contains('ProseMirror')
+			!(e.target as HTMLElement).classList.contains('ProseMirror')
 		) {
 			toggleCommandPalette()
 			e.preventDefault()
@@ -381,7 +385,7 @@ const toggleCommandPalette = () => {
 const unreadNotifications = createResource({
 	cache: 'Unread Notifications Count',
 	url: 'frappe.client.get_count',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doctype: 'Notification Log',
 			filters: {
@@ -390,7 +394,7 @@ const unreadNotifications = createResource({
 			},
 		}
 	},
-	onSuccess(data) {
+	onSuccess(data: number) {
 		unreadCount.value = data
 		updateUnreadCount()
 	},
@@ -407,12 +411,12 @@ const updateUnreadCount = () => {
 	})
 }
 
-const openPageModal = (link) => {
+const openPageModal = (link?: LMSSidebarItem) => {
 	showPageModal.value = true
 	pageToEdit.value = link
 }
 
-const deletePage = (link) => {
+const deletePage = (link: LMSSidebarItem) => {
 	call('lms.lms.api.delete_documents', {
 		doctype: 'LMS Sidebar Item',
 		documents: [link.name],
@@ -439,13 +443,13 @@ const toggleWebPages = () => {
 }
 
 const getFirstCourse = async () => {
-	let firstCourse = localStorage.getItem('firstCourse')
+	const firstCourse = localStorage.getItem('firstCourse')
 	if (firstCourse) return firstCourse
 	return await call('lms.lms.onboarding.get_first_course')
 }
 
 const getFirstBatch = async () => {
-	let firstBatch = localStorage.getItem('firstBatch')
+	const firstBatch = localStorage.getItem('firstBatch')
 	if (firstBatch) return firstBatch
 	return await call('lms.lms.onboarding.get_first_batch')
 }
@@ -471,7 +475,7 @@ const steps = reactive([
 		dependsOn: 'create_first_course',
 		onClick: async () => {
 			minimize.value = true
-			let course = await getFirstCourse()
+			const course = await getFirstCourse()
 			if (course) {
 				router.push({
 					name: 'CourseDetail',
@@ -491,7 +495,7 @@ const steps = reactive([
 		dependsOn: 'create_first_chapter',
 		onClick: async () => {
 			minimize.value = true
-			let course = await getFirstCourse()
+			const course = await getFirstCourse()
 			if (course) {
 				router.push({
 					name: 'CourseDetail',
@@ -521,8 +525,8 @@ const steps = reactive([
 		completed: false,
 		onClick: () => {
 			minimize.value = true
-			activeTab.value = 'Members'
-			isSettingsOpen.value = true
+			settingsStore.activeTab = 'Members'
+			settingsStore.isSettingsOpen = true
 		},
 	},
 	{
@@ -543,7 +547,7 @@ const steps = reactive([
 		dependsOn: 'create_first_batch',
 		onClick: async () => {
 			minimize.value = true
-			let batch = await getFirstBatch()
+			const batch = await getFirstBatch()
 			if (batch) {
 				router.push({
 					name: 'Batch',
@@ -564,7 +568,7 @@ const steps = reactive([
 		dependsOn: 'create_first_batch',
 		onClick: async () => {
 			minimize.value = true
-			let batch = await getFirstBatch()
+			const batch = await getFirstBatch()
 			if (batch) {
 				router.push({
 					name: 'Batch',
@@ -647,6 +651,14 @@ const articles = ref([
 	},
 ])
 
+const onAfterSkip = (step: string) => {
+	capture('onboarding_step_skipped_' + step)
+}
+
+const onAfterReset = (step: string) => {
+	capture('onboarding_step_reset_' + step)
+}
+
 const setUpOnboarding = () => {
 	if (userResource.data?.is_system_manager) {
 		onboardingDetails = useOnboarding('learning')
@@ -694,8 +706,8 @@ const profileIsComplete = computed(() => {
 })
 
 const showAppointmentIcon = computed(() => {
-	let isTrialPlan = userResource.data?.site_info?.plan?.is_trial_plan
-	let trialEndDate = calculateTrialEndDays(
+	const isTrialPlan = userResource.data?.site_info?.plan?.is_trial_plan
+	const trialEndDate = calculateTrialEndDays(
 		userResource.data?.site_info?.trial_end_date
 	)
 	return (
@@ -706,12 +718,12 @@ const showAppointmentIcon = computed(() => {
 	)
 })
 
-const calculateTrialEndDays = (trialEndDate) => {
+const calculateTrialEndDays = (trialEndDate: string | null | undefined) => {
 	if (!trialEndDate) return 0
 
-	trialEndDate = new Date(trialEndDate)
+	const endDate = new Date(trialEndDate)
 	const today = new Date()
-	const diffTime = trialEndDate - today
+	const diffTime = endDate.getTime() - today.getTime()
 	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 	return diffDays
 }

@@ -3,7 +3,7 @@
 		<div class="grid grid-cols-4 gap-5 mb-5 text-ink-gray-9">
 			<NumberChartGraph
 				:title="__('Enrolled')"
-				:value="formatAmount(course.data?.enrollments)"
+				:value="formatAmount(course.data?.enrollments ?? 0)"
 			/>
 			<NumberChartGraph
 				:title="__('Average Completion Rate')"
@@ -17,7 +17,10 @@
 					<Star class="size-5 text-transparent fill-amber-500" />
 				</template>
 			</NumberChartGraph>
-			<NumberChartGraph :title="__('Lessons')" :value="course.data?.lessons" />
+			<NumberChartGraph
+				:title="__('Lessons')"
+				:value="course.data?.lessons ?? 0"
+			/>
 		</div>
 		<div class="grid grid-cols-[2fr_1fr] gap-5 items-start">
 			<div class="border rounded-lg py-3 px-4">
@@ -62,7 +65,11 @@
 							>
 							</ListHeaderItem>
 						</ListHeader>
-						<ListRows v-for="row in progressList.data" class="max-h-[500px]">
+						<ListRows
+							v-for="row in progressList.data"
+							:key="row.name"
+							class="max-h-[500px]"
+						>
 							<ListRow
 								:row="row"
 								@click="
@@ -136,6 +143,7 @@
 							<div
 								class="flex items-center text-ink-gray-7"
 								v-for="row in chartDetails.data?.progress_distribution"
+								:key="row.name"
 							>
 								<div
 									class="size-2 rounded"
@@ -160,7 +168,9 @@
 								<Tooltip :text="String(row.value)">
 									<div class="ms-auto">
 										{{
-											Math.round((row.value / course.data?.enrollments) * 100)
+											Math.round(
+												(row.value / (course.data?.enrollments || 1)) * 100
+											)
 										}}%
 									</div>
 								</Tooltip>
@@ -220,6 +230,7 @@
 					>
 						<div
 							v-for="progress in lessonProgress.data"
+							:key="`${progress.chapter_idx}-${progress.idx}`"
 							class="flex justify-between text-sm py-2 my-1 text-ink-gray-9"
 						>
 							<div class="">
@@ -234,7 +245,8 @@
 								<div>
 									{{
 										Math.ceil(
-											(progress.completion_count / course.data?.enrollments) *
+											(progress.completion_count /
+												(course.data?.enrollments || 1)) *
 												100
 										)
 									}}%
@@ -266,7 +278,6 @@ import {
 	Button,
 	createListResource,
 	createResource,
-	Dropdown,
 	ECharts,
 	FormControl,
 	ListView,
@@ -359,7 +370,7 @@ const updateLessonProgress = (value: string) => {
 }
 
 watch([searchFilter], () => {
-	let filters: Filters = {
+	const filters: Filters = {
 		course: props.course.data?.name,
 	}
 
@@ -374,12 +385,12 @@ watch([searchFilter], () => {
 })
 
 const averageCompletionRate = computed(() => {
-	let value = Math.ceil(chartDetails.data?.average_progress) || 0
+	const value = Math.ceil(chartDetails.data?.average_progress) || 0
 	return value + '%'
 })
 
 const progressColors = computed(() => {
-	let colorList = []
+	const colorList = []
 	colorList.push(colors[theme.value]['red'][400])
 	colorList.push(colors[theme.value]['amber'][400])
 	colorList.push(colors[theme.value]['blue'][400])

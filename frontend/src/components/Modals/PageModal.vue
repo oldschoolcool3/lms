@@ -8,9 +8,7 @@
 				{
 					label: 'Add',
 					variant: 'solid',
-					onClick: (close) => {
-						addWebPage(close)
-					},
+					onClick: addWebPage,
 				},
 			],
 		}"
@@ -18,27 +16,27 @@
 		<template #body-content>
 			<div class="text-base">
 				<Link
-					v-model="page.webpage"
+					v-model="form.webpage"
 					doctype="Web Page"
 					:label="__('Web Page')"
 					:filters="{
 						published: 1,
 					}"
 				/>
-				<IconPicker v-model="page.icon" :label="__('Icon')" class="mt-4" />
+				<IconPicker v-model="form.icon" :label="__('Icon')" class="mt-4" />
 			</div>
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Dialog, createResource, toast } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
 import { reactive, watch } from 'vue'
 import IconPicker from '@/components/Controls/IconPicker.vue'
 
-const sidebar = defineModel('reloadSidebar')
+const sidebar = defineModel<{ reload: () => void }>('reloadSidebar')
 const show = defineModel()
-const page = reactive({
+const form = reactive({
 	icon: '',
 	webpage: '',
 })
@@ -52,10 +50,10 @@ const props = defineProps({
 
 const webPage = createResource({
 	url: 'lms.lms.api.update_sidebar_item',
-	makeParams(values) {
+	makeParams() {
 		return {
-			webpage: page.webpage,
-			icon: page.icon,
+			webpage: form.webpage,
+			icon: form.icon,
 		}
 	},
 })
@@ -64,23 +62,23 @@ watch(
 	() => props.page,
 	(newPage) => {
 		if (newPage) {
-			page.icon = newPage.icon
-			page.webpage = newPage.web_page
+			form.icon = newPage.icon
+			form.webpage = newPage.web_page
 		}
 	},
 	{ immediate: true }
 )
 
-const addWebPage = (close) => {
+const addWebPage = (close: () => void) => {
 	webPage.submit(
 		{},
 		{
 			onSuccess() {
-				sidebar.value.reload()
+				sidebar.value?.reload()
 				close()
 				toast.success(__('Web page added to sidebar'))
 			},
-			onError(err) {
+			onError(err: { message: string[] }) {
 				toast.error(err.message[0] || err)
 				close()
 			},

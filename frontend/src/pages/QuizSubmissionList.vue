@@ -17,12 +17,17 @@
 			<ListHeader
 				class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 			>
-				<ListHeaderItem :item="item" v-for="item in quizColumns">
+				<ListHeaderItem
+					:item="item"
+					v-for="item in quizColumns"
+					:key="item.key"
+				>
 				</ListHeaderItem>
 			</ListHeader>
 			<ListRows>
 				<router-link
 					v-for="row in submissions.data"
+					:key="row.name"
 					:to="{
 						name: 'QuizSubmission',
 						params: {
@@ -42,7 +47,7 @@
 	</div>
 	<EmptyStateLayout v-else name="Quiz Submissions" />
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	createListResource,
 	Breadcrumbs,
@@ -59,10 +64,11 @@ import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import type { SessionUser } from '@/types/api'
 
 const { brand } = sessionStore()
 const router = useRouter()
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 
 onMounted(() => {
 	if (!user.data?.is_instructor && !user.data?.is_moderator)

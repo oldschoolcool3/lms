@@ -71,7 +71,7 @@ const title = computed(() =>
 
 const paymentGateway = createResource({
 	url: 'lms.lms.api.get_payment_gateway_details',
-	makeParams(values: any) {
+	makeParams(_values: any) {
 		return {
 			payment_gateway: props.gatewayID,
 		}
@@ -101,7 +101,7 @@ const gatewayFields = createResource({
 })
 
 const arrangeFields = (fields: any[]) => {
-	fields = fields.sort((a, b) => {
+	fields.sort((a, b) => {
 		if (a.type === 'Upload' && b.type !== 'Upload') {
 			return 1
 		} else if (a.type !== 'Upload' && b.type === 'Upload') {
@@ -130,9 +130,9 @@ const getNewGateway = () => {
 }
 
 watch(newGateway, () => {
-	let gatewayDoc = getNewGateway()
+	const gatewayDoc = getNewGateway()
 	gatewayFields.reload({ doctype: gatewayDoc.name }).then(() => {
-		let fields = gatewayFields.data || []
+		const fields = gatewayFields.data || []
 		arrangeFields(fields)
 		newGatewayFields.value = makeSections(fields)
 		prepareGatewayData(fields)
@@ -153,7 +153,7 @@ const saveSettings = () => {
 }
 
 const saveNewGateway = () => {
-	let gatewayDoc = getNewGateway()
+	const gatewayDoc = getNewGateway()
 	if (gatewayDoc.issingle) {
 		saveExistingGateway(gatewayDoc.name, gatewayDoc.name)
 	} else {
@@ -162,7 +162,7 @@ const saveNewGateway = () => {
 				doctype: gatewayDoc.name,
 				...newGatewayData.value,
 			},
-		}).then((data: any) => {
+		}).then((_data: any) => {
 			paymentGateways.value.reload()
 			emit('updateStep', 'list')
 		})
@@ -181,7 +181,7 @@ const saveExistingGateway = (doctype: string, docname: string) => {
 }
 
 const getGatewayFields = () => {
-	let data =
+	const data =
 		props.gatewayID == 'new' ? newGatewayData.value : paymentGateway.data.data
 	return Object.keys(data).reduce((fields: any, key: string) => {
 		if (data[key] && typeof data[key] === 'object') {
@@ -194,11 +194,12 @@ const getGatewayFields = () => {
 }
 
 const allGatewayOptions = computed(() => {
-	let options: string[] = []
-	let gatewayList = allGateways.data?.map((gateway: any) => gateway.name) || []
+	const options: string[] = []
+	const gatewayList =
+		allGateways.data?.map((gateway: any) => gateway.name) || []
 	gatewayList.forEach((gateway: any) => {
-		let gatewayName = gateway.split(' ')[0]
-		let existingGateways =
+		const gatewayName = gateway.split(' ')[0]
+		const existingGateways =
 			paymentGateways.value?.data?.map((pg: any) => pg.name) || []
 		if (
 			!options.includes(gatewayName) &&
@@ -219,7 +220,7 @@ const prepareGatewayData = (fields: any[]) => {
 
 const makeSections = (fields: any[]) => {
 	const columnCount = fields.length / 3
-	let sections: { columns: { fields: any[] }[] }[] = [
+	const sections: { columns: { fields: any[] }[] }[] = [
 		{
 			columns: [],
 		},

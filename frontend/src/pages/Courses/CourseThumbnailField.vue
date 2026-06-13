@@ -47,7 +47,7 @@
 						<FileUploader
 							ref="uploaderRef"
 							:fileTypes="['.jpg,.jpeg,.gif,.png']"
-							@success="(file) => onUploaded(file.file_url)"
+							@success="onUploadSuccess"
 							@failure="onUploadFailure"
 						>
 							<template #default="{ openFileSelector, uploading }">
@@ -97,7 +97,7 @@
 						<FileUploader
 							ref="uploaderRef"
 							:fileTypes="['.jpg,.jpeg,.gif,.png']"
-							@success="(file) => onUploaded(file.file_url)"
+							@success="onUploadSuccess"
 							@failure="onUploadFailure"
 						>
 							<template #default="{ openFileSelector, uploading }">
@@ -129,12 +129,16 @@ import {
 } from 'frappe-ui'
 import { Image as ImageIcon, Trash2, Upload } from 'lucide-vue-next'
 import { computed, inject, ref, watch } from 'vue'
+import type { ComputedRef } from 'vue'
 import { getColor } from '@/utils'
+import type { LMSCourse } from '@/types/lms/LMSCourse'
 import type { CourseFormContext, Resource } from '@/types/api'
 
 const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
 
-const doc = computed(() => resource.doc)
+// CourseForm only mounts this field once `resource.doc` has loaded
+// (it renders a skeleton until then), so `doc` is non-null here.
+const doc = computed(() => resource.doc) as ComputedRef<LMSCourse>
 
 const colors = [
 	'Red',
@@ -231,13 +235,17 @@ function onUploaded(url: string) {
 	markDirty()
 }
 
+function onUploadSuccess(file: { file_url: string }) {
+	onUploaded(file.file_url)
+}
+
 function removeImage() {
 	if (!doc.value) return
 	doc.value.image = ''
 	markDirty()
 }
 
-function pickColor(c: string) {
+function pickColor(c: NonNullable<LMSCourse['card_gradient']>) {
 	if (!doc.value) return
 	doc.value.card_gradient = c
 	markDirty()

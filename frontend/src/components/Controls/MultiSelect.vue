@@ -8,7 +8,6 @@
 			<div class="relative w-full">
 				<div
 					class="flex flex-wrap items-center gap-1.5 w-full rounded-lg border border-[--surface-gray-2] bg-surface-gray-2 px-2 py-1.5 cursor-text transition-colors focus-within:bg-surface-white focus-within:border-outline-gray-4 focus-within:shadow-sm focus-within:ring-0 focus-within:ring-2 focus-within:ring-outline-gray-3"
-					@click="focusInput"
 				>
 					<button
 						v-for="value in values"
@@ -86,7 +85,7 @@
 							variant="ghost"
 							class="w-full !justify-start"
 							:label="__('Create New')"
-							@click="attrs.onCreate()"
+							@click="onCreate"
 						>
 							<template #prefix>
 								<Plus class="h-4 w-4 stroke-1.5" />
@@ -229,6 +228,12 @@ function addValue(value: string) {
 
 function removeValue(value: string) {
 	values.value = (values.value || []).filter((v) => v !== value)
+}
+
+// `onCreate` is forwarded via $attrs (untyped); invoke it only when present.
+function onCreate() {
+	const fn = attrs.onCreate
+	if (typeof fn === 'function') fn()
 }
 
 const labelClasses = computed<(string | undefined)[]>(() => {

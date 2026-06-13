@@ -72,9 +72,7 @@ const props = defineProps<{
 const user = inject<SessionUser>('$user')!
 const router = useRouter()
 const app = getCurrentInstance()!
-const { $dialog } = app.appContext.config.globalProperties as {
-	$dialog: DialogFn
-}
+const $dialog = app.appContext.config.globalProperties.$dialog as DialogFn
 
 const isDirty = ref<boolean>(false)
 const instructors = ref<string[]>([])
@@ -117,7 +115,7 @@ watch(
 		// A failed/empty fetch still fires this watch; the body assumes a
 		// loaded doc.
 		if (!courseResource.doc) return
-		getMetaInfo('courses', courseResource.doc?.name, meta)
+		getMetaInfo('courses', courseResource.doc?.name ?? '', meta)
 		updateCourseData()
 		checkPermission()
 	}
@@ -148,8 +146,11 @@ const updateCourseData = (): void => {
 		'enable_certification',
 		'paid_certificate',
 	]
+	// Checkbox fields are typed `0 | 1` on the doc but normalized to booleans
+	// here for the form controls; the write needs a structural escape hatch.
+	const docRecord = doc as unknown as Record<string, unknown>
 	for (const key of checkboxes) {
-		;(doc as Record<string, unknown>)[key] = doc[key] ? true : false
+		docRecord[key] = doc[key] ? true : false
 	}
 }
 
@@ -164,7 +165,7 @@ const updateCourse = (): void => {
 		},
 		{
 			onSuccess() {
-				updateMetaInfo('courses', courseResource.doc?.name, meta)
+				updateMetaInfo('courses', courseResource.doc?.name ?? '', meta)
 				toast.success(__('Course updated successfully'))
 				isDirty.value = false
 				courseResource.reload()
@@ -225,7 +226,10 @@ const courseMenu = computed<CourseMenuItem[]>(() => [
 	{
 		label: __('Export'),
 		icon: 'lucide-download',
-		onClick: () => exportCourseAsZip(courseResource.doc?.name),
+		onClick: () => {
+			const name = courseResource.doc?.name
+			if (name) exportCourseAsZip(name)
+		},
 	},
 	{
 		label: __('Delete'),

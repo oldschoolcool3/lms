@@ -41,33 +41,35 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { createResource, toast } from 'frappe-ui'
-import {
-	reactive,
-	onMounted,
-	inject,
-	ref,
-	onBeforeUnmount,
-	computed,
-} from 'vue'
+import { reactive, onMounted, inject, ref, onBeforeUnmount } from 'vue'
 import EditorJS from '@editorjs/editorjs'
+import type { EditorConfig, OutputData } from '@editorjs/editorjs'
 import { ChevronRight } from 'lucide-vue-next'
 import { getEditorTools, enablePlyr, sanitizeEditorJs } from '@/utils'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import type { SessionUser } from '@/types/api'
 
-const editor = ref(null)
-const instructorEditor = ref(null)
-const user = inject('$user')
+const editor = ref<EditorJS | null>(null)
+const instructorEditor = ref<EditorJS | null>(null)
+const user = inject<SessionUser>('$user')!
 const openInstructorEditor = ref(false)
-const contentUploadContext = { docname: null, fieldname: 'content' }
-const instructorUploadContext = {
+interface UploadContext {
+	docname?: string | null
+	fieldname?: string
+}
+const contentUploadContext: UploadContext = {
+	docname: null,
+	fieldname: 'content',
+}
+const instructorUploadContext: UploadContext = {
 	docname: null,
 	fieldname: 'instructor_content',
 }
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
-let autoSaveInterval
+let autoSaveInterval: ReturnType<typeof setInterval>
 let showSuccessMessage = false
 
 const props = defineProps({
@@ -109,10 +111,16 @@ onMounted(() => {
 	enablePlyr()
 })
 
-const renderEditor = (holder, uploadContext = {}) => {
+const renderEditor = (holder: string, uploadContext: UploadContext = {}) => {
 	return new EditorJS({
 		holder: holder,
-		tools: getEditorTools(false, uploadContext),
+		// getEditorTools wires Editor.js plugins that are an untyped (`any`)
+		// boundary (see types/editorjs-shim.d.ts); its inferred shape doesn't
+		// structurally match Editor.js's ToolSettings, so widen through unknown.
+		tools: getEditorTools(
+			false,
+			uploadContext
+		) as unknown as EditorConfig['tools'],
 		defaultBlock: 'markdown',
 		i18n: {
 			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
@@ -130,7 +138,26 @@ const lesson = reactive({
 	body: '',
 	instructor_notes: '',
 	content: '',
+	instructor_content: '',
 })
+
+interface LessonFields {
+	name: string
+	title?: string
+	include_in_preview?: boolean | 0 | 1
+	body?: string
+	instructor_notes?: string
+	content?: string
+	instructor_content?: string
+	youtube?: string
+	quizId?: string
+	[key: string]: unknown
+}
+
+interface LessonCreationDetails {
+	lesson?: LessonFields
+	chapter?: { name: string }
+}
 
 const lessonDetails = createResource({
 	url: 'lms.lms.utils.get_lesson_creation_details',
@@ -140,10 +167,10 @@ const lessonDetails = createResource({
 		lesson: props.lessonNumber,
 	},
 	auto: true,
-	onSuccess(data) {
+	onSuccess(data: LessonCreationDetails) {
 		if (data.lesson) {
 			Object.keys(data.lesson).forEach((key) => {
-				lesson[key] = data.lesson[key]
+				;(lesson as Record<string, unknown>)[key] = data.lesson![key]
 			})
 			lesson.include_in_preview = data?.lesson?.include_in_preview
 				? true
@@ -159,28 +186,34 @@ const lessonDetails = createResource({
 	},
 })
 
-const addLessonContent = (data) => {
-	editor.value.isReady.then(() => {
-		if (data.lesson.content) {
-			editor.value.render(sanitizeEditorJs(JSON.parse(data.lesson.content)))
-		} else if (data.lesson.body) {
-			let blocks = convertToJSON(data.lesson)
-			editor.value.render({
+const addLessonContent = (data: LessonCreationDetails) => {
+	const lessonData = data.lesson!
+	editor.value!.isReady.then(() => {
+		if (lessonData.content) {
+			editor.value!.render(
+				sanitizeEditorJs(JSON.parse(lessonData.content)) as OutputData
+			)
+		} else if (lessonData.body) {
+			const blocks = convertToJSON(lessonData)
+			editor.value!.render({
 				blocks: blocks,
 			})
 		}
 	})
 }
 
-const addInstructorNotes = (data) => {
-	instructorEditor.value.isReady.then(() => {
-		if (data.lesson.instructor_content) {
-			instructorEditor.value.render(
-				sanitizeEditorJs(JSON.parse(data.lesson.instructor_content))
+const addInstructorNotes = (data: LessonCreationDetails) => {
+	const lessonData = data.lesson!
+	instructorEditor.value!.isReady.then(() => {
+		if (lessonData.instructor_content) {
+			instructorEditor.value!.render(
+				sanitizeEditorJs(
+					JSON.parse(lessonData.instructor_content)
+				) as OutputData
 			)
-		} else if (data.lesson.instructor_notes) {
-			let blocks = convertToJSON(data.lesson)
-			instructorEditor.value.render({
+		} else if (lessonData.instructor_notes) {
+			const blocks = convertToJSON(lessonData)
+			instructorEditor.value!.render({
 				blocks: blocks,
 			})
 		}
@@ -193,11 +226,11 @@ const enableAutoSave = () => {
 	}, 10000)
 }
 
-const keyboardShortcut = (e) => {
+const keyboardShortcut = (e: KeyboardEvent) => {
 	if (
 		e.key === 's' &&
 		(e.ctrlKey || e.metaKey) &&
-		!e.target.classList.contains('ProseMirror')
+		!(e.target as HTMLElement).classList.contains('ProseMirror')
 	) {
 		saveLesson({ showSuccessMessage: true })
 		e.preventDefault()
@@ -211,7 +244,7 @@ onBeforeUnmount(() => {
 
 const newLessonResource = createResource({
 	url: 'frappe.client.insert',
-	makeParams(values) {
+	makeParams(_values: unknown) {
 		return {
 			doc: {
 				doctype: 'Course Lesson',
@@ -225,7 +258,7 @@ const newLessonResource = createResource({
 
 const editLesson = createResource({
 	url: 'frappe.client.set_value',
-	makeParams(values) {
+	makeParams(values: { lesson: string }) {
 		return {
 			doctype: 'Course Lesson',
 			name: values.lesson,
@@ -236,7 +269,7 @@ const editLesson = createResource({
 
 const lessonReference = createResource({
 	url: 'frappe.client.insert',
-	makeParams(values) {
+	makeParams(values: { lesson: string }) {
 		return {
 			doc: {
 				doctype: 'Lesson Reference',
@@ -250,10 +283,10 @@ const lessonReference = createResource({
 	},
 })
 
-const convertToJSON = (lessonData) => {
-	let blocks = []
+const convertToJSON = (lessonData: LessonFields) => {
+	const blocks: { type: string; data: Record<string, unknown> }[] = []
 	if (lessonData.youtube) {
-		let youtubeID = lessonData.youtube.split('/').pop()
+		const youtubeID = lessonData.youtube.split('/').pop()
 		blocks.push({
 			type: 'embed',
 			data: {
@@ -262,9 +295,9 @@ const convertToJSON = (lessonData) => {
 			},
 		})
 	}
-	lessonData.body.split('\n').forEach((block) => {
+	lessonData.body!.split('\n').forEach((block) => {
 		if (block.includes('{{ YouTubeVideo')) {
-			let youtubeID = block.match(/\(["']([^"']+?)["']\)/)[1]
+			let youtubeID = block.match(/\(["']([^"']+?)["']\)/)![1]
 			if (!youtubeID.includes('https://'))
 				youtubeID = `https://www.youtube.com/embed/${youtubeID}`
 			blocks.push({
@@ -275,7 +308,7 @@ const convertToJSON = (lessonData) => {
 				},
 			})
 		} else if (block.includes('{{ Quiz')) {
-			let quiz = block.match(/\(["']([^"']+?)["']\)/)[1]
+			const quiz = block.match(/\(["']([^"']+?)["']\)/)![1]
 			blocks.push({
 				type: 'quiz',
 				data: {
@@ -283,7 +316,7 @@ const convertToJSON = (lessonData) => {
 				},
 			})
 		} else if (block.includes('{{ Video')) {
-			let video = block.match(/\(["']([^"']+?)["']\)/)[1]
+			const video = block.match(/\(["']([^"']+?)["']\)/)![1]
 			blocks.push({
 				type: 'upload',
 				data: {
@@ -292,7 +325,7 @@ const convertToJSON = (lessonData) => {
 				},
 			})
 		} else if (block.includes('{{ Audio')) {
-			let audio = block.match(/\(["']([^"']+?)["']\)/)[1]
+			const audio = block.match(/\(["']([^"']+?)["']\)/)![1]
 			blocks.push({
 				type: 'upload',
 				data: {
@@ -301,7 +334,7 @@ const convertToJSON = (lessonData) => {
 				},
 			})
 		} else if (block.includes('{{ PDF')) {
-			let pdf = block.match(/\(["']([^"']+?)["']\)/)[1]
+			const pdf = block.match(/\(["']([^"']+?)["']\)/)![1]
 			blocks.push({
 				type: 'upload',
 				data: {
@@ -310,7 +343,7 @@ const convertToJSON = (lessonData) => {
 				},
 			})
 		} else if (block.includes('{{ Embed')) {
-			let embed = block.match(/\(["']([^"']+?)["']\)/)[1]
+			const embed = block.match(/\(["']([^"']+?)["']\)/)![1]
 			blocks.push({
 				type: 'embed',
 				data: {
@@ -319,7 +352,7 @@ const convertToJSON = (lessonData) => {
 				},
 			})
 		} else if (block.includes('![]')) {
-			let image = block.match(/\((.*?)\)/)[1]
+			const image = block.match(/\((.*?)\)/)![1]
 			blocks.push({
 				type: 'upload',
 				data: {
@@ -328,7 +361,7 @@ const convertToJSON = (lessonData) => {
 				},
 			})
 		} else if (block.includes('#')) {
-			let level = (block.match(/#/g) || []).length
+			const level = (block.match(/#/g) || []).length
 			blocks.push({
 				type: 'header',
 				data: {
@@ -358,15 +391,15 @@ const convertToJSON = (lessonData) => {
 	return blocks
 }
 
-const saveLesson = (e) => {
+const saveLesson = (e?: { showSuccessMessage?: boolean }) => {
 	showSuccessMessage = false
 	if (typeof e != 'undefined' && e.showSuccessMessage) {
 		showSuccessMessage = true
 	}
-	editor.value.save().then((outputData) => {
+	editor.value!.save().then((outputData) => {
 		outputData = removeEmptyBlocks(outputData)
 		lesson.content = JSON.stringify(outputData)
-		instructorEditor.value.save().then((outputData) => {
+		instructorEditor.value!.save().then((outputData) => {
 			outputData = removeEmptyBlocks(outputData)
 			lesson.instructor_content = JSON.stringify(outputData)
 			if (lessonDetails.data?.lesson) {
@@ -378,8 +411,8 @@ const saveLesson = (e) => {
 	})
 }
 
-const removeEmptyBlocks = (outputData) => {
-	let blocks = outputData.blocks.filter((block) => {
+const removeEmptyBlocks = (outputData: OutputData) => {
+	const blocks = outputData.blocks.filter((block) => {
 		return Object.keys(block.data).length > 0 || block.type == 'paragraph'
 	})
 	outputData.blocks = blocks
@@ -393,7 +426,7 @@ const createNewLesson = () => {
 			validate() {
 				return validateLesson()
 			},
-			onSuccess(data) {
+			onSuccess(data: { name: string }) {
 				lessonReference.submit(
 					{ lesson: data.name },
 					{
@@ -409,7 +442,7 @@ const createNewLesson = () => {
 					}
 				)
 			},
-			onError(err) {
+			onError(err: { messages?: string[] }) {
 				toast.error(err.messages?.[0] || err)
 			},
 		}
@@ -426,12 +459,12 @@ const editCurrentLesson = () => {
 				return validateLesson()
 			},
 			onSuccess() {
-				showSuccessMessage
-					? toast.success(__('Lesson updated successfully'))
-					: ''
+				if (showSuccessMessage) {
+					toast.success(__('Lesson updated successfully'))
+				}
 				isDirty.value = false
 			},
-			onError(err) {
+			onError(err: { message: string }) {
 				toast.error(err.message)
 			},
 		}

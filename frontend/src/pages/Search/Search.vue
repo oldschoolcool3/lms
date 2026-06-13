@@ -52,6 +52,7 @@
 			<div v-if="searchResults.length" class="">
 				<div
 					v-for="(result, index) in searchResults"
+					:key="index"
 					@click="navigate(result)"
 					class="rounded-md cursor-pointer hover:bg-surface-gray-2 px-2"
 				>

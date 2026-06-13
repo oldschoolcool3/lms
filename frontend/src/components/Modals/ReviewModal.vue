@@ -8,7 +8,7 @@
 				{
 					label: 'Submit',
 					variant: 'solid',
-					onClick: (close) => submitReview(close),
+					onClick: (close: () => void) => submitReview(close),
 				},
 			],
 		}"

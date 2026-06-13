@@ -19,15 +19,13 @@
 				row-key="name"
 				:options="{
 					showTooltip: false,
-					onRowClick: (row) => {
-						openForm(row.name)
-					},
+					onRowClick: handleRowClick,
 				}"
 			>
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in columns">
+					<ListHeaderItem :item="item" v-for="item in columns" :key="item.key">
 						<template #prefix="{ item }">
 							<FeatherIcon
 								v-if="item.icon"
@@ -39,8 +37,12 @@
 				</ListHeader>
 
 				<ListRows>
-					<ListRow :row="row" v-for="row in paymentGateways.data">
-						<template #default="{ column, item }">
+					<ListRow
+						:row="row"
+						v-for="row in paymentGateways.data"
+						:key="row.name"
+					>
+						<template #default="{ column }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div v-if="column.key == 'enabled'">
 									<Badge v-if="row[column.key]" theme="green">
@@ -86,7 +88,7 @@
 		@updateStep="(step) => (view = step)"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Badge,
 	Button,
@@ -109,10 +111,10 @@ import { cleanError } from '@/utils'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 
-const view = ref('list')
-const currentGateway = ref(null)
+const view = ref<'list' | 'form'>('list')
+const currentGateway = ref<string | null>(null)
 
-const props = defineProps({
+defineProps({
 	label: {
 		type: String,
 		required: true,
@@ -130,12 +132,16 @@ const paymentGateways = createListResource({
 	orderBy: 'modified desc',
 })
 
-const openForm = (gatewayID) => {
+const handleRowClick = (row: { name: string }) => {
+	openForm(row.name)
+}
+
+const openForm = (gatewayID: string) => {
 	currentGateway.value = gatewayID
 	view.value = 'form'
 }
 
-const removeAccount = (selections, unselectAll) => {
+const removeAccount = (selections: Set<string>, unselectAll: () => void) => {
 	call('lms.lms.api.delete_documents', {
 		doctype: 'Payment Gateway',
 		documents: Array.from(selections),
@@ -145,7 +151,7 @@ const removeAccount = (selections, unselectAll) => {
 			toast.success(__('Payment gateways deleted successfully'))
 			unselectAll()
 		})
-		.catch((err) => {
+		.catch((err: { messages: string[] }) => {
 			toast.error(
 				cleanError(err.messages[0]) || __('Error deleting payment gateways')
 			)

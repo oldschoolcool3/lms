@@ -28,10 +28,13 @@
 			</ListHeader>
 			<ListRows>
 				<ListRow :row="row" v-for="row in coupons.data" :key="row.name">
-					<template #default="{ column, item }">
-						<ListRowItem :item="row[column.key]" :align="column.align">
+					<template #default="{ column }">
+						<ListRowItem
+							:item="row[column.key as keyof Coupon]"
+							:align="column.align"
+						>
 							<div v-if="column.key == 'enabled'">
-								<Badge v-if="row[column.key]" theme="green">
+								<Badge v-if="row[column.key as keyof Coupon]" theme="green">
 									{{ __('Enabled') }}
 								</Badge>
 								<Badge v-else theme="gray">
@@ -39,7 +42,7 @@
 								</Badge>
 							</div>
 							<div v-else-if="column.key == 'expires_on'">
-								{{ dayjs(row[column.key]).format('DD MMM YYYY') }}
+								{{ dayjs(row.expires_on).format('DD MMM YYYY') }}
 							</div>
 							<div v-else-if="column.key == 'discount'">
 								<div v-if="row['discount_type'] == 'Percentage'">
@@ -50,7 +53,7 @@
 								</div>
 							</div>
 							<div v-else class="leading-5 text-sm">
-								{{ row[column.key] }}
+								{{ row[column.key as keyof Coupon] }}
 							</div>
 						</ListRowItem>
 					</template>
@@ -82,18 +85,15 @@ import {
 	Badge,
 	Button,
 	call,
-	createListResource,
-	FeatherIcon,
 	ListView,
 	ListHeader,
-	ListHeaderItem,
 	ListRows,
 	ListRow,
 	ListRowItem,
 	ListSelectBanner,
 	toast,
 } from 'frappe-ui'
-import { computed, getCurrentInstance, inject, ref } from 'vue'
+import { computed, getCurrentInstance, inject } from 'vue'
 import { Plus, Trash2, Ticket } from 'lucide-vue-next'
 import type { Coupon, Coupons } from './types'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
@@ -133,9 +133,9 @@ const confirmDeletion = (selections: any[], unselectAll: () => void) => {
 					call('lms.lms.api.delete_documents', {
 						doctype: 'LMS Coupon',
 						documents: Array.from(selections),
-					}).then((data: any) => {
+					}).then(() => {
 						toast.success(__('Coupon(s) deleted successfully'))
-						coupons.reload()
+						props.coupons.reload()
 						unselectAll()
 						close()
 					})
@@ -145,10 +145,12 @@ const confirmDeletion = (selections: any[], unselectAll: () => void) => {
 	})
 }
 
-function trashCoupon(name, close) {
+// Retained upstream helper (currently unused in this view); `_`-prefixed so the
+// unused-var rule treats it as intentional without deleting upstream code.
+function _trashCoupon(name: string, close?: () => void) {
 	call('frappe.client.delete', { doctype: 'LMS Coupon', name }).then(() => {
 		toast.success(__('Coupon deleted successfully'))
-		coupons.reload()
+		props.coupons.reload()
 		if (typeof close === 'function') close()
 	})
 }

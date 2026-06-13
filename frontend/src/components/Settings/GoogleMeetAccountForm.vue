@@ -32,7 +32,8 @@
 				:label="__('Member')"
 				doctype="Course Evaluator"
 				:onCreate="
-					(value: string, close: () => void) => openSettings('Members', close)
+					(value: string | null, close?: () => void) =>
+						openSettings('Members', close)
 				"
 				:required="true"
 			/>

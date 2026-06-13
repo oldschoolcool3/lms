@@ -2,8 +2,71 @@ import { CodeXml } from 'lucide-vue-next'
 import { createApp, h } from 'vue'
 import { escapeHTML } from '@/utils'
 
+interface MarkdownData {
+	text?: string
+}
+
+interface ParsedBlock {
+	type: string
+	data: Record<string, unknown>
+}
+
+interface ListBlockResult {
+	block: ParsedBlock
+	nextIndex: number
+}
+
+// Minimal view of the Editor.js runtime API surface this tool uses. The full
+// API is provided by @editorjs/editorjs at runtime; we type only our usage.
+interface EditorBlockApi {
+	id: string
+	holder: HTMLElement
+}
+
+interface EditorApi {
+	blocks: {
+		getCurrentBlockIndex(): number
+		getBlockByIndex(index: number): EditorBlockApi | undefined
+		insert(
+			type: string,
+			data: Record<string, unknown>,
+			config: Record<string, unknown>,
+			index: number,
+			needToFocus: boolean
+		): void
+		delete(index: number): void
+		convert(
+			id: string,
+			type: string,
+			data: Record<string, unknown>
+		): Promise<void> | void
+	}
+	caret: {
+		setToBlock(index: number, position: string): void
+		focus(atEnd: boolean): void
+	}
+}
+
 export class Markdown {
-	constructor({ data, api, readOnly, config }) {
+	api: EditorApi
+	data: MarkdownData
+	config: Record<string, unknown>
+	readOnly: boolean
+	text: string
+	placeholder: string
+	wrapper!: HTMLDivElement
+
+	constructor({
+		data,
+		api,
+		readOnly,
+		config,
+	}: {
+		data: MarkdownData
+		api: EditorApi
+		readOnly: boolean
+		config?: Record<string, unknown>
+	}) {
 		this.api = api
 		this.data = data || {}
 		this.config = config || {}
@@ -25,8 +88,7 @@ export class Markdown {
 
 	static get toolbox() {
 		const app = createApp({
-			render: () =>
-				h(CodeXml, { size: 18, strokeWidth: 1.5, color: 'black' }),
+			render: () => h(CodeXml, { size: 18, strokeWidth: 1.5, color: 'black' }),
 		})
 
 		const div = document.createElement('div')
@@ -43,17 +105,13 @@ export class Markdown {
 	render() {
 		this.wrapper = document.createElement('div')
 		this.wrapper.classList.add('cdx-block', 'ce-paragraph')
-		this.wrapper.contentEditable = !this.readOnly
+		this.wrapper.contentEditable = String(!this.readOnly)
 		this.wrapper.dataset.placeholder = this.placeholder
 		this.wrapper.innerHTML = this.text
 
 		if (!this.readOnly) {
-			this.wrapper.addEventListener('focus', () =>
-				this._togglePlaceholder()
-			)
-			this.wrapper.addEventListener('blur', () =>
-				this._togglePlaceholder()
-			)
+			this.wrapper.addEventListener('focus', () => this._togglePlaceholder())
+			this.wrapper.addEventListener('blur', () => this._togglePlaceholder())
 			this.wrapper.addEventListener('keydown', (e) => this._onKeyDown(e))
 			this.wrapper.addEventListener(
 				'paste',
@@ -65,13 +123,15 @@ export class Markdown {
 		return this.wrapper
 	}
 
-	_onNativePaste(event) {
-		const clipboardData = event.clipboardData || window.clipboardData
+	_onNativePaste(event: ClipboardEvent) {
+		const clipboardData =
+			event.clipboardData ||
+			(window as Window & { clipboardData?: DataTransfer }).clipboardData
 		if (!clipboardData) return
 
 		const pastedText = clipboardData.getData('text/plain')
 		const pastedHTML = clipboardData.getData('text/html')
-		const hasHTMLTags = (s) => /<(pre|h[1-6]|ul|ol)[\s>]/i.test(s)
+		const hasHTMLTags = (s: string) => /<(pre|h[1-6]|ul|ol)[\s>]/i.test(s)
 
 		const html =
 			(pastedText && hasHTMLTags(pastedText) && pastedText) ||
@@ -95,7 +155,7 @@ export class Markdown {
 		}
 	}
 
-	_looksLikeMarkdown(text) {
+	_looksLikeMarkdown(text: string) {
 		const markdownPatterns = [
 			/^#{1,6}\s+/m,
 			/^[\-\*]\s+/m,
@@ -106,7 +166,7 @@ export class Markdown {
 		return markdownPatterns.some((pattern) => pattern.test(text))
 	}
 
-	async _insertBlocks(blocks) {
+	async _insertBlocks(blocks: ParsedBlock[]) {
 		if (blocks.length === 0) return
 
 		const currentIndex = this.api.blocks.getCurrentBlockIndex()
@@ -136,13 +196,13 @@ export class Markdown {
 		}, 100)
 	}
 
-	_insertMarkdownAsBlocks(markdown) {
+	_insertMarkdownAsBlocks(markdown: string) {
 		this._insertBlocks(this._parseMarkdownToBlocks(markdown))
 	}
 
-	_parseMarkdownToBlocks(markdown) {
+	_parseMarkdownToBlocks(markdown: string): ParsedBlock[] {
 		const lines = markdown.split('\n')
-		const blocks = []
+		const blocks: ParsedBlock[] = []
 		let i = 0
 
 		while (i < lines.length) {
@@ -190,8 +250,8 @@ export class Markdown {
 		return blocks
 	}
 
-	_parseHeading(line) {
-		const match = line.match(/^(#{1,6})\s+(.*)$/)
+	_parseHeading(line: string): ParsedBlock {
+		const match = line.match(/^(#{1,6})\s+(.*)$/)!
 		const level = match[1].length
 		const text = match[2]
 
@@ -204,7 +264,7 @@ export class Markdown {
 		}
 	}
 
-	_parseUnorderedList(lines, startIndex) {
+	_parseUnorderedList(lines: string[], startIndex: number): ListBlockResult {
 		const items = []
 		let i = startIndex
 
@@ -242,7 +302,7 @@ export class Markdown {
 		}
 	}
 
-	_parseOrderedList(lines, startIndex) {
+	_parseOrderedList(lines: string[], startIndex: number): ListBlockResult {
 		const items = []
 		let i = startIndex
 
@@ -290,10 +350,10 @@ export class Markdown {
 		}
 	}
 
-	_parseCodeBlock(lines, startIndex) {
+	_parseCodeBlock(lines: string[], startIndex: number): ListBlockResult {
 		let i = startIndex + 1
 		const codeLines = []
-		let language = lines[startIndex].trim().substring(3).trim()
+		const language = lines[startIndex].trim().substring(3).trim()
 
 		while (i < lines.length) {
 			if (lines[i].trim().startsWith('```')) {
@@ -316,7 +376,7 @@ export class Markdown {
 		}
 	}
 
-	_parseInlineMarkdown(text) {
+	_parseInlineMarkdown(text: string): string {
 		if (!text) return ''
 
 		let html = escapeHTML(text)
@@ -335,7 +395,7 @@ export class Markdown {
 	}
 
 	_togglePlaceholder() {
-		const blocks = document.querySelectorAll(
+		const blocks = document.querySelectorAll<HTMLElement>(
 			'.cdx-block.ce-paragraph[data-placeholder]'
 		)
 		blocks.forEach((block) => {
@@ -349,8 +409,8 @@ export class Markdown {
 		}
 	}
 
-	_onKeyDown(event) {
-		const text = this.wrapper.textContent
+	_onKeyDown(event: KeyboardEvent) {
+		const text = this.wrapper.textContent ?? ''
 
 		if (event.key === ' ' && /^#{1,6}$/.test(text)) {
 			event.preventDefault()
@@ -381,7 +441,7 @@ export class Markdown {
 	}
 
 	_checkMarkdownAfterEnter() {
-		const text = this.wrapper.textContent.trim()
+		const text = (this.wrapper.textContent ?? '').trim()
 
 		if (this._isImage(text)) {
 			this._convertBlock('image', {
@@ -390,7 +450,7 @@ export class Markdown {
 		}
 	}
 
-	async _convertBlock(type, data) {
+	async _convertBlock(type: string, data: Record<string, unknown>) {
 		const currentIndex = this.api.blocks.getCurrentBlockIndex()
 		const currentBlock = this.api.blocks.getBlockByIndex(currentIndex)
 
@@ -403,7 +463,7 @@ export class Markdown {
 			const newBlock = this.api.blocks.getBlockByIndex(newIndex)
 
 			if (newBlock && newBlock.holder) {
-				const holder = newBlock.holder.querySelector(
+				const holder = newBlock.holder.querySelector<HTMLElement>(
 					'[contenteditable="true"]'
 				)
 				if (holder) {
@@ -413,8 +473,8 @@ export class Markdown {
 					range.selectNodeContents(holder)
 					range.collapse(false)
 					const sel = window.getSelection()
-					sel.removeAllRanges()
-					sel.addRange(range)
+					sel?.removeAllRanges()
+					sel?.addRange(range)
 				} else {
 					this.api.caret.focus(true)
 				}
@@ -424,31 +484,31 @@ export class Markdown {
 		}, 0)
 	}
 
-	save(blockContent) {
+	save(blockContent: HTMLElement) {
 		return { text: blockContent.innerHTML }
 	}
 
-	_isImage(text) {
+	_isImage(text: string) {
 		return /!\[.+?\]\(.+?\)/.test(text)
 	}
 
-	_extractImage(text) {
+	_extractImage(text: string): { alt: string; url: string } {
 		const match = text.match(/!\[(.+?)\]\((.+?)\)/)
 		if (match) return { alt: match[1], url: match[2] }
 		return { alt: '', url: '' }
 	}
 
-	_isEmbed(text) {
+	_isEmbed(text: string) {
 		return /^https?:\/\/.+/.test(text.trim())
 	}
 
-	_parsePastedHTMLToBlocks(html) {
+	_parsePastedHTMLToBlocks(html: string): ParsedBlock[] {
 		const doc = new DOMParser().parseFromString(html, 'text/html')
-		const blocks = []
+		const blocks: ParsedBlock[] = []
 
-		const walk = (node) => {
+		const walk = (node: Node) => {
 			if (node.nodeType === Node.TEXT_NODE) {
-				const text = node.textContent.trim()
+				const text = node.textContent?.trim()
 				if (text)
 					blocks.push({
 						type: 'paragraph',
@@ -459,13 +519,14 @@ export class Markdown {
 
 			if (node.nodeType !== Node.ELEMENT_NODE) return
 
-			const tag = node.tagName
+			const el = node as Element
+			const tag = el.tagName
 
 			if (tag === 'PRE') {
 				blocks.push({
 					type: 'codeBox',
 					data: {
-						code: escapeHTML(node.textContent),
+						code: escapeHTML(el.textContent),
 						language: 'Auto-detect',
 					},
 				})
@@ -473,14 +534,14 @@ export class Markdown {
 				blocks.push({
 					type: 'header',
 					data: {
-						text: escapeHTML(node.textContent.trim()),
+						text: escapeHTML(el.textContent?.trim()),
 						level: +tag[1],
 					},
 				})
 			} else if (tag === 'UL' || tag === 'OL') {
-				const items = [...node.querySelectorAll(':scope > li')].map(
+				const items = Array.from(el.querySelectorAll(':scope > li')).map(
 					(li) => ({
-						content: escapeHTML(li.textContent.trim()),
+						content: escapeHTML(li.textContent?.trim()),
 						items: [],
 					})
 				)
@@ -491,10 +552,10 @@ export class Markdown {
 						items,
 					},
 				})
-			} else if (node.childNodes.length) {
-				for (const child of node.childNodes) walk(child)
+			} else if (el.childNodes.length) {
+				el.childNodes.forEach((child) => walk(child))
 			} else {
-				const text = node.textContent.trim()
+				const text = el.textContent?.trim()
 				if (text)
 					blocks.push({
 						type: 'paragraph',
@@ -503,7 +564,7 @@ export class Markdown {
 			}
 		}
 
-		for (const child of doc.body.childNodes) walk(child)
+		doc.body.childNodes.forEach((child) => walk(child))
 		return blocks
 	}
 }

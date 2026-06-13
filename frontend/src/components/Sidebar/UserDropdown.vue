@@ -1,7 +1,7 @@
 <template>
 	<div class="p-2">
 		<Dropdown :options="userDropdownOptions">
-			<template v-slot="{ open, close }">
+			<template v-slot="{ open }">
 				<button
 					class="flex h-12 py-2 items-center rounded-md duration-300 ease-in-out"
 					:class="
@@ -63,7 +63,7 @@
 	/>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { sessionStore } from '@/stores/session'
 import { call, Dropdown, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
@@ -91,14 +91,14 @@ import {
 
 const router = useRouter()
 const { logout, branding } = sessionStore()
-let { userResource } = usersStore()
+const { userResource } = usersStore()
 const settingsStore = useSettings()
 let { isLoggedIn } = sessionStore()
 const showSettingsModal = ref(false)
 const frappeCloudBaseEndpoint = 'https://frappecloud.com'
 const $dialog = createDialog
 
-const props = defineProps({
+defineProps({
 	isCollapsed: {
 		type: Boolean,
 		default: false,
@@ -143,10 +143,10 @@ const userDropdownOptions = computed(() => {
 				{
 					component: markRaw(Apps),
 					condition: () => {
-						let cookies = new URLSearchParams(
+						const cookies = new URLSearchParams(
 							document.cookie.split('; ').join('&')
 						)
-						let system_user = cookies.get('system_user')
+						const system_user = cookies.get('system_user')
 						if (system_user === 'yes') return true
 						else return false
 					},
@@ -193,7 +193,7 @@ const userDropdownOptions = computed(() => {
 								{
 									label: __('Confirm'),
 									variant: 'solid',
-									onClick(close) {
+									onClick(close: () => void) {
 										loginToFrappeCloud()
 										close()
 									},
@@ -236,7 +236,7 @@ const userDropdownOptions = computed(() => {
 })
 
 const loginToFrappeCloud = () => {
-	let redirect_to = '/dashboard/sites/' + userResource.data.sitename
+	const redirect_to = '/dashboard/sites/' + userResource.data.sitename
 	window.open(`${frappeCloudBaseEndpoint}${redirect_to}`, '_blank')
 }
 
@@ -251,7 +251,7 @@ const clearDemoDataConfirmation = () => {
 				label: __('Confirm'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(close) {
+				onClick(close: () => void) {
 					clearDemoData()
 					close()
 				},
@@ -266,7 +266,7 @@ const clearDemoData = () => {
 			window.location.href = '/lms'
 			toast.success(__('Demo data cleared successfully'))
 		})
-		.catch((error) => {
+		.catch((error: { message?: string }) => {
 			toast.error(__(error.message || 'Error clearing demo data'))
 			console.error('Error clearing demo data:', error)
 		})

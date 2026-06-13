@@ -46,13 +46,13 @@
 		></div> -->
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { inject } from 'vue'
 import { Badge } from 'frappe-ui'
 import { MapPin, User } from 'lucide-vue-next'
 
-const dayjs = inject('$dayjs')
-const props = defineProps({
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
+defineProps({
 	job: {
 		type: Object,
 		default: null,

@@ -89,17 +89,10 @@ import { onClickOutside } from '@vueuse/core'
 const rows = defineModel<Record<string, string>[]>()
 const menuRef = ref(null)
 const menuOpenIndex = ref<number | null>(null)
-const menuTopPosition = ref<string>('')
-const menuLeftPosition = ref('0px')
 
 const emit = defineEmits<{
 	(e: 'update:modelValue', value: Record<string, string>[]): void
 }>()
-
-type Cell = {
-	value: string
-	editable?: boolean
-}
 
 const props = withDefaults(
 	defineProps<{
@@ -124,7 +117,7 @@ const addRow = () => {
 	if (!rows.value) {
 		rows.value = []
 	}
-	let newRow: { [key: string]: string } = {}
+	const newRow: { [key: string]: string } = {}
 	columns.value.forEach((column: any) => {
 		newRow[column.toLowerCase().split(' ').join('_')] = ''
 	})
@@ -154,7 +147,7 @@ const getGridTemplateColumns = () => {
 	return [...Array(columns.value.length).fill('1fr'), '0.25fr'].join(' ')
 }
 
-const toggleMenu = (index: number, event: MouseEvent) => {
+const toggleMenu = (index: number, _event: MouseEvent) => {
 	menuOpenIndex.value = menuOpenIndex.value === index ? null : index
 }
 
@@ -163,7 +156,7 @@ onClickOutside(menuRef, () => {
 })
 
 const showKey = (key: string) => {
-	let columnsLower = columns.value.map((col) =>
+	const columnsLower = columns.value.map((col) =>
 		col.toLowerCase().split(' ').join('_')
 	)
 	return columnsLower.includes(key)

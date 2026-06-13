@@ -21,7 +21,7 @@
 					</div>
 					<TextEditor
 						:fixedMenu="true"
-						@change="(val) => (message = val)"
+						@change="(val: string) => (message = val)"
 						editorClass="prose-sm py-2 px-2 min-h-[200px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-md bg-surface-gray-3"
 					/>
 				</div>
@@ -46,7 +46,7 @@ const subject = ref('')
 const message = ref('')
 const settingsStore = useSettings()
 
-const sendMail = (close: Function) => {
+const sendMail = (close: () => void) => {
 	call('frappe.core.doctype.communication.email.make', {
 		recipients: settingsStore.settings?.data?.contact_us_email,
 		subject: subject.value,
