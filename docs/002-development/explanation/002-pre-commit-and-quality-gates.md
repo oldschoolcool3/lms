@@ -55,12 +55,12 @@ The Vue SPA (`frontend/`) is gated separately from the pre-commit suite, because
 - **`frontend:lint`** runs `eslint .` (flat config in `frontend/eslint.config.js`: typescript-eslint + eslint-plugin-vue, formatting deferred to prettier) followed by `prettier --check src`.
 - **`frontend:typecheck`** runs `vue-tsc --noEmit` over the whole program. Because `frappe-ui` ships its types as raw Vue source, it is treated as an untyped boundary (`frontend/src/types/frappe-ui-shim.d.ts`) so the checker doesn't descend into a dependency it can't fix.
 
-Both gates are **ratcheted** rather than retrofitted. The SPA predates any type-checking, so it carries a backlog of pre-existing findings in upstream-derived components; fixing them all at once would be exactly the upstream-churning diff this fork avoids. Instead:
+Both gates were **ratcheted** rather than retrofitted. The SPA predated any type-checking, so it carried a backlog of pre-existing findings in upstream-derived components; fixing them all at once would have been exactly the upstream-churning diff this fork avoids. So they were burned down incrementally (Track A, PR-A3), and that burn-down is now essentially complete:
 
-- ESLint grandfathers existing violations in `frontend/eslint-suppressions.json` (ESLint's native bulk-suppressions) and fails only on **new** ones.
-- `vue-tsc` output is diffed against `frontend/typecheck-baseline.json` by `scripts/frontend-typecheck.mjs`, which fails only on **new** type errors.
+- `vue-tsc` output is diffed against `frontend/typecheck-baseline.json` by `scripts/frontend-typecheck.mjs`, failing only on **new** type errors. **The baseline is now empty (`total: 0`)** -- `vue-tsc --noEmit` passes with zero errors across the whole SPA. The wrapper stays in place (now enforcing zero) and can be simplified to a plain `vue-tsc --noEmit` whenever convenient.
+- ESLint grandfathers existing violations in `frontend/eslint-suppressions.json` (ESLint's native bulk-suppressions) and fails only on **new** ones. This is down from ~480 to a small residue: only `vue/no-mutating-props` (plus one coupled `vue/no-dupe-keys`) in four form components that edit a passed-in reactive object in place. That is an intentional upstream pattern whose removal needs a deliberate prop -> `v-model` refactor -- and the Coupons form is payment-sensitive -- so it is tracked as a separate, reviewed change rather than forced.
 
-New and changed code is held to the full standard; the backlog is burned down incrementally (Track A, PR-A3). Regenerate the ledgers after fixing a batch with `cd frontend && yarn lint:fix` then `eslint . --prune-suppressions` / `yarn typecheck:update`.
+With the JS->TS migration complete -- every `frontend/src/**/*.js` is now `.ts` except `socket.js` (which statically imports a bench-only `sites/common_site_config.json`), and every SFC uses `<script setup lang="ts">` -- **`vue/block-lang` is enabled (`error`)** so new SFCs must be TypeScript. Regenerate the ledgers after a change with `cd frontend && eslint . --prune-suppressions` / `yarn typecheck:update`.
 
 ### YAML and Markdown (`yamllint`, `markdownlint-cli2`)
 
