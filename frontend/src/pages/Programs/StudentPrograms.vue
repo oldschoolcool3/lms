@@ -48,7 +48,7 @@
 				</div>
 				<EmptyStateLayout
 					v-else
-					:name="convertToTitleCase(category) + ' Programs'"
+					:name="convertToTitleCase(String(category)) + ' Programs'"
 				/>
 				<!-- <div v-else class="col-span-3 text-center text-ink-gray-5">
                     {{ __('No programs found in this category.') }}

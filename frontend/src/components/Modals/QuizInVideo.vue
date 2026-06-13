@@ -65,7 +65,9 @@
 										:align="column.align"
 									>
 										<div v-if="column.key == 'time'" class="leading-5 text-sm">
-											{{ formatTimestamp(row[column.key as keyof Quiz]) }}
+											{{
+												formatTimestamp(Number(row[column.key as keyof Quiz]))
+											}}
 										</div>
 										<div v-else class="leading-5 text-sm">
 											{{ row[column.key as keyof Quiz] }}

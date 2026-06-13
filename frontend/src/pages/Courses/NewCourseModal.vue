@@ -295,11 +295,10 @@ const onInstructorCreated = (newUser: any) => {
 }
 
 const validateFields = () => {
-	Object.keys(course.value).forEach((key) => {
-		if (typeof course.value[key as keyof Course] === 'string') {
-			course.value[key as keyof Course] = sanitizeHTML(
-				course.value[key as keyof Course] as string
-			)
+	const fields = course.value as Record<string, unknown>
+	Object.keys(fields).forEach((key) => {
+		if (typeof fields[key] === 'string') {
+			fields[key] = sanitizeHTML(fields[key] as string)
 		}
 	})
 }

@@ -117,7 +117,7 @@ watch(
 		// A failed/empty fetch still fires this watch; the body assumes a
 		// loaded doc.
 		if (!courseResource.doc) return
-		getMetaInfo('courses', courseResource.doc?.name, meta)
+		getMetaInfo('courses', courseResource.doc?.name ?? '', meta)
 		updateCourseData()
 		checkPermission()
 	}
@@ -164,7 +164,7 @@ const updateCourse = (): void => {
 		},
 		{
 			onSuccess() {
-				updateMetaInfo('courses', courseResource.doc?.name, meta)
+				updateMetaInfo('courses', courseResource.doc?.name ?? '', meta)
 				toast.success(__('Course updated successfully'))
 				isDirty.value = false
 				courseResource.reload()

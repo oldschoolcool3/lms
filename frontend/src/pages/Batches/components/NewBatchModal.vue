@@ -210,11 +210,10 @@ const onInstructorCreated = (user: any) => {
 }
 
 const validateFields = () => {
-	Object.keys(batch.value).forEach((key) => {
-		if (typeof batch.value[key as keyof Batch] === 'string') {
-			batch.value[key as keyof Batch] = sanitizeHTML(
-				batch.value[key as keyof Batch] as string
-			)
+	const fields = batch.value as Record<string, unknown>
+	Object.keys(fields).forEach((key) => {
+		if (typeof fields[key] === 'string') {
+			fields[key] = sanitizeHTML(fields[key] as string)
 		}
 	})
 }

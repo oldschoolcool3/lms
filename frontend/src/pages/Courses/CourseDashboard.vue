@@ -3,7 +3,7 @@
 		<div class="grid grid-cols-4 gap-5 mb-5 text-ink-gray-9">
 			<NumberChartGraph
 				:title="__('Enrolled')"
-				:value="formatAmount(course.data?.enrollments)"
+				:value="formatAmount(course.data?.enrollments ?? 0)"
 			/>
 			<NumberChartGraph
 				:title="__('Average Completion Rate')"
