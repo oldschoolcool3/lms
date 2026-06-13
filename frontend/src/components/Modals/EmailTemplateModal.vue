@@ -11,9 +11,7 @@
 				{
 					label: __('Save'),
 					variant: 'solid',
-					onClick: ({ close }) => {
-						saveTemplate(close)
-					},
+					onClick: onSave,
 				},
 			],
 		}"
@@ -60,7 +58,7 @@
 					</div>
 					<TextEditor
 						:content="template.response"
-						@change="(val) => (template.response = val)"
+						@change="onResponseChange"
 						:editable="true"
 						:fixedMenu="true"
 						:placeholder="
@@ -79,17 +77,50 @@
 import { call, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import Switch from '@/components/Controls/Switch.vue'
 import { reactive, watch } from 'vue'
+import type { PropType } from 'vue'
 import { cleanError } from '@/utils'
+
+interface SubmitError {
+	messages: string[]
+}
+
+interface EmailTemplateRow {
+	name: string
+	subject: string
+	use_html: boolean
+	response: string
+	response_html: string
+}
+
+// frappe-ui's createListResource is an untyped (`any`) boundary via the
+// frappe-ui shim; this narrow shape describes only the members this modal
+// uses on the resource passed in through v-model.
+interface SubmitOptions {
+	onSuccess?: () => void
+	onError?: (err: SubmitError) => void
+}
+interface EmailTemplatesResource {
+	data: EmailTemplateRow[]
+	reload: () => void
+	insert: {
+		submit: (values: Record<string, unknown>, opts: SubmitOptions) => void
+	}
+	setValue: {
+		submit: (values: Record<string, unknown>, opts: SubmitOptions) => void
+	}
+}
+
+type CloseFn = () => void
 
 const props = defineProps({
 	templateID: {
-		type: String,
+		type: String as PropType<string | null>,
 		default: 'new',
 	},
 })
 
-const show = defineModel()
-const emailTemplates = defineModel('emailTemplates')
+const show = defineModel<boolean>()
+const emailTemplates = defineModel<EmailTemplatesResource>('emailTemplates')
 const emit = defineEmits(['created'])
 const template = reactive({
 	name: '',
@@ -99,7 +130,7 @@ const template = reactive({
 	response_html: '',
 })
 
-const saveTemplate = (close) => {
+const saveTemplate = (close: CloseFn) => {
 	if (props.templateID == 'new') {
 		createNewTemplate(close)
 	} else {
@@ -107,20 +138,29 @@ const saveTemplate = (close) => {
 	}
 }
 
-const createNewTemplate = (close) => {
-	emailTemplates.value.insert.submit(
+const onSave = (args: { close: CloseFn }) => {
+	saveTemplate(args.close)
+}
+
+const onResponseChange = (val: string) => {
+	template.response = val
+}
+
+const createNewTemplate = (close: CloseFn) => {
+	// Parent always binds the resource via v-model, so it is present here.
+	emailTemplates.value!.insert.submit(
 		{
 			__newname: template.name,
 			...template,
 		},
 		{
 			onSuccess() {
-				emailTemplates.value.reload()
+				emailTemplates.value!.reload()
 				emit('created', template.name)
 				refreshForm(close)
 				toast.success(__('Email Template created successfully'))
 			},
-			onError(err) {
+			onError(err: SubmitError) {
 				refreshForm(close)
 				toast.error(
 					cleanError(err.messages[0]) || __('Error creating email template')
@@ -130,26 +170,26 @@ const createNewTemplate = (close) => {
 	)
 }
 
-const updateTemplate = async (close) => {
+const updateTemplate = async (close: CloseFn) => {
 	if (props.templateID != template.name) {
 		await renameDoc()
 	}
 	setValue(close)
 }
 
-const setValue = (close) => {
-	emailTemplates.value.setValue.submit(
+const setValue = (close: CloseFn) => {
+	emailTemplates.value!.setValue.submit(
 		{
 			...template,
 			name: template.name,
 		},
 		{
 			onSuccess() {
-				emailTemplates.value.reload()
+				emailTemplates.value!.reload()
 				refreshForm(close)
 				toast.success(__('Email Template updated successfully'))
 			},
-			onError(err) {
+			onError(err: SubmitError) {
 				refreshForm(close)
 				toast.error(
 					cleanError(err.messages[0]) || __('Error updating email template')
@@ -169,9 +209,9 @@ const renameDoc = async () => {
 
 watch(
 	() => props.templateID,
-	(val) => {
+	(val: string | null) => {
 		if (val !== 'new') {
-			emailTemplates.value?.data.forEach((row) => {
+			emailTemplates.value?.data.forEach((row: EmailTemplateRow) => {
 				if (row.name === val) {
 					template.name = row.name
 					template.subject = row.subject
@@ -185,7 +225,7 @@ watch(
 	{ flush: 'post' }
 )
 
-const refreshForm = (close) => {
+const refreshForm = (close: CloseFn) => {
 	close()
 	template.name = ''
 	template.subject = ''
