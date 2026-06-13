@@ -1,6 +1,11 @@
 import { Code } from 'lucide-vue-next'
 import { h, createApp } from 'vue'
 import hljs from 'highlight.js/lib/core'
+import type {
+	API,
+	BlockToolConstructorOptions,
+	BlockToolData,
+} from '@editorjs/editorjs'
 
 const DEFAULT_THEMES = ['light', 'dark']
 const COMMON_LANGUAGES = {
@@ -42,17 +47,17 @@ const COMMON_LANGUAGES = {
 }
 
 export class CodeBox {
-	api: any
-	config: { themeName: any; themeURL: any; useDefaultTheme: any }
+	api: API
+	config: { themeName: string; themeURL: string; useDefaultTheme: string }
 	readOnly: boolean
-	data: { code: any; language: any; theme: any }
+	data: { code: string; language: string; theme: string }
 	highlightScriptID: string
 	highlightCSSID: string
 	codeArea: HTMLDivElement
 	selectInput: HTMLInputElement
 	selectDropIcon: HTMLElement
 
-	constructor({ data, api, config, readOnly }) {
+	constructor({ data, api, config, readOnly }: BlockToolConstructorOptions) {
 		this.api = api
 		this.readOnly = readOnly
 		this.config = {
@@ -90,7 +95,14 @@ export class CodeBox {
 
 		this._injectHighlightJSCSSElement()
 
-		this.api.listeners.on(window, 'click', this._closeAllLanguageSelects, true)
+		// Editor.js types Listeners.on(element: Element), but it forwards to
+		// addEventListener at runtime where the global `window` is a valid target.
+		this.api.listeners.on(
+			window as unknown as Element,
+			'click',
+			this._closeAllLanguageSelects,
+			true
+		)
 	}
 
 	static get isReadOnlySupported() {
@@ -157,20 +169,25 @@ export class CodeBox {
 		return codeAreaHolder
 	}
 
-	save(blockContent) {
+	save(_blockContent: HTMLElement) {
 		return Object.assign(this.data, {
 			code: this.codeArea.innerHTML,
 			theme: this._getThemeURLFromConfig(),
 		})
 	}
 
-	validate(savedData) {
+	validate(savedData: BlockToolData<{ code: string }>) {
 		if (!savedData.code.trim()) return false
 		return true
 	}
 
 	destroy() {
-		this.api.listeners.off(window, 'click', this._closeAllLanguageSelects, true)
+		this.api.listeners.off(
+			window as unknown as Element,
+			'click',
+			this._closeAllLanguageSelects,
+			true
+		)
 		this.api.listeners.off(
 			this.codeArea,
 			'blur',
@@ -244,23 +261,26 @@ export class CodeBox {
 		return selectHolder
 	}
 
-	_highlightCodeArea(event) {
+	_highlightCodeArea(_event?: Event) {
 		hljs.highlightBlock(this.codeArea)
 	}
 
-	_handleCodeAreaPaste(event) {
-		event.stopPropagation()
+	_handleCodeAreaPaste(event?: Event) {
+		event?.stopPropagation()
 	}
 
-	_handleSelectInputClick(event) {
-		event.target.nextSibling.classList.toggle('codeBoxShow')
+	_handleSelectInputClick(event?: Event) {
+		const target = event?.target as HTMLElement
+		;(target.nextSibling as HTMLElement).classList.toggle('codeBoxShow')
 	}
 
-	_handleSelectItemClick(event, language) {
-		event.target.parentNode.parentNode.querySelector(
-			'.codeBoxSelectInput'
-		).value = language[1]
-		event.target.parentNode.classList.remove('codeBoxShow')
+	_handleSelectItemClick(event: Event | undefined, language: [string, string]) {
+		const target = event?.target as HTMLElement
+		;(
+			target.parentNode!.parentNode as HTMLElement
+		).querySelector<HTMLInputElement>('.codeBoxSelectInput')!.value =
+			language[1]
+		;(target.parentNode as HTMLElement).classList.remove('codeBoxShow')
 		this.codeArea.removeAttribute('class')
 		this.data.language = language[0]
 		this.codeArea.setAttribute(
