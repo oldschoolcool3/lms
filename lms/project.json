@@ -26,6 +26,28 @@
         "{workspaceRoot}/.python-version"
       ]
     },
+    "typecheck": {
+      "command": "uv run --only-group typecheck python scripts/backend-typecheck.py",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/**/*.py",
+        "{workspaceRoot}/backend-typecheck-baseline.json",
+        "{workspaceRoot}/scripts/backend-typecheck.py",
+        "{workspaceRoot}/pyproject.toml",
+        "{workspaceRoot}/uv.lock",
+        "{workspaceRoot}/.python-version"
+      ]
+    },
+    "deptry": {
+      "command": "uv run --only-group lint deptry lms",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/**/*.py",
+        "{workspaceRoot}/pyproject.toml",
+        "{workspaceRoot}/uv.lock",
+        "{workspaceRoot}/.python-version"
+      ]
+    },
     "test": {
       "command": "bash scripts/test-backend.sh",
       "cache": false
