@@ -14,9 +14,7 @@
 			:disabled="disabled"
 			:emptyText="emptyText"
 			:required="required"
-			@update:modelValue="
-				(val: SelectOptionValue | undefined) => emit('update:modelValue', val)
-			"
+			@update:modelValue="(val: string) => emit('update:modelValue', val)"
 		/>
 		<p v-if="description" class="mt-1 text-xs text-ink-gray-5">
 			{{ description }}
@@ -27,16 +25,22 @@
 <script setup lang="ts">
 import { Select } from 'frappe-ui'
 import { computed } from 'vue'
-import type { SelectOption, SelectOptionValue } from 'frappe-ui'
 
 defineOptions({ inheritAttrs: false })
 
 type SelectSize = 'sm' | 'md' | 'lg' | 'xl'
 type SelectVariant = 'subtle' | 'outline' | 'ghost'
 
+// frappe-ui ships SelectOption/SelectOptionValue as untyped (`any`) via the
+// shim, so we model the wrapper's own contract here: native <select> values are
+// strings (the bound model may start null), and selecting always emits a string.
+type SelectOption =
+	| string
+	| { label: string; value: string | null; description?: string }
+
 const props = withDefaults(
 	defineProps<{
-		modelValue?: SelectOptionValue
+		modelValue?: string | null
 		options?: SelectOption[]
 		label?: string
 		description?: string
@@ -51,7 +55,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-	(e: 'update:modelValue', value: SelectOptionValue | undefined): void
+	(e: 'update:modelValue', value: string): void
 }>()
 
 const labelClasses = computed<string[]>(() => {
