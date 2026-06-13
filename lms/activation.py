@@ -2,11 +2,13 @@ import frappe
 
 
 def get_site_info(site_info):
+    """Return the site's activation data for the site info hook."""
     # called via hook
     return {"activation": get_sales_data(site_info)}
 
 
 def get_sales_data(site_info):
+    """Return the activation level and per-DocType record counts as sales data."""
     activation_level = site_info.get("activation", {}).get("activation_level", 0)
     sales_data = site_info.get("activation", {}).get("sales_data", [])
     doctypes = [

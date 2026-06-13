@@ -1,13 +1,17 @@
 # Python Coding Style (Frappe app)
 
-- Python 3.10+ (matches `requires-python` in `pyproject.toml`)
-- **Tabs, not spaces** — Frappe convention, enforced by ruff
-  (`indent-style = "tab"`, line length 110 in `pyproject.toml`)
-- Linter/formatter: **ruff** — `task lint:backend` / `task format:backend`
-  (runs the `uvx ruff@<version>` pinned in `lms/project.json`; keep that pin
-  in sync with the ruff rev in `.pre-commit-config.yaml`)
-- Python tooling runs through **uv** (`uvx ruff`, `uvx pre-commit`) — never
-  bare `pip`
+- Python 3.12+ (matches `requires-python` in `pyproject.toml`)
+- **Spaces, not tabs** — 4-space indent, line length 120 (ruff defaults, set in
+  `[tool.ruff]` in `pyproject.toml`). This **diverges from upstream's tabs**: the
+  backend modernization adopted the org-standard ruff config repo-wide. The
+  one-time reformat is isolated in a `.git-blame-ignore-revs` commit so `git
+  blame` and upstream merges stay manageable.
+- Linter/formatter: **ruff** — `task lint:backend` / `task format:backend` (the
+  Nx target runs `uv run --only-group lint ruff`; ruff is pinned in
+  `[dependency-groups]` in `pyproject.toml`, and the `.pre-commit-config.yaml`
+  ruff `rev` must stay in sync with that pin)
+- Python tooling runs through **uv** (`uv run` for ruff, `uvx pre-commit`) —
+  never bare `pip`
 - Modern typing where it doesn't fight the framework: `str | None`, not
   `Optional[str]`
 - Use Frappe primitives, not workarounds:

@@ -8,10 +8,12 @@ from lms.lms.utils import (
 
 
 def get_payment_gateway():
+    """Return the payment gateway configured in LMS Settings."""
     return frappe.db.get_single_value("LMS Settings", "payment_gateway")
 
 
 def get_controller(payment_gateway):
+    """Return the payment gateway controller when the payments app is installed."""
     if "payments" in frappe.get_installed_apps():
         from payments.utils import get_payment_gateway_controller
 
@@ -19,6 +21,7 @@ def get_controller(payment_gateway):
 
 
 def validate_currency(payment_gateway, currency):
+    """Validate the transaction currency against the payment gateway controller."""
     controller = get_controller(payment_gateway)
     controller().validate_transaction_currency(currency)
 
@@ -32,6 +35,7 @@ def get_payment_link(
     coupon_code: str | None = None,
     country: str | None = None,
 ):
+    """Record a payment and return the gateway payment URL (or redirect for free items)."""
     payment_gateway = get_payment_gateway()
     address = frappe._dict(address)
     redirect_to = get_redirect_url(doctype, docname, payment_for_certificate)
@@ -89,6 +93,7 @@ def get_payment_link(
 
 
 def create_order(payment_gateway: str, payment_details: dict, controller: object):
+    """Create a Razorpay order and add its id to the payment details."""
     if payment_gateway != "Razorpay":
         return
 
@@ -97,6 +102,7 @@ def create_order(payment_gateway: str, payment_details: dict, controller: object
 
 
 def get_amount_with_gst(amount: float, gst_amount: float) -> float:
+    """Return the amount including GST, or zero when no GST applies."""
     amount_with_gst = 0
     if gst_amount:
         amount_with_gst = amount + gst_amount
@@ -117,6 +123,7 @@ def record_payment(
     coupon_code: str | None = None,
     coupon: str | None = None,
 ):
+    """Create and save an LMS Payment document and return it."""
     address = frappe._dict(address)
     address_name = save_address(address)
 
@@ -154,6 +161,7 @@ def record_payment(
 
 
 def get_redirect_url(doctype: str, docname: str, payment_for_certificate: int) -> str:
+    """Return the post-payment redirect route for the certificate, course, or batch."""
     if int(payment_for_certificate):
         return get_lms_route(f"courses/{docname}/certification")
     elif doctype == "LMS Course":
@@ -163,6 +171,7 @@ def get_redirect_url(doctype: str, docname: str, payment_for_certificate: int) -
 
 
 def save_address(address: dict) -> str:
+    """Create or update the user's billing Address and return its name."""
     filters = {"email_id": frappe.session.user}
     exists = frappe.db.exists("Address", filters)
     if exists:

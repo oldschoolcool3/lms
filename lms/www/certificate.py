@@ -4,6 +4,7 @@ import frappe
 
 
 def get_context(context):
+    """Redirect to the PDF download for the requested LMS Certificate."""
     context.no_cache = 1
     template = frappe.db.get_value("LMS Certificate", frappe.form_dict.certificate_id, "template")
     certificate_id = frappe.form_dict.certificate_id

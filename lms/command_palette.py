@@ -4,6 +4,7 @@ from frappe.utils import nowdate
 
 @frappe.whitelist()
 def search_sqlite(query: str):
+    """Return grouped command-palette search results from the SQLite learning index."""
     from lms.sqlite import LearningSearch, LearningSearchIndexMissingError
 
     search = LearningSearch()
@@ -17,6 +18,7 @@ def search_sqlite(query: str):
 
 
 def prepare_search_results(result: dict):
+    """Group, de-duplicate, and sort raw search results into titled sections by recency."""
     groups = get_grouped_results(result)
 
     out = []
@@ -29,6 +31,7 @@ def prepare_search_results(result: dict):
 
 
 def get_grouped_results(result):
+    """Bucket accessible search results by doctype into Courses, Batches, and Job Opportunities."""
     roles = frappe.get_roles()
     groups = {}
     for r in result["results"]:
@@ -46,6 +49,7 @@ def get_grouped_results(result):
 
 
 def remove_duplicates(items):
+    """Return the items with duplicate names removed, preserving order."""
     seen = set()
     unique_items = []
     for item in items:
@@ -56,6 +60,7 @@ def remove_duplicates(items):
 
 
 def can_access_course(course, roles):
+    """Return whether the roles may see the course (creators always, others only if published)."""
     if can_create_course(roles):
         return True
     elif course.get("published"):
@@ -64,6 +69,7 @@ def can_access_course(course, roles):
 
 
 def can_access_batch(batch, roles):
+    """Return whether the roles may see the batch (creators always, others only if published and upcoming)."""
     if can_create_batch(roles):
         return True
     elif batch.get("published") and batch.get("start_date") >= nowdate():
@@ -72,20 +78,24 @@ def can_access_batch(batch, roles):
 
 
 def can_access_job(job, roles):
+    """Return whether the roles may see the job (moderators always, others only if it is open)."""
     if "Moderator" in roles:
         return True
     return job.get("status") == "Open"
 
 
 def can_create_course(roles):
+    """Return whether the roles include Course Creator or Moderator."""
     return "Course Creator" in roles or "Moderator" in roles
 
 
 def can_create_batch(roles):
+    """Return whether the roles include Batch Evaluator or Moderator."""
     return "Batch Evaluator" in roles or "Moderator" in roles
 
 
 def get_instructor_info(doctype, record):
+    """Return the resolved instructor's user details for a course or batch search result."""
     instructors = frappe.get_all(
         "Course Instructor", filters={"parenttype": doctype, "parent": record.get("name")}, pluck="instructor"
     )

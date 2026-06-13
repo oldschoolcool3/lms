@@ -2,6 +2,7 @@ import frappe
 
 
 def get_first_course():
+    """Return the name of the earliest-created LMS Course, or None if none exist."""
     course = frappe.get_all(
         "LMS Course",
         fields=["name"],
@@ -12,6 +13,7 @@ def get_first_course():
 
 
 def get_first_batch():
+    """Return the name of the earliest-created LMS Batch, or None if none exist."""
     batch = frappe.get_all(
         "LMS Batch",
         fields=["name"],

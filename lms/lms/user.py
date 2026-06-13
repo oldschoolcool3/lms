@@ -8,6 +8,7 @@ from lms.lms.utils import get_country_code, get_lms_route
 
 
 def validate_username_duplicates(doc, method):
+    """Assign the user a unique, valid username, deriving one when needed."""
     while not doc.username or doc.username_exists():
         doc.username = append_number_if_name_exists(doc.doctype, cleanup_page_name(doc.full_name), fieldname="username")
     if " " in doc.username:
@@ -18,11 +19,13 @@ def validate_username_duplicates(doc, method):
 
 
 def add_lms_student_role(doc, method):
+    """Append the LMS Student role to the user document."""
     doc.append_roles("LMS Student")
 
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def sign_up(email: str, full_name: str, verify_terms: bool, user_category: str):
+    """Register a new website user as an LMS student and return a status code and message."""
     if is_signup_disabled():
         frappe.throw(_("Sign Up is disabled"), _("Not Allowed"))
 
@@ -74,6 +77,7 @@ def sign_up(email: str, full_name: str, verify_terms: bool, user_category: str):
 
 
 def set_country_from_ip(login_manager: object = None, user: str = None):
+    """Set the user's country from their IP geolocation when it is not already set."""
     if not user and login_manager:
         user = login_manager.user
     user_country = frappe.db.get_value("User", user, "country")
@@ -84,6 +88,7 @@ def set_country_from_ip(login_manager: object = None, user: str = None):
 
 
 def on_login(login_manager):
+    """Redirect the user to the LMS home page when LMS is the configured default app."""
     default_app = frappe.db.get_single_value("System Settings", "default_app")
     if default_app == "lms":
         frappe.local.response["home_page"] = get_lms_route()

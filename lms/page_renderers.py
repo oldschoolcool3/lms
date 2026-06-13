@@ -14,7 +14,10 @@ from werkzeug.wsgi import wrap_file
 
 
 class SCORMRenderer(BaseRenderer):
+    """Permission-gated website renderer for SCORM package files."""
+
     def can_render(self):
+        """Return True when the request path targets a SCORM resource."""
         return "scorm/" in self.path
 
     # Disk roots tried, in order, to resolve SCORM bytes. New packages are extracted
@@ -70,6 +73,7 @@ class SCORMRenderer(BaseRenderer):
         return response
 
     def render(self):
+        """Check access then serve the requested SCORM file from disk."""
         self._check_permission()
         # Try private/scorm first (new, gated), then public/scorm (legacy).
         for base in self._DISK_ROOTS:

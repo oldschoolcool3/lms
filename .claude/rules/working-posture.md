@@ -33,7 +33,7 @@ trivial changes, use judgment.
 - This repo is a fork of `frappe/lms` that intends to keep merging upstream.
   Touch only what the task requires; don't refactor, reformat, or "improve"
   upstream code in passing — every gratuitous diff is a future merge conflict.
-- Match the local style even if you'd write it differently (tabs in Python,
+- Match the local style even if you'd write it differently (spaces in Python,
   prettier in the frontend).
 - Remove only the imports/variables/functions *your* change orphaned. Flag
   pre-existing dead code; don't delete it as part of unrelated work.

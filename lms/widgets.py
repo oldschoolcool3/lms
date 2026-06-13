@@ -18,7 +18,7 @@ MODULES = [
 
 
 def update_website_context(context):
-    """Adds widgets to the context.
+    """Add widgets to the context.
 
     Called from hooks.
     """
@@ -63,6 +63,7 @@ class Widget:
         self.name = name
 
     def __call__(self, **kwargs):
+        """Render the widget template and return the resulting HTML."""
         # the widget could be in any of the modules
         paths = [f"{module}/widgets/{self.name}.html" for module in MODULES]
         env = get_jenv()

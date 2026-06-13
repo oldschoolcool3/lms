@@ -26,7 +26,8 @@ jobs:
           node-version: 24
           check-latest: true
 
-      # backend:lint runs `uvx ruff`, which needs uv on PATH.
+      # backend lint/typecheck/deptry run ruff/pyright/deptry through uv, which
+      # needs uv on PATH.
       - name: Install uv
         uses: astral-sh/setup-uv@v7
 
@@ -51,10 +52,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      # Lint (backend ruff + frontend ESLint/Prettier) and typecheck (frontend
-      # vue-tsc) for affected projects only, with Nx caching.
-      - name: nx affected -t lint typecheck
-        run: npx nx affected -t lint typecheck --base=$NX_BASE --head=$NX_HEAD
+      # Lint (backend ruff + frontend ESLint/Prettier), typecheck (frontend
+      # vue-tsc + backend pyright, both ratcheted), and backend dependency
+      # hygiene (deptry) for affected projects only, with Nx caching.
+      - name: nx affected -t lint typecheck deptry
+        run: npx nx affected -t lint typecheck deptry --base=$NX_BASE --head=$NX_HEAD
 
       # Frontend unit tests (Vitest). The backend `test` target needs a Frappe
       # bench, so it's excluded here and covered by ci.yml (Server Tests).

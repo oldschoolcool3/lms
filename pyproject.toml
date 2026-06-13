@@ -29,8 +29,9 @@ build-backend = "flit_core.buildapi"
 # ruff is pinned exactly so uv, pre-commit (.pre-commit-config.yaml), and the Nx
 # targets all run the identical version — bump all three together.
 [dependency-groups]
-lint = ["ruff==0.13.3"]
-dev = [{ include-group = "lint" }]
+lint = ["ruff==0.15.17", "deptry==0.25.1"]
+typecheck = ["pyright==1.1.410"]
+dev = [{ include-group = "lint" }, { include-group = "typecheck" }]
 
 [tool.uv]
 # Virtual project: uv manages the tool env but never builds the `lms` wheel
@@ -50,15 +51,16 @@ target-version = "py312"
 line-length = 120
 
 [tool.ruff.lint]
-# Matches ~/projects/power's rule set. Four docstring rules from power are
-# intentionally NOT selected here — D101/D102/D103 (docstring *presence*) and
-# D401 (imperative mood). They are not auto-fixable and would force ~420 manual
-# edits across inherited frappe/lms code, churning the fork against upstream for
-# little value. We keep every *auto-fixable* docstring-quality rule so existing
-# docstrings stay clean. Enforcing presence/mood on our own new modules is a
-# tracked follow-up.
+# Matches the org-standard ruff rule set (power). All four docstring rules from
+# power are enforced: D101/D102/D103 (docstring *presence*) and D401 (imperative
+# mood). The ~418 docstrings this required across inherited frappe/lms code were
+# authored in a one-time pass; tests, DocType controllers, reports, patches, and
+# a few generated/entrypoint modules stay exempt via the per-file-ignores below.
 select = [
     "E", "F", "I", "UP", "B", "S",
+    "D101",   # missing docstring in public class
+    "D102",   # missing docstring in public method
+    "D103",   # missing docstring in public function
     "D200",   # unnecessary multiline docstring
     "D205",   # blank line after summary
     "D208",   # over-indentation
@@ -67,6 +69,7 @@ select = [
     "D300",   # use triple double quotes
     "D301",   # use r-prefix for backslash docstrings
     "D400",   # first line should end with period
+    "D401",   # first line should be imperative mood
     "D403",   # first word of first line capitalized
     "D415",   # first line should end with punctuation
     "D417",   # missing argument descriptions (Google-style)
@@ -96,6 +99,35 @@ ignore-decorators = ["override"]
 "lms/hooks.py" = ["D"]
 # Generated demo content — long inline data strings, not hand-maintained code.
 "lms/demo/demo_data.py" = ["E501"]
+
+# --- deptry: dependency hygiene, Frappe-aware ---
+[tool.deptry]
+# frappe + its stack (pypika/werkzeug/requests) and the payments app are
+# bench-injected at runtime (see [tool.bench.frappe-dependencies]); they are not
+# in [project.dependencies], so deptry must treat them as provided, not missing.
+per_rule_ignores.DEP001 = ["frappe", "payments", "pypika", "requests", "werkzeug"]
+# Declared runtime deps used indirectly (by frappe, or for SVG/PDF certificate
+# rendering) rather than imported in the app code deptry scans.
+per_rule_ignores.DEP002 = ["cairocffi", "lxml", "razorpay", "websocket_client"]
+
+[tool.deptry.package_module_name_map]
+# Import name (bs4) differs from the distribution name (beautifulsoup4).
+beautifulsoup4 = ["bs4"]
+
+# --- pyright: ratcheted type-checking (see scripts/backend-typecheck.py) ---
+# Inherited frappe/lms code can't pass a clean pyright run (dynamic ORM,
+# bench-injected frappe), so the gate diffs against backend-typecheck-baseline.json
+# and fails only on NEW errors — net-new fork modules are type-checked while the
+# backlog is grandfathered. Mirrors the frontend's typecheck-baseline.json.
+[tool.pyright]
+include = ["lms"]
+exclude = ["**/test_*.py", "**/tests"]
+pythonVersion = "3.12"
+typeCheckingMode = "basic"
+# frappe + payments are bench-injected and never resolvable in the uv tool env;
+# their import errors are pure noise (deptry already guards dependency hygiene).
+reportMissingImports = false
+reportMissingModuleSource = false
 
 [tool.bench.frappe-dependencies]
 frappe = ">=14.0.0,<=17.0.0-dev"

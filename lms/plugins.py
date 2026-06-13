@@ -30,6 +30,7 @@ class PageExtension:
         self.context = frappe._dict()
 
     def set_context(self, context):
+        """Set the page context made available to header and footer rendering."""
         self.context = context
 
     def render_header(self):
@@ -61,14 +62,14 @@ class ProfileTab:
         self.user = user
 
     def get_title(self):
-        """Returns the title of the tab.
+        """Return the title of the tab.
 
         Every subclass must implement this.
         """
         raise NotImplementedError()
 
     def render(self):
-        """Renders the contents of the tab as HTML.
+        """Render the contents of the tab as HTML.
 
         Every subclass must implement this.
         """
@@ -76,18 +77,23 @@ class ProfileTab:
 
 
 class LiveCodeExtension(PageExtension):
+    """Page extension that injects the LiveCode editor styles and scripts into a web page."""
+
     def render_header(self):
+        """Return the rendered LiveCode header HTML snippet for the page head."""
         livecode_url = frappe.get_value("LMS Settings", None, "livecode_url")
         context = {"livecode_url": livecode_url}
         return frappe.render_template("templates/livecode/extension_header.html", context)
 
     def render_footer(self):
+        """Return the rendered LiveCode footer HTML snippet for the end of the page body."""
         livecode_url = frappe.get_value("LMS Settings", None, "livecode_url")
         context = {"livecode_url": livecode_url}
         return frappe.render_template("templates/livecode/extension_footer.html", context)
 
 
 def quiz_renderer(quiz_name):
+    """Return the rendered HTML for a quiz, including its questions and the user's submissions."""
     if frappe.session.user == "Guest":
         return (
             " <div class='alert alert-info'>"
@@ -165,12 +171,14 @@ def quiz_renderer(quiz_name):
 
 
 def exercise_renderer(argument):
+    """Return the rendered HTML for the given LMS Exercise."""
     exercise = frappe.get_doc("LMS Exercise", argument)
     context = dict(exercise=exercise)
     return frappe.render_template("templates/exercise.html", context)
 
 
 def youtube_video_renderer(video_id):
+    """Return an iframe embedding the given YouTube video."""
     return f"""
     <iframe width="100%" height="400"
         src="https://www.youtube.com/embed/{video_id}"
@@ -184,6 +192,7 @@ def youtube_video_renderer(video_id):
 
 
 def embed_renderer(details):
+    """Return an iframe embedding the source and type encoded in the details string."""
     type = details.split("|||")[0]
     src = details.split("|||")[1]
     width = "100%"
@@ -206,6 +215,7 @@ def embed_renderer(details):
 
 
 def video_renderer(src):
+    """Return an HTML video player for the given source URL."""
     return (
         f"<video controls width='100%' controls controlsList='nodownload'>"
         f"<source src={quote(src)} type='video/mp4'></video>"
@@ -213,14 +223,17 @@ def video_renderer(src):
 
 
 def audio_renderer(src):
+    """Return an HTML audio player for the given source URL."""
     return f"<audio width='100%' controls controlsList='nodownload'><source src={quote(src)} type='audio/mp3'></audio>"
 
 
 def pdf_renderer(src):
+    """Return an iframe embedding the PDF at the given source URL."""
     return f"<iframe src='{quote(src)}#toolbar=0' width='100%' height='700px'></iframe>"
 
 
 def assignment_renderer(detail):
+    """Return the rendered HTML for an assignment question and its accepted upload types."""
     supported_types = {
         "Document": (
             ".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -240,6 +253,7 @@ def assignment_renderer(detail):
 
 
 def show_custom_signup():
+    """Return the signup template path, preferring the custom signup form when configured."""
     settings = frappe.get_single("LMS Settings")
     if settings.custom_signup_content or settings.user_category:
         return "lms/templates/signup-form.html"
