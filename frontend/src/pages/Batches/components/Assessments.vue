@@ -26,16 +26,21 @@
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in getAssessmentColumns()">
+					<ListHeaderItem
+						:item="item"
+						v-for="item in getAssessmentColumns()"
+						:key="item.key"
+					>
 					</ListHeaderItem>
 				</ListHeader>
 				<ListRows>
 					<ListRow
 						:row="row"
 						v-for="row in assessments.data"
+						:key="row.name"
 						class="!rounded-none"
 					>
-						<template #default="{ column, item }">
+						<template #default="{ column }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div v-if="column.key == 'assessment_type'">
 									{{ getAssessmentTypeLabel(row[column.key]) }}

@@ -28,11 +28,16 @@
 			<ListHeader
 				class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 			>
-				<ListHeaderItem :item="item" v-for="item in submissionColumns" />
+				<ListHeaderItem
+					:item="item"
+					v-for="item in submissionColumns"
+					:key="item.key"
+				/>
 			</ListHeader>
 			<ListRows>
 				<router-link
 					v-for="row in submissions.data"
+					:key="row.name"
 					:to="{
 						name: 'AssignmentSubmission',
 						params: {
@@ -42,7 +47,7 @@
 					}"
 				>
 					<ListRow :row="row">
-						<template #default="{ column, item }">
+						<template #default="{ column }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div v-if="column.key == 'status'">
 									<Badge :theme="getStatusTheme(row[column.key])">

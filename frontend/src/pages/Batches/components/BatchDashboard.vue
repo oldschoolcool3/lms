@@ -42,9 +42,10 @@
 								<ListRow
 									:row="row"
 									v-for="row in batch.data?.courses"
+									:key="row.name"
 									class="!rounded-none text-sm"
 								>
-									<template #default="{ column, item }">
+									<template #default="{ column }">
 										<ListRowItem :item="row[column.key]" :align="column.align">
 											<div v-if="column.key === 'progress'">
 												{{ getProgress(row.course) }}%
@@ -91,7 +92,6 @@ import {
 	ListRowItem,
 } from 'frappe-ui'
 import Assessments from '@/pages/Batches/components/Assessments.vue'
-import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
 import type { SessionUser } from '@/types/api'

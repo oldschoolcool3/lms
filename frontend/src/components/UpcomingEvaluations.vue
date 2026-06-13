@@ -33,7 +33,7 @@
 				class="grid gap-4"
 				:class="forHome ? 'grid-cols-1 md:grid-cols-4' : 'grid-cols-1'"
 			>
-				<div v-for="evl in upcoming_evals.data">
+				<div v-for="evl in upcoming_evals.data" :key="evl.name">
 					<div
 						class="border hover:border-outline-gray-3 text-ink-gray-7 rounded-md p-3"
 					>
@@ -55,7 +55,7 @@
 								placement="left"
 								side="left"
 							>
-								<template v-slot="{ open }">
+								<template v-slot>
 									<Button variant="ghost">
 										<template #icon>
 											<EllipsisVertical class="w-4 h-4 stroke-1.5" />
@@ -152,7 +152,7 @@ const props = defineProps({
 	},
 	courses: {
 		type: Array as PropType<BatchCourse[]>,
-		default: [],
+		default: () => [],
 	},
 	endDate: {
 		type: String,

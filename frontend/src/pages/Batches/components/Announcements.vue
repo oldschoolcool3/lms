@@ -4,7 +4,7 @@
 			{{ __('Announcements') }}
 		</div>
 		<div v-if="communications.data?.length">
-			<div v-for="comm in communications.data">
+			<div v-for="(comm, index) in communications.data" :key="index">
 				<div class="mb-8">
 					<div class="flex items-center justify-between mb-2">
 						<div class="flex items-center">

@@ -62,22 +62,6 @@
       "count": 1
     }
   },
-  "src/components/UpcomingEvaluations.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/require-v-for-key": {
-      "count": 1
-    },
-    "vue/require-valid-default-prop": {
-      "count": 1
-    }
-  },
-  "src/components/UploadPlugin.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 3
-    }
-  },
   "src/components/VideoBlock.vue": {
     "@typescript-eslint/no-unused-vars": {
       "count": 1
@@ -89,88 +73,8 @@
       "count": 1
     }
   },
-  "src/pages/AssignmentSubmissionList.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 2
-    }
-  },
-  "src/pages/Assignments.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 2
-    }
-  },
-  "src/pages/Batches/BatchDetail.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/pages/Batches/BatchForm.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    },
-    "prefer-const": {
-      "count": 2
-    }
-  },
   "src/pages/Batches/BatchOverview.vue": {
     "vue/no-use-v-if-with-v-for": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 1
-    }
-  },
-  "src/pages/Batches/Batches.vue": {
-    "vue/valid-v-for": {
-      "count": 1
-    }
-  },
-  "src/pages/Batches/components/Announcements.vue": {
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/pages/Batches/components/Assessments.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 2
-    }
-  },
-  "src/pages/Batches/components/BatchCard.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 1
-    }
-  },
-  "src/pages/Batches/components/BatchCourses.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 2
-    }
-  },
-  "src/pages/Batches/components/BatchDashboard.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/no-unused-vars": {
       "count": 1
     },
     "vue/valid-v-for": {

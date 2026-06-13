@@ -29,7 +29,7 @@
 					placement="left"
 					side="left"
 				>
-					<template v-slot="{ open }">
+					<template v-slot>
 						<Button variant="ghost">
 							<template #icon>
 								<EllipsisVertical class="w-4 h-4 stroke-1.5" />
@@ -98,7 +98,6 @@ import {
 	List,
 	Mail,
 	MessageCircle,
-	SendIcon,
 	Settings2,
 	Trash2,
 	TrendingUp,

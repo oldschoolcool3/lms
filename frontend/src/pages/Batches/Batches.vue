@@ -93,6 +93,7 @@
 		>
 			<router-link
 				v-for="batch in batches.data"
+				:key="batch.name"
 				:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
 			>
 				<BatchCard :batch="batch" />

@@ -13,7 +13,6 @@ import { FileUploader } from 'frappe-ui'
 import { onMounted, ref, nextTick, computed } from 'vue'
 
 const fileUploader = ref()
-const emit = defineEmits(['fileUploaded'])
 
 const props = defineProps({
 	onFileUploaded: {
@@ -57,13 +56,5 @@ const validateFile = (file: File) => {
 	if (!['jpg', 'jpeg', 'png', 'mp4', 'mov', 'mp3', 'pdf'].includes(extension)) {
 		return 'Only image and video files are allowed.'
 	}
-}
-
-const isVideo = (type: string) => {
-	return ['mov', 'mp4', 'avi', 'mkv', 'webm'].includes(type.toLowerCase())
-}
-
-const isAudio = (type: string) => {
-	return ['mp3', 'wav', 'ogg'].includes(type.toLowerCase())
 }
 </script>

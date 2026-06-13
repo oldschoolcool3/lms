@@ -57,7 +57,11 @@
 			<ListHeader
 				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
 			>
-				<ListHeaderItem :item="item" v-for="item in assignmentColumns">
+				<ListHeaderItem
+					:item="item"
+					v-for="item in assignmentColumns"
+					:key="item.key"
+				>
 					<template #prefix="{ item }">
 						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
 					</template>
@@ -66,10 +70,11 @@
 			<ListRows>
 				<ListRow
 					v-for="row in assignments.data"
+					:key="row.name"
 					:row="row"
 					class="hover:bg-surface-gray-2"
 				>
-					<template #default="{ column, item }">
+					<template #default="{ column }">
 						<ListRowItem :item="row[column.key]" :align="column.align">
 							<div v-if="column.key == 'show_answers'">
 								<Checkbox v-model="row[column.key]" :disabled="true" />

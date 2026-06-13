@@ -26,12 +26,21 @@
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in getCoursesColumns()">
+					<ListHeaderItem
+						:item="item"
+						v-for="item in getCoursesColumns()"
+						:key="item.key"
+					>
 					</ListHeaderItem>
 				</ListHeader>
 				<ListRows>
-					<ListRow :row="row" v-for="row in courses.data" class="!rounded-none">
-						<template #default="{ column, item }">
+					<ListRow
+						:row="row"
+						v-for="row in courses.data"
+						:key="row.name"
+						class="!rounded-none"
+					>
+						<template #default="{ column }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div>
 									{{ row[column.key] }}
@@ -65,7 +74,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref, inject, nextTick } from 'vue'
+import { ref, inject } from 'vue'
 import BatchCourseModal from '@/components/Modals/BatchCourseModal.vue'
 import {
 	createListResource,

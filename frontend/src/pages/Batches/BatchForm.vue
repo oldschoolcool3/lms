@@ -348,7 +348,7 @@ const router = useRouter()
 const user = inject<SessionUser>('$user')!
 const instructors = ref<string[]>([])
 const app = getCurrentInstance()
-const { capture } = useTelemetry()
+const { capture: _capture } = useTelemetry()
 const { $dialog } = app!.appContext.config.globalProperties
 const isDirty = ref(false)
 const originalDoc = ref<Record<string, unknown> | null>(null)
@@ -469,8 +469,8 @@ const updateBatchData = () => {
 }
 
 const formatTime = (timeStr: string) => {
-	let [hours, minutes, seconds] = timeStr.split(':')
-	hours = hours.length == 1 ? '0' + hours : hours
+	const [rawHours, minutes] = timeStr.split(':')
+	const hours = rawHours.length == 1 ? '0' + rawHours : rawHours
 	return `${hours}:${minutes}`
 }
 
