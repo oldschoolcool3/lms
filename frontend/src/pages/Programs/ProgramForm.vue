@@ -71,7 +71,11 @@
 						<ListHeader
 							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 						>
-							<ListHeaderItem :item="item" v-for="item in courseColumns" />
+							<ListHeaderItem
+								:item="item"
+								v-for="item in courseColumns"
+								:key="item.key"
+							/>
 						</ListHeader>
 						<ListRows>
 							<Draggable
@@ -145,10 +149,18 @@
 						<ListHeader
 							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 						>
-							<ListHeaderItem :item="item" v-for="item in memberColumns" />
+							<ListHeaderItem
+								:item="item"
+								v-for="item in memberColumns"
+								:key="item.key"
+							/>
 						</ListHeader>
 						<ListRows>
-							<ListRow :row="row" v-for="row in program.program_members" />
+							<ListRow
+								:row="row"
+								v-for="row in program.program_members"
+								:key="row.name ?? row.member"
+							/>
 						</ListRows>
 						<ListSelectBanner>
 							<template #actions="{ unselectAll, selections }">
@@ -202,8 +214,8 @@
 							}"
 							:label="__('Program Member')"
 							:onCreate="
-								(value: string, close: () => void) =>
-									openSettings('Members', close)
+								(value: string | null, close?: () => void) =>
+									openSettings('Members', close ?? null)
 							"
 						/>
 					</div>
@@ -253,7 +265,12 @@ import {
 } from 'frappe-ui'
 import { computed, ref, watch, getCurrentInstance } from 'vue'
 import { Plus, Trash2, TrendingUp } from 'lucide-vue-next'
-import { Programs, Program } from '@/types/programs'
+import type {
+	Programs,
+	Program,
+	ProgramCourse,
+	ProgramMember,
+} from '@/types/programs'
 import { sanitizeHTML, openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import Draggable from 'vuedraggable'
@@ -268,7 +285,8 @@ const member = ref<string>('')
 const showProgressDialog = ref(false)
 const dirty = ref(false)
 
-const app = getCurrentInstance()
+// getCurrentInstance() is always non-null within <script setup>.
+const app = getCurrentInstance()!
 const { $dialog } = app.appContext.config.globalProperties
 
 const props = withDefaults(
@@ -376,7 +394,7 @@ const saveProgram = (close: () => void) => {
 }
 
 const createNewProgram = (close: () => void) => {
-	programs.value.insert.submit(
+	programs.value?.insert.submit(
 		{
 			...program.value,
 			title: program.value.name,
@@ -384,7 +402,7 @@ const createNewProgram = (close: () => void) => {
 		{
 			onSuccess() {
 				close()
-				programs.value.reload()
+				programs.value?.reload()
 				toast.success(__('Program created successfully'))
 			},
 			onError(err: any) {
@@ -395,15 +413,16 @@ const createNewProgram = (close: () => void) => {
 }
 
 const updateProgram = (close: () => void) => {
-	programs.value.setValue.submit(
+	programs.value?.setValue.submit(
 		{
-			name: props.programName,
+			// `name` comes from the spread below (the form's working copy); the
+			// spread always overwrites it, so no explicit `name` key is needed.
 			...program.value,
 		},
 		{
 			onSuccess() {
 				close()
-				programs.value.reload()
+				programs.value?.reload()
 				toast.success(__('Program updated successfully'))
 			},
 			onError(err: any) {
@@ -473,7 +492,9 @@ const addMember = (close: () => void) => {
 const onAddAction = ({ close }: { close: () => void }) =>
 	currentForm.value == 'course' ? addCourse(close) : addMember(close)
 
-const updateCounts = async (
+// Currently unused (no call sites); kept for an upcoming feature. Prefixed to
+// satisfy the unused-vars rule without removing pre-existing code.
+const _updateCounts = async (
 	type: 'member' | 'course',
 	action: 'add' | 'remove'
 ) => {
@@ -488,7 +509,7 @@ const updateCounts = async (
 		courseCount += action === 'add' ? 1 : -1
 	}
 
-	await programs.value.setValue.submit(
+	await programs.value?.setValue.submit(
 		{
 			name: props.programName,
 			member_count: memberCount,
@@ -505,9 +526,18 @@ const updateCounts = async (
 	)
 }
 
-const updateOrder = async (e: DragEvent) => {
-	const sourceIdx = e.from.dataset.idx
-	const targetIdx = e.to.dataset.idx
+// vuedraggable's `@end` emits a Sortable event, not a native DragEvent: it
+// carries the source/target list elements whose `data-idx` holds the position.
+interface SortableEndEvent {
+	from: HTMLElement
+	to: HTMLElement
+}
+
+const updateOrder = async (e: SortableEndEvent) => {
+	// `data-idx` is a DOM string; coerce to the number splice() needs (matches
+	// the implicit string→number coercion splice already performed at runtime).
+	const sourceIdx = Number(e.from.dataset.idx)
+	const targetIdx = Number(e.to.dataset.idx)
 
 	if (props.programName === 'new') {
 		const courses = program.value.program_courses
@@ -570,7 +600,7 @@ const deleteProgram = (close: () => void) => {
 				label: __('Delete'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(closeDialog) {
+				onClick(closeDialog: () => void) {
 					programs.value?.delete.submit(props.programName, {
 						onSuccess() {
 							toast.success(__('Program deleted successfully'))

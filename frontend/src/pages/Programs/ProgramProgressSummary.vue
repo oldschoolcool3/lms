@@ -72,7 +72,7 @@ import {
 	ListView,
 	NumberChart,
 } from 'frappe-ui'
-import type { ProgramMember } from '@/types'
+import type { ProgramMember } from '@/types/programs'
 import { computed, ref, watch } from 'vue'
 import { getColor } from '@/utils'
 
@@ -80,7 +80,7 @@ const show = defineModel<boolean>({ default: false })
 const searchFilter = ref<string | null>(null)
 
 const props = defineProps<{
-	programName: string
+	programName: string | null
 	programMembers: ProgramMember[]
 }>()
 
@@ -112,8 +112,9 @@ const averageProgress = computed(() => {
 
 watch(searchFilter, () => {
 	if (searchFilter.value) {
+		const query = searchFilter.value.toLowerCase()
 		progressList.value = props.programMembers.filter((member) =>
-			member.full_name.toLowerCase().includes(searchFilter.value?.toLowerCase())
+			member.full_name?.toLowerCase().includes(query)
 		)
 	} else {
 		progressList.value = props.programMembers

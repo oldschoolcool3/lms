@@ -6,7 +6,7 @@
 			</div>
 			<TabButtons v-model="currentTab" :buttons="tabs" class="w-fit" />
 		</div>
-		<div v-for="(data, category) in programs.data">
+		<div v-for="(data, category) in programs.data" :key="category">
 			<div v-if="category == currentTab">
 				<div
 					v-if="data.length > 0"
@@ -14,6 +14,7 @@
 				>
 					<div
 						v-for="program in data"
+						:key="program.name"
 						@click="openDetails(program.name, category)"
 						class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer"
 					>
@@ -41,7 +42,7 @@
 						<div v-if="Object.keys(program).includes('progress')" class="mt-5">
 							<ProgressBar :progress="program.progress" />
 							<div class="text-sm text-ink-gray-7 mt-1">
-								{{ Math.ceil(program.progress) }}% {{ __('completed') }}
+								{{ Math.ceil(program.progress ?? 0) }}% {{ __('completed') }}
 							</div>
 						</div>
 					</div>
@@ -70,16 +71,18 @@ import { convertToTitleCase } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'
 import ProgramEnrollment from '@/pages/Programs/ProgramEnrollment.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import type { Resource } from '@/types/api'
+import type { StudentProgram } from '@/types/programs'
 
 const currentTab = ref('enrolled')
 const router = useRouter()
 const showEnrollmentConfirmation = ref(false)
-const enrollmentProgram = ref(null)
+const enrollmentProgram = ref<string | null>(null)
 
 const programs = createResource({
 	url: 'lms.lms.utils.get_programs',
 	auto: true,
-})
+}) as Resource<Record<string, StudentProgram[]> | null>
 
 const openDetails = (programName: any, category: string) => {
 	if (category === 'enrolled') {

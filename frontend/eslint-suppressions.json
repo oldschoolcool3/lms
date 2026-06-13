@@ -643,22 +643,9 @@
       "count": 1
     }
   },
-  "src/pages/Programs/ProgramForm.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 3
-    }
-  },
   "src/pages/Programs/Programs.vue": {
     "vue/require-v-for-key": {
       "count": 1
-    }
-  },
-  "src/pages/Programs/StudentPrograms.vue": {
-    "vue/require-v-for-key": {
-      "count": 2
     }
   },
   "src/pages/Programs/types.ts": {
