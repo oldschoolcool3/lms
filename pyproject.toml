@@ -29,7 +29,7 @@ build-backend = "flit_core.buildapi"
 # ruff is pinned exactly so uv, pre-commit (.pre-commit-config.yaml), and the Nx
 # targets all run the identical version — bump all three together.
 [dependency-groups]
-lint = ["ruff==0.13.3"]
+lint = ["ruff==0.15.17"]
 dev = [{ include-group = "lint" }]
 
 [tool.uv]
