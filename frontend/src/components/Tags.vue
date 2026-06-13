@@ -6,7 +6,8 @@
 		<div class="flex items-center">
 			{{ tags }}
 			<div
-				v-for="tag in tags?.split(', ')"
+				v-for="(tag, index) in tags?.split(', ')"
+				:key="index"
 				class="flex items-center bg-surface-gray-2 p-2 rounded-md me-2"
 			>
 				{{ tag }}

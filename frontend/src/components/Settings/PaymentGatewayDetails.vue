@@ -71,7 +71,7 @@ const title = computed(() =>
 
 const paymentGateway = createResource({
 	url: 'lms.lms.api.get_payment_gateway_details',
-	makeParams(values: any) {
+	makeParams(_values: any) {
 		return {
 			payment_gateway: props.gatewayID,
 		}
@@ -101,7 +101,7 @@ const gatewayFields = createResource({
 })
 
 const arrangeFields = (fields: any[]) => {
-	fields = fields.sort((a, b) => {
+	fields.sort((a, b) => {
 		if (a.type === 'Upload' && b.type !== 'Upload') {
 			return 1
 		} else if (a.type !== 'Upload' && b.type === 'Upload') {
@@ -162,7 +162,7 @@ const saveNewGateway = () => {
 				doctype: gatewayDoc.name,
 				...newGatewayData.value,
 			},
-		}).then((data: any) => {
+		}).then((_data: any) => {
 			paymentGateways.value.reload()
 			emit('updateStep', 'list')
 		})

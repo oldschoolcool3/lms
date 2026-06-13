@@ -1,6 +1,6 @@
 <template>
 	<Popover placement="right-start" trigger="hover" class="flex w-full">
-		<template #target="{ togglePopover }">
+		<template #target>
 			<button
 				:class="[
 					'group w-full flex h-7 items-center justify-between rounded px-2 text-base text-ink-gray-7 hover:bg-surface-gray-2',

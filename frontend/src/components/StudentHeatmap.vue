@@ -118,10 +118,10 @@ const chartOptions = computed(() => {
 		},
 		tooltip: {
 			custom: ({
-				series,
+				series: _series,
 				seriesIndex,
 				dataPointIndex,
-				w,
+				w: _w,
 			}: {
 				series: unknown
 				seriesIndex: number

@@ -1,7 +1,7 @@
 <template>
 	<div class="p-2">
 		<Dropdown :options="userDropdownOptions">
-			<template v-slot="{ open, close }">
+			<template v-slot="{ open }">
 				<button
 					class="flex h-12 py-2 items-center rounded-md duration-300 ease-in-out"
 					:class="
@@ -98,7 +98,7 @@ const showSettingsModal = ref(false)
 const frappeCloudBaseEndpoint = 'https://frappecloud.com'
 const $dialog = createDialog
 
-const props = defineProps({
+defineProps({
 	isCollapsed: {
 		type: Boolean,
 		default: false,

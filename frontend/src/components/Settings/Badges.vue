@@ -38,7 +38,7 @@
 					</ListHeader>
 					<ListRows>
 						<ListRow :row="row" v-for="row in badges.data" :key="row.name">
-							<template #default="{ column, item }">
+							<template #default="{ column }">
 								<ListRowItem :item="row[column.key]" :align="column.align">
 									<div v-if="column.key == 'enabled'">
 										<Badge v-if="row[column.key]" theme="green">
@@ -133,7 +133,7 @@ const selectedBadge = ref<string | null>(null)
 const showAssignments = ref<boolean>(false)
 const showAssignmentsFor = ref<string | null>(null)
 
-const props = defineProps<{
+defineProps<{
 	label: string
 	description: string
 }>()

@@ -17,12 +17,12 @@
 								<span>{{ __(tab.label) }}</span>
 							</div>
 							<nav class="space-y-1">
-								<div v-for="item in tab.items" @click="activeTab = item">
-									<SidebarLink
-										:link="item"
-										:key="item.label"
-										:activeTab="activeTab?.label"
-									/>
+								<div
+									v-for="item in tab.items"
+									:key="item.label"
+									@click="activeTab = item"
+								>
+									<SidebarLink :link="item" :activeTab="activeTab?.label" />
 								</div>
 							</nav>
 						</div>

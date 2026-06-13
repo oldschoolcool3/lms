@@ -29,6 +29,7 @@
 				<ul class="divide-y divide-outline-gray-modals">
 					<li
 						v-for="member in displayedMembers"
+						:key="member.name"
 						class="flex items-center justify-between py-2 cursor-pointer"
 					>
 						<div
@@ -188,7 +189,7 @@ const showDeleteDialog = ref(false)
 const memberToDelete = ref<Member | null>(null)
 const memberToEdit = ref<Member | null>(null)
 
-const props = defineProps({
+defineProps({
 	label: {
 		type: String,
 		required: true,
@@ -232,7 +233,7 @@ const openProfile = (username: string) => {
 	})
 }
 
-const onMemberCreated = (data: any) => {
+const onMemberCreated = (_data: any) => {
 	if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
 	capture('user_added')
 	refreshMembers()

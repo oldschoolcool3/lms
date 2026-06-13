@@ -38,14 +38,6 @@
       "count": 4
     }
   },
-  "src/components/Settings/Badges.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/no-unused-vars": {
-      "count": 1
-    }
-  },
   "src/components/Settings/Categories.vue": {
     "@typescript-eslint/no-unused-vars": {
       "count": 1
@@ -62,90 +54,11 @@
       "count": 10
     }
   },
-  "src/components/Settings/Members.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    },
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/components/Settings/PaymentGatewayDetails.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 3
-    }
-  },
-  "src/components/Settings/PaymentGateways.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 2
-    }
-  },
   "src/components/Settings/SettingFields.vue": {
     "vue/no-mutating-props": {
       "count": 8
     },
     "vue/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/components/Settings/Settings.vue": {
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/components/Sidebar/AppSidebar.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/require-v-for-key": {
-      "count": 3
-    }
-  },
-  "src/components/Sidebar/Apps.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/components/Sidebar/Configuration.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/components/Sidebar/UserDropdown.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/components/StudentHeatmap.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
-  "src/components/Tags.vue": {
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/components/UnsplashImageBrowser.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/no-useless-template-attributes": {
       "count": 1
     }
   },
