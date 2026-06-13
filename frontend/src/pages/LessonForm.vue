@@ -43,14 +43,7 @@
 </template>
 <script setup lang="ts">
 import { createResource, toast } from 'frappe-ui'
-import {
-	reactive,
-	onMounted,
-	inject,
-	ref,
-	onBeforeUnmount,
-	computed,
-} from 'vue'
+import { reactive, onMounted, inject, ref, onBeforeUnmount } from 'vue'
 import EditorJS from '@editorjs/editorjs'
 import type { EditorConfig, OutputData } from '@editorjs/editorjs'
 import { ChevronRight } from 'lucide-vue-next'
@@ -251,7 +244,7 @@ onBeforeUnmount(() => {
 
 const newLessonResource = createResource({
 	url: 'frappe.client.insert',
-	makeParams(values: unknown) {
+	makeParams(_values: unknown) {
 		return {
 			doc: {
 				doctype: 'Course Lesson',
@@ -466,9 +459,9 @@ const editCurrentLesson = () => {
 				return validateLesson()
 			},
 			onSuccess() {
-				showSuccessMessage
-					? toast.success(__('Lesson updated successfully'))
-					: ''
+				if (showSuccessMessage) {
+					toast.success(__('Lesson updated successfully'))
+				}
 				isDirty.value = false
 			},
 			onError(err: { message: string }) {

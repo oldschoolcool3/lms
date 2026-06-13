@@ -170,7 +170,6 @@ import {
 	FileText,
 	ClipboardType,
 	BriefcaseBusiness,
-	Users,
 } from 'lucide-vue-next'
 import type { SessionUser } from '@/types/api'
 

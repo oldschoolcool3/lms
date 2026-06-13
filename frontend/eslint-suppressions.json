@@ -81,41 +81,10 @@
       "count": 1
     }
   },
-  "src/pages/JobDetail.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/pages/Lesson.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 6
-    },
-    "vue/valid-v-for": {
-      "count": 1
-    }
-  },
-  "src/pages/LessonForm.vue": {
-    "@typescript-eslint/no-unused-expressions": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
   "src/pages/Notifications.vue": {
     "vue/no-use-v-if-with-v-for": {
       "count": 1
     },
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/pages/Profile.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/pages/ProfileAbout.vue": {
     "vue/require-v-for-key": {
       "count": 1
     }
@@ -129,53 +98,6 @@
     },
     "vue/require-v-for-key": {
       "count": 1
-    }
-  },
-  "src/pages/Programs/ProgramEnrollment.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 4
-    },
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/pages/Programs/Programs.vue": {
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/pages/Programs/types.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/pages/QuizForm.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 2
-    }
-  },
-  "src/pages/QuizSubmission.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/pages/QuizSubmissionList.vue": {
-    "vue/valid-v-for": {
-      "count": 2
-    }
-  },
-  "src/pages/Quizzes.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    },
-    "vue/valid-v-for": {
-      "count": 2
     }
   },
   "src/pages/SCORMChapter.vue": {

@@ -28,6 +28,7 @@
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
 			<div
 				v-for="program in programs.data"
+				:key="program.name"
 				@click="openForm(program.name)"
 				class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer space-y-2"
 			>

@@ -46,6 +46,7 @@
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
 						<div
 							v-for="course in program.data.courses"
+							:key="course.name"
 							class="flex flex-col border border-outline-gray-2 p-2 rounded-md h-full"
 						>
 							<div class="font-semibold text-ink-gray-9 leading-5 mb-2">
@@ -105,13 +106,11 @@
 </template>
 <script setup lang="ts">
 import { Button, call, createResource, Dialog, toast, Tooltip } from 'frappe-ui'
-import { inject, watch } from 'vue'
-import { BookOpen, Star, User } from 'lucide-vue-next'
+import { watch } from 'vue'
+import { BookOpen, User } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
-import CourseInstructors from '@/components/CourseInstructors.vue'
 
 const show = defineModel()
-const user = inject<any>('$user')
 const router = useRouter()
 
 const props = defineProps<{
@@ -120,7 +119,7 @@ const props = defineProps<{
 
 const program = createResource({
 	url: 'lms.lms.utils.get_program_details',
-	makeParams(values: any) {
+	makeParams(_values: any) {
 		return {
 			program_name: props.programName,
 		}

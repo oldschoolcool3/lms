@@ -190,6 +190,7 @@
 							>
 								<UserAvatar
 									v-for="instructor in lesson.data.instructors"
+									:key="instructor"
 									:user="instructor"
 								/>
 							</span>
@@ -349,11 +350,9 @@ import EditorJS from '@editorjs/editorjs'
 import type { EditorConfig, OutputData } from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
-import ProgressBar from '@/components/ProgressBar.vue'
 import Discussions from '@/components/Discussions.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
-import CourseOutline from '@/components/CourseOutline.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
@@ -689,7 +688,7 @@ watch(
 	[() => route.params.chapterNumber, () => route.params.lessonNumber],
 	async (
 		[newChapterNumber, newLessonNumber],
-		[oldChapterNumber, oldLessonNumber]
+		[_oldChapterNumber, _oldLessonNumber]
 	) => {
 		if (newChapterNumber || newLessonNumber) {
 			plyrSources.value = []
@@ -892,9 +891,6 @@ const attachVideoEndedListeners = () => {
 
 const updatePlyrVideoTime = (video: LessonVideo) => {
 	plyrSources.value.forEach((plyrSource) => {
-		const lastWatchedTime = 0
-		const isSeeking = false
-
 		plyrSource.on('ready', () => {
 			if ((plyrSource.source as unknown as string) === video.source) {
 				plyrSource.embed.seekTo(video.watch_time, true)

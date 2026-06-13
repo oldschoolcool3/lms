@@ -37,7 +37,11 @@
 			<ListHeader
 				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
 			>
-				<ListHeaderItem :item="item" v-for="item in quizColumns">
+				<ListHeaderItem
+					:item="item"
+					v-for="item in quizColumns"
+					:key="item.key"
+				>
 					<template #prefix="{ item }">
 						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
 					</template>
@@ -46,6 +50,7 @@
 			<ListRows>
 				<router-link
 					v-for="row in quizzes.data"
+					:key="row.name"
 					:to="{
 						name: 'QuizForm',
 						params: {
@@ -54,7 +59,7 @@
 					}"
 				>
 					<ListRow :row="row" class="hover:bg-surface-gray-2">
-						<template #default="{ column, item }">
+						<template #default="{ column }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div v-if="column.key == 'show_answers'">
 									<Checkbox v-model="row[column.key]" :disabled="true" />

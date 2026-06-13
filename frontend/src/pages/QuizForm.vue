@@ -157,13 +157,18 @@
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in questionColumns" />
+					<ListHeaderItem
+						:item="item"
+						v-for="item in questionColumns"
+						:key="item.key"
+					/>
 				</ListHeader>
 				<ListRows>
 					<ListRow
 						:row="row"
-						v-slot="{ idx, column, item }"
+						v-slot="{ column, item }"
 						v-for="row in questions"
+						:key="row.name"
 						@click="openQuestionModal(row)"
 						class="cursor-pointer"
 					>

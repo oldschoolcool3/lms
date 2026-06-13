@@ -50,6 +50,7 @@
 		<div class="divide-y">
 			<div
 				v-for="(row, index) in submissionDetails.doc.result"
+				:key="index"
 				class="py-5 px-10 space-y-4"
 			>
 				<div class="text-ink-gray-9">
