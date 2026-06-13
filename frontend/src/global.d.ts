@@ -6,6 +6,15 @@ declare global {
 	interface String {
 		format(...args: any[]): string
 	}
+
+	// Globals injected onto `window` by the Frappe host page / boot.
+	interface Window {
+		lms_path?: string
+		lang?: string
+		read_only_mode?: boolean
+		// Set by Desktop/MobileLayout.vue; the app's scroll viewport.
+		scrollContainer?: HTMLElement
+	}
 }
 
 // Augment `@vue/runtime-core` (where the interface actually lives) rather than
