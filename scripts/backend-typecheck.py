@@ -45,7 +45,9 @@ def run_pyright() -> dict:
             file=sys.stderr,
         )
         sys.exit(2)
-    proc = subprocess.run(
+    # `pyright` is a resolved absolute path (shutil.which) and the argv is a fixed
+    # literal list (no shell, no untrusted input), so S603 is a false positive here.
+    proc = subprocess.run(  # noqa: S603
         [pyright, "--outputjson"],
         cwd=REPO_ROOT,
         capture_output=True,
