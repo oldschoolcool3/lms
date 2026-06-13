@@ -260,22 +260,6 @@
       "count": 10
     }
   },
-  "src/components/Settings/Coupons/CouponItems.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "vue/require-v-for-key": {
-      "count": 1
-    }
-  },
-  "src/components/Settings/Coupons/CouponList.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 7
-    },
-    "vue/no-unused-vars": {
-      "count": 1
-    }
-  },
   "src/components/Settings/GoogleMeetSettings.vue": {
     "@typescript-eslint/no-unused-vars": {
       "count": 1
