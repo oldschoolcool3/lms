@@ -1050,11 +1050,6 @@
       "count": 3
     }
   },
-  "src/utils/assignment.js": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
   "src/utils/code.ts": {
     "@typescript-eslint/no-unused-expressions": {
       "count": 1
@@ -1085,16 +1080,6 @@
   "src/utils/program.ts": {
     "prefer-const": {
       "count": 1
-    }
-  },
-  "src/utils/quiz.js": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 4
-    }
-  },
-  "src/utils/upload.js": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
     }
   }
 }

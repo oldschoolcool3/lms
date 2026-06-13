@@ -6,8 +6,32 @@ import { Upload as UploadIcon } from 'lucide-vue-next'
 import { createDialog } from '@/utils/dialogs'
 import translationPlugin from '../translation'
 
+interface UploadFile {
+	file_url?: string
+	file_type?: string
+	quizzes?: unknown[]
+}
+
+interface UploadConfig {
+	docname?: string | null
+	fieldname?: string
+}
+
 export class Upload {
-	constructor({ data, api, config, readOnly }) {
+	data: UploadFile
+	readOnly: boolean
+	config: UploadConfig
+	wrapper!: HTMLDivElement
+
+	constructor({
+		data,
+		config,
+		readOnly,
+	}: {
+		data: UploadFile
+		config?: UploadConfig
+		readOnly: boolean
+	}) {
 		this.data = data
 		this.readOnly = readOnly
 		this.config = config || {}
@@ -44,13 +68,14 @@ export class Upload {
 		return this.wrapper
 	}
 
-	renderFile(file) {
-		if (this.isVideo(file.file_type)) {
+	renderFile(file: UploadFile) {
+		const fileType = file.file_type ?? ''
+		if (this.isVideo(fileType)) {
 			const app = createApp(VideoBlock, {
 				file: file.file_url,
 				readOnly: this.readOnly,
 				quizzes: file.quizzes || [],
-				saveQuizzes: (quizzes) => {
+				saveQuizzes: (quizzes: unknown[]) => {
 					if (this.readOnly) return
 					this.data.quizzes = quizzes
 				},
@@ -59,22 +84,22 @@ export class Upload {
 			app.config.globalProperties.$dialog = createDialog
 			app.mount(this.wrapper)
 			return
-		} else if (this.isAudio(file.file_type)) {
+		} else if (this.isAudio(fileType)) {
 			const app = createApp(AudioBlock, {
 				file: file.file_url,
 			})
 			app.mount(this.wrapper)
 			return
-		} else if (file.file_type == 'PDF') {
+		} else if (fileType == 'PDF') {
 			this.wrapper.innerHTML = `<iframe src="${
 				window.location.origin
 			}${encodeURI(
-				file.file_url
+				file.file_url ?? ''
 			)}" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
 			return
 		} else {
 			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(
-				file.file_url
+				file.file_url ?? ''
 			)} width='100%'>`
 			return
 		}
@@ -84,7 +109,7 @@ export class Upload {
 		const app = createApp(UploadPlugin, {
 			docname: this.config.docname || null,
 			fieldname: this.config.fieldname || 'content',
-			onFileUploaded: (file) => {
+			onFileUploaded: (file: UploadFile) => {
 				this.data.file_url = file.file_url
 				this.data.file_type = file.file_type
 				this.renderFile(file)
@@ -94,14 +119,14 @@ export class Upload {
 		app.mount(this.wrapper)
 	}
 
-	validate(savedData) {
+	validate(savedData: UploadFile) {
 		if (!savedData.file_url || !savedData.file_type) {
 			return false
 		}
 		return true
 	}
 
-	save(blockContent) {
+	save() {
 		return {
 			file_url: this.data.file_url,
 			file_type: this.data.file_type,
@@ -109,11 +134,11 @@ export class Upload {
 		}
 	}
 
-	isVideo(type) {
+	isVideo(type: string) {
 		return ['mov', 'mp4', 'avi', 'mkv', 'webm'].includes(type.toLowerCase())
 	}
 
-	isAudio(type) {
+	isAudio(type: string) {
 		return ['mp3', 'wav', 'ogg'].includes(type.toLowerCase())
 	}
 }
