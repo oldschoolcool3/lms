@@ -28,7 +28,7 @@
 					</div>
 					<Dropdown
 						v-if="
-							user.data.name == reply.owner && !reply.editable && !readOnlyMode
+							user.data?.name == reply.owner && !reply.editable && !readOnlyMode
 						"
 						:options="[
 							{
@@ -60,7 +60,7 @@
 				</div>
 				<TextEditor
 					:content="reply.reply"
-					@change="(val) => (reply.reply = val)"
+					@change="(val: string) => (reply.reply = val)"
 					:editable="reply.editable || false"
 					:fixedMenu="reply.editable || false"
 					:editorClass="
@@ -77,7 +77,7 @@
 			class="mt-5"
 			:content="newReply"
 			:mentions="mentionUsers"
-			@change="(val) => (newReply = val)"
+			@change="(val: string) => (newReply = val)"
 			placeholder="Type your reply here..."
 			:fixedMenu="true"
 			editorClass="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none border border-outline-gray-2 rounded-b-md min-h-[7rem] py-1 px-2"
@@ -92,7 +92,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	call,
 	createResource,
@@ -105,14 +105,30 @@ import { timeAgo } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { ChevronLeft, MoreHorizontal } from 'lucide-vue-next'
 import { ref, inject, onMounted, onUnmounted } from 'vue'
+import type { Socket } from 'socket.io-client'
 import { useTelemetry } from 'frappe-ui/frappe'
+import type { SessionUser, UserInfo } from '@/types/api'
+
+interface MentionUser {
+	value: string
+	label?: string
+}
+
+interface DiscussionReply {
+	name: string
+	owner: string
+	reply: string
+	editable?: boolean
+}
 
 const showTopics = defineModel('showTopics')
 const newReply = ref('')
-const socket = inject('$socket')
-const user = inject('$user')
-const allUsers = inject('$allUsers')
-const mentionUsers = ref([])
+const socket = inject<Socket>('$socket')!
+const user = inject<SessionUser>('$user')!
+const allUsers = inject<{ reload: (params: unknown, opts: unknown) => void }>(
+	'$allUsers'
+)!
+const mentionUsers = ref<MentionUser[]>([])
 const renderEditor = ref(false)
 const readOnlyMode = window.read_only_mode
 const { capture } = useTelemetry()
@@ -129,13 +145,13 @@ const props = defineProps({
 })
 
 onMounted(() => {
-	socket.on('publish_message', (data) => {
+	socket.on('publish_message', () => {
 		replies.reload()
 	})
-	socket.on('update_message', (data) => {
+	socket.on('update_message', () => {
 		replies.reload()
 	})
-	socket.on('delete_message', (data) => {
+	socket.on('delete_message', () => {
 		replies.reload()
 	})
 	fetchMentionUsers()
@@ -144,7 +160,7 @@ onMounted(() => {
 const replies = createResource({
 	url: 'lms.lms.utils.get_discussion_replies',
 	cache: ['replies', props.topic],
-	makeParams(values) {
+	makeParams() {
 		return {
 			topic: props.topic.name,
 		}
@@ -159,8 +175,8 @@ const fetchMentionUsers = () => {
 		allUsers.reload(
 			{},
 			{
-				onSuccess(data) {
-					mentionUsers.value = Object.values(data).map((user) => {
+				onSuccess(data: Record<string, UserInfo>) {
+					mentionUsers.value = Object.values(data).map((user: UserInfo) => {
 						return {
 							value: user.name,
 							label: user.full_name,
@@ -185,18 +201,18 @@ const postReply = () => {
 			topic: props.topic.name,
 		},
 	})
-		.then((data) => {
+		.then(() => {
 			newReply.value = ''
 			replies.reload()
 			capture('discussion_reply_created')
 		})
-		.catch((err) => {
+		.catch((err: { messages?: string[] }) => {
 			toast.error(err.messages?.[0] || err)
 			console.error(err)
 		})
 }
 
-const postEdited = (reply) => {
+const postEdited = (reply: DiscussionReply) => {
 	if (!reply.reply) {
 		toast.error(__('Reply cannot be empty.'))
 		return
@@ -211,13 +227,13 @@ const postEdited = (reply) => {
 			reply.editable = false
 			replies.reload()
 		})
-		.catch((err) => {
+		.catch((err: { messages?: string[] }) => {
 			toast.error(err.messages?.[0] || err)
 			console.error(err)
 		})
 }
 
-const deleteReply = (reply) => {
+const deleteReply = (reply: DiscussionReply) => {
 	call('frappe.client.delete', {
 		doctype: 'Discussion Reply',
 		name: reply.name,
@@ -225,7 +241,7 @@ const deleteReply = (reply) => {
 		.then(() => {
 			replies.reload()
 		})
-		.catch((err) => {
+		.catch((err: { messages?: string[] }) => {
 			toast.error(err.messages?.[0] || err)
 			console.error(err)
 		})

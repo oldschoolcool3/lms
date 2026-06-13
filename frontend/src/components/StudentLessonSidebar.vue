@@ -93,10 +93,11 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, watch, watchEffect } from 'vue'
 import { createResource } from 'frappe-ui'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import type { OutlineChapter, OutlineLesson, Resource } from '@/types/api'
 import {
 	ChevronDown,
 	Circle,
@@ -136,7 +137,7 @@ const outline = createResource({
 		}
 	},
 	auto: true,
-})
+}) as Resource<OutlineChapter[] | null>
 
 watch(
 	() => props.courseName,
@@ -150,7 +151,9 @@ watchEffect(() => {
 	const lessonName = props.completedLesson
 	if (!lessonName || !outline.data) return
 	for (const chapter of outline.data) {
-		const found = chapter.lessons?.find((l) => l.name === lessonName)
+		const found = chapter.lessons?.find(
+			(l: OutlineLesson) => l.name === lessonName
+		)
 		if (found) {
 			found.is_complete = true
 			return
@@ -160,7 +163,7 @@ watchEffect(() => {
 
 const displayedProgress = computed(() => Math.ceil(props.progress || 0))
 
-function iconFor(icon) {
+function iconFor(icon?: string) {
 	switch (icon) {
 		case 'icon-youtube':
 			return MonitorPlay
@@ -177,15 +180,16 @@ function iconFor(icon) {
 	}
 }
 
-function isActive(number) {
+function isActive(number: string) {
 	return props.selectedLessonNumber === number
 }
 
-function chapterDefaultOpen(chapter) {
+function chapterDefaultOpen(chapter: OutlineChapter) {
 	if (!props.selectedLessonNumber) return chapter.idx === 1
 	return (
-		chapter.lessons?.some((l) => l.number === props.selectedLessonNumber) ||
-		false
+		chapter.lessons?.some(
+			(l: OutlineLesson) => l.number === props.selectedLessonNumber
+		) || false
 	)
 }
 </script>

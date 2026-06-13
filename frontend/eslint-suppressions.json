@@ -109,9 +109,6 @@
     }
   },
   "src/components/DiscussionReplies.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 5
-    },
     "vue/no-unused-vars": {
       "count": 1
     },
@@ -120,9 +117,6 @@
     }
   },
   "src/components/Discussions.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
     "prefer-const": {
       "count": 1
     },

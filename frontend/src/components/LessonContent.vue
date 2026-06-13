@@ -2,9 +2,9 @@
 	<div v-if="youtube">
 		<iframe
 			class="youtube-video"
-			:src="getYouTubeVideoSource(youtube.split('/').pop())"
+			:src="getYouTubeVideoSource(youtube.split('/').pop()!)"
 			width="100%"
-			:height="screenSize.width < 640 ? 200 : 400"
+			:height="videoHeight"
 			frameborder="0"
 			allowfullscreen
 		></iframe>
@@ -15,7 +15,7 @@
 				class="youtube-video"
 				:src="getYouTubeVideoSource(block)"
 				width="100%"
-				:height="screenSize.width < 640 ? 200 : 400"
+				:height="videoHeight"
 				frameborder="0"
 				allowfullscreen
 			></iframe>
@@ -63,20 +63,28 @@
 		<Quiz :quiz="quizId" />
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import Quiz from '@/components/QuizBlock.vue'
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'dompurify'
+import { computed } from 'vue'
 import { useScreenSize } from '@/utils/composables'
 
 const screenSize = useScreenSize()
+
+// NOTE (pre-existing): useScreenSize() returns { size, isMobile }, so
+// `screenSize.width` is undefined and this ternary always evaluates to 400.
+// Preserved verbatim — this is a conversion-only change, not a bug fix.
+const videoHeight = computed(() =>
+	(screenSize as { width?: number }).width! < 640 ? 200 : 400
+)
 
 const markdown = new MarkdownIt({
 	html: true,
 	linkify: true,
 })
 
-const renderSafe = (block) => DOMPurify.sanitize(markdown.render(block))
+const renderSafe = (block: string) => DOMPurify.sanitize(markdown.render(block))
 
 const props = defineProps({
 	content: {
@@ -93,18 +101,18 @@ const props = defineProps({
 	},
 })
 
-const getYouTubeVideoSource = (block) => {
+const getYouTubeVideoSource = (block: string) => {
 	if (block.includes('{{')) {
 		block = getId(block)
 	}
 	return `https://www.youtube.com/embed/${block}`
 }
 
-const getPDFSource = (block) => {
+const getPDFSource = (block: string) => {
 	return `${getId(block)}#toolbar=0`
 }
 
-const getId = (block) => {
-	return block.match(/\(["']([^"']+?)["']\)/)[1]
+const getId = (block: string) => {
+	return block.match(/\(["']([^"']+?)["']\)/)![1]
 }
 </script>

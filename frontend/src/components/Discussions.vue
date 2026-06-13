@@ -39,7 +39,7 @@
 		</div>
 		<div v-else>
 			<DiscussionReplies
-				:topic="currentTopic"
+				:topic="currentTopic!"
 				v-model:showTopics="showTopics"
 			/>
 		</div>
@@ -69,20 +69,29 @@
 		v-model:reloadTopics="topics"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import { createResource, Button } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { singularize, timeAgo } from '@/utils'
 import { ref, onMounted, inject, onUnmounted } from 'vue'
+import type { Socket } from 'socket.io-client'
 import DiscussionReplies from '@/components/DiscussionReplies.vue'
 import DiscussionModal from '@/components/Modals/DiscussionModal.vue'
 import { MessageSquareText, Plus } from 'lucide-vue-next'
 import { getScrollContainer } from '@/utils/scrollContainer'
+import type { SessionUser } from '@/types/api'
+
+interface DiscussionTopic {
+	name: string
+	title: string
+	creation: string
+	user: { full_name: string }
+}
 
 const showTopics = ref(true)
-const currentTopic = ref(null)
-const socket = inject('$socket')
-const user = inject('$user')
+const currentTopic = ref<DiscussionTopic | null>(null)
+const socket = inject<Socket>('$socket')!
+const user = inject<SessionUser>('$user')!
 const showTopicModal = ref(false)
 const readOnlyMode = window.read_only_mode
 
@@ -120,7 +129,7 @@ const props = defineProps({
 onMounted(() => {
 	if (user.data) topics.reload()
 
-	socket.on('new_discussion_topic', (data) => {
+	socket.on('new_discussion_topic', () => {
 		topics.refresh()
 	})
 
@@ -132,7 +141,7 @@ onMounted(() => {
 })
 
 const scrollToEnd = () => {
-	let scrollContainer = getScrollContainer()
+	let scrollContainer = getScrollContainer()!
 	scrollContainer.scrollTop = scrollContainer.scrollHeight
 }
 
@@ -148,7 +157,7 @@ const topics = createResource({
 	},
 })
 
-const showReplies = (topic) => {
+const showReplies = (topic: DiscussionTopic) => {
 	showTopics.value = false
 	currentTopic.value = topic
 }
