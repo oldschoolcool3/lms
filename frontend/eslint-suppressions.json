@@ -598,23 +598,12 @@
       "count": 1
     }
   },
-  "src/pages/Batches/components/AnnouncementModal.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
   "src/pages/Batches/components/Announcements.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
     "vue/require-v-for-key": {
       "count": 1
     }
   },
   "src/pages/Batches/components/Assessments.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
     "prefer-const": {
       "count": 1
     },

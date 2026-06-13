@@ -29,7 +29,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { createResource, Avatar } from 'frappe-ui'
 import { timeAgo } from '@/utils'
 
@@ -42,7 +42,7 @@ const props = defineProps({
 
 const communications = createResource({
 	url: 'lms.lms.api.get_announcements',
-	makeParams(value) {
+	makeParams() {
 		return {
 			batch: props.batch.data?.name,
 		}

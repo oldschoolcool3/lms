@@ -19,7 +19,7 @@
 				class="border rounded-lg"
 				:options="{
 					showTooltip: false,
-					getRowRoute: (row) => getRowRoute(row),
+					getRowRoute: (row: AssessmentRow) => getRowRoute(row),
 					selectable: user.data?.is_student ? false : true,
 				}"
 			>
@@ -79,7 +79,7 @@
 		:batch="props.batch"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	ListView,
 	ListRow,
@@ -95,8 +95,24 @@ import {
 import { inject, ref } from 'vue'
 import AssessmentModal from '@/components/Modals/AssessmentModal.vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
+interface AssessmentRow {
+	assessment_type: string
+	assessment_name: string
+	title: string
+	status?: string
+	submission?: { name: string }
+}
+
+interface AssessmentColumn {
+	label: string
+	key: string
+	width?: string
+	align?: string
+}
+
+const user = inject<SessionUser>('$user')!
 const showModal = ref(false)
 const readOnlyMode = window.read_only_mode
 
@@ -131,7 +147,7 @@ const assessments = createResource({
 
 const deleteAssessments = createResource({
 	url: 'lms.lms.api.delete_documents',
-	makeParams(values) {
+	makeParams(values: { assessments: string[] }) {
 		return {
 			doctype: 'LMS Assessment',
 			documents: values.assessments,
@@ -139,11 +155,14 @@ const deleteAssessments = createResource({
 	},
 })
 
-const removeAssessments = (selections, unselectAll) => {
+const removeAssessments = (
+	selections: Set<string>,
+	unselectAll: () => void
+) => {
 	deleteAssessments.submit(
 		{ assessments: Array.from(selections) },
 		{
-			onSuccess(data) {
+			onSuccess() {
 				assessments.reload()
 				unselectAll()
 			},
@@ -151,7 +170,7 @@ const removeAssessments = (selections, unselectAll) => {
 	)
 }
 
-const getRowRoute = (row) => {
+const getRowRoute = (row: AssessmentRow) => {
 	if (row.assessment_type == 'LMS Assignment') {
 		if (row.submission) {
 			return {
@@ -204,7 +223,7 @@ const canAddAssessments = () => {
 }
 
 const getAssessmentColumns = () => {
-	let columns = [
+	let columns: AssessmentColumn[] = [
 		{
 			label: __('Assessment'),
 			key: 'title',
@@ -227,7 +246,7 @@ const getAssessmentColumns = () => {
 	return columns
 }
 
-const getStatusTheme = (status) => {
+const getStatusTheme = (status: string) => {
 	if (status === 'Pass' || status === 'Passed') {
 		return 'green'
 	} else if (status === 'Not Graded') {
@@ -237,7 +256,7 @@ const getStatusTheme = (status) => {
 	}
 }
 
-const getAssessmentTypeLabel = (type) => {
+const getAssessmentTypeLabel = (type: string) => {
 	if (type == 'LMS Assignment') {
 		return __('Assignment')
 	} else if (type == 'LMS Quiz') {

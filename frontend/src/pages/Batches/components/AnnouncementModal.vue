@@ -8,7 +8,7 @@
 				{
 					label: 'Submit',
 					variant: 'solid',
-					onClick: (close) => makeAnnouncement(close),
+					onClick: (close: () => void) => makeAnnouncement(close),
 				},
 			],
 		}"
@@ -34,7 +34,7 @@
 					</div>
 					<TextEditor
 						:fixedMenu="true"
-						@change="(val) => (announcement.announcement = val)"
+						@change="onAnnouncementChange"
 						editorClass="prose-sm py-2 px-2 min-h-[200px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-md bg-surface-gray-3"
 					/>
 				</div>
@@ -42,7 +42,7 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Dialog,
 	FormControl,
@@ -71,9 +71,13 @@ const announcement = reactive({
 	announcement: '',
 })
 
+const onAnnouncementChange = (val: string) => {
+	announcement.announcement = val
+}
+
 const announcementResource = createResource({
 	url: 'frappe.core.doctype.communication.email.make',
-	makeParams(values) {
+	makeParams() {
 		return {
 			recipients: announcement.replyTo,
 			bcc: props.students.join(', '),
@@ -86,7 +90,7 @@ const announcementResource = createResource({
 	},
 })
 
-const makeAnnouncement = (close) => {
+const makeAnnouncement = (close: () => void) => {
 	announcementResource.submit(
 		{},
 		{
@@ -108,8 +112,8 @@ const makeAnnouncement = (close) => {
 				close()
 				toast.success(__('Announcement has been sent successfully'))
 			},
-			onError(err) {
-				toast.error(__(err.messages?.[0] || err))
+			onError(err: { messages?: string[] }) {
+				toast.error(__(err.messages?.[0] || String(err)))
 			},
 		}
 	)

@@ -71,7 +71,7 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Badge } from 'frappe-ui'
 import { formatTime } from '@/utils'
 import { Clock, Globe } from 'lucide-vue-next'

@@ -20,10 +20,7 @@
 				:options="{
 					showTooltip: false,
 					selectable: user.data?.is_student ? false : true,
-					getRowRoute: (row) => ({
-						name: 'CourseDetail',
-						params: { courseName: row.name },
-					}),
+					getRowRoute,
 				}"
 			>
 				<ListHeader
@@ -67,7 +64,7 @@
 		/>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { ref, inject, nextTick } from 'vue'
 import BatchCourseModal from '@/components/Modals/BatchCourseModal.vue'
 import {
@@ -83,10 +80,12 @@ import {
 	toast,
 } from 'frappe-ui'
 import { Plus, Trash2 } from 'lucide-vue-next'
+import type { SessionUser } from '@/types/api'
+import type { BatchCourse } from '@/types/lms/BatchCourse'
 const readOnlyMode = window.read_only_mode
 
 const showCourseModal = ref(false)
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 
 const props = defineProps({
 	batch: {
@@ -111,6 +110,11 @@ const openCourseModal = () => {
 	showCourseModal.value = true
 }
 
+const getRowRoute = (row: BatchCourse) => ({
+	name: 'CourseDetail',
+	params: { courseName: row.name },
+})
+
 const getCoursesColumns = () => {
 	return [
 		{
@@ -125,7 +129,10 @@ const getCoursesColumns = () => {
 	]
 }
 
-const removeCourses = async (selections, unselectAll) => {
+const removeCourses = async (
+	selections: Set<string>,
+	unselectAll: () => void
+) => {
 	for (const course of selections) {
 		await courses.delete.submit(course)
 	}
