@@ -72,7 +72,10 @@ const assessmentResource = createResource({
 })
 
 const onAssessmentCreate = (_value: string | null, close?: () => void) => {
-	close?.()
+	// Preserve the original inline handler's unconditional close() call. Link.vue's
+	// live create path (handleCreate -> onCreate?.(null)) passes no close arg, so this
+	// throws just as the pre-conversion code did; the `!` keeps that behaviour intact.
+	close!()
 	if (assessmentType.value === 'LMS Quiz') {
 		router.push({
 			name: 'QuizForm',
