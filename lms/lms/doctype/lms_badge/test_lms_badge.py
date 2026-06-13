@@ -6,4 +6,4 @@ from frappe.tests import UnitTestCase
 
 
 class TestLMSBadge(UnitTestCase):
-	pass
+    pass

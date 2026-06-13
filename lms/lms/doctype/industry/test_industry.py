@@ -6,4 +6,4 @@ import unittest
 
 
 class TestIndustry(unittest.TestCase):
-	pass
+    pass

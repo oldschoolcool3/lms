@@ -6,4 +6,4 @@ import unittest
 
 
 class TestJobOpportunity(unittest.TestCase):
-	pass
+    pass

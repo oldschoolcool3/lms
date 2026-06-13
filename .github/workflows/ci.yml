@@ -43,6 +43,12 @@ jobs:
       with:
         node-version: '24'
         check-latest: true
+    - name: setup uv
+      uses: astral-sh/setup-uv@v7
+    - name: install MariaDB client library
+      # bench's MariaDB driver loads libmariadb.so.3 at runtime (bench new-site).
+      # The inline bench setup here does not pull it in, so install it explicitly.
+      run: sudo apt-get update && sudo apt-get install -y libmariadb-dev
     - name: setup cache for bench
       uses: actions/cache@v4
       with:
@@ -50,7 +56,7 @@ jobs:
         key: ${{ runner.os }}
     - name: install bench
       run: |
-        pip3 install frappe-bench
+        uv pip install --system frappe-bench
         which bench
     - name: bench init
       run: |

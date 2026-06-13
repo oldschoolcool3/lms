@@ -6,4 +6,4 @@ from frappe.model.document import Document
 
 
 class LMSProgrammingExerciseSubmission(Document):
-	pass
+    pass

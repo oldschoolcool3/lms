@@ -12,18 +12,18 @@ IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
 class UnitTestLMSZoomSettings(UnitTestCase):
-	"""
-	Unit tests for LMSZoomSettings.
-	Use this class for testing individual functions and methods.
-	"""
+    """
+    Unit tests for LMSZoomSettings.
+    Use this class for testing individual functions and methods.
+    """
 
-	pass
+    pass
 
 
 class IntegrationTestLMSZoomSettings(IntegrationTestCase):
-	"""
-	Integration tests for LMSZoomSettings.
-	Use this class for testing interactions between multiple components.
-	"""
+    """
+    Integration tests for LMSZoomSettings.
+    Use this class for testing interactions between multiple components.
+    """
 
-	pass
+    pass

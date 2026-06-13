@@ -8,9 +8,9 @@ from lms.lms.utils import get_lesson_count
 
 
 class CourseChapter(Document):
-	def on_update(self):
-		self.update_lesson_count()
+    def on_update(self):
+        self.update_lesson_count()
 
-	def update_lesson_count(self):
-		"""Update lesson count in the course"""
-		frappe.db.set_value("LMS Course", self.course, "lessons", get_lesson_count(self.course))
+    def update_lesson_count(self):
+        """Update lesson count in the course"""
+        frappe.db.set_value("LMS Course", self.course, "lessons", get_lesson_count(self.course))

@@ -3,8 +3,6 @@
 
 import unittest
 
-import frappe
-
 
 class TestLMSEnrollment(unittest.TestCase):
-	pass
+    pass

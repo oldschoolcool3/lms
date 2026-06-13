@@ -12,9 +12,9 @@ IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
 class IntegrationTestLMSCoupon(IntegrationTestCase):
-	"""
-	Integration tests for LMSCoupon.
-	Use this class for testing interactions between multiple components.
-	"""
+    """
+    Integration tests for LMSCoupon.
+    Use this class for testing interactions between multiple components.
+    """
 
-	pass
+    pass

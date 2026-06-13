@@ -6,4 +6,4 @@ import unittest
 
 
 class TestLMSSettings(unittest.TestCase):
-	pass
+    pass

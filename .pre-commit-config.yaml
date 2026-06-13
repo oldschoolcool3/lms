@@ -38,6 +38,8 @@ repos:
     hooks:
       - id: gitleaks
 
+  # Keep `rev` in sync with the pinned `ruff==…` in pyproject.toml [dependency-groups].
+  # uv (Nx targets / CI) and this hook must run the identical ruff version.
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.13.3
     hooks:
