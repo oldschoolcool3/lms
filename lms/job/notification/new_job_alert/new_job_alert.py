@@ -1,6 +1,4 @@
-import frappe
-
-
 def get_context(context):
-	# do your magic here
-	pass
+    """Augment the notification template context before rendering."""
+    # do your magic here
+    pass

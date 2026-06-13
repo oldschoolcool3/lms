@@ -1,6 +1,4 @@
-import frappe
-
-
 def get_context(context):
-	# do your magic here
-	pass
+    """Return the template context for the certificate request reminder notification."""
+    # do your magic here
+    pass

@@ -4,7 +4,7 @@ cd ~ || exit
 
 echo "Setting Up Bench..."
 
-pip install frappe-bench
+uv pip install --system frappe-bench
 bench -v init frappe-bench --skip-assets --skip-redis-config-generation --python "$(which python)" --frappe-branch "${BASE_BRANCH}"
 cd ./frappe-bench || exit
 

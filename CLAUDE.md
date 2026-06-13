@@ -9,7 +9,7 @@ analytics, interop). The fork stays close to upstream; see
 
 | Service | Stack | Directory |
 |---------|-------|-----------|
-| Backend | Frappe Framework, Python 3.10+, MariaDB, Redis | `lms/` |
+| Backend | Frappe Framework, Python 3.12+, MariaDB, Redis | `lms/` |
 | Frontend | Vue 3, Vite, Tailwind, frappe-ui, Pinia | `frontend/` |
 
 Versions above are orientation only — `pyproject.toml` and
@@ -80,7 +80,7 @@ frontend/src/
 
 ## Code Standards
 
-- Python: tabs, line length 110, ruff (config in `pyproject.toml`); Frappe
+- Python: spaces, line length 120, ruff (config in `pyproject.toml`); Frappe
   ORM/primitives over raw SQL; user-facing strings in `_()`
 - Frontend: Vue 3 `<script setup>`, TypeScript for new code, prettier
   (`frontend/.prettierrc.json`), frappe-ui components and resources first;

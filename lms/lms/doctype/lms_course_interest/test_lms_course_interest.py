@@ -6,4 +6,4 @@ import unittest
 
 
 class TestLMSCourseInterest(unittest.TestCase):
-	pass
+    pass

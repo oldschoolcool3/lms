@@ -12,18 +12,18 @@ IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
 class UnitTestLMSProgrammingExercise(UnitTestCase):
-	"""
-	Unit tests for LMSProgrammingExercise.
-	Use this class for testing individual functions and methods.
-	"""
+    """
+    Unit tests for LMSProgrammingExercise.
+    Use this class for testing individual functions and methods.
+    """
 
-	pass
+    pass
 
 
 class IntegrationTestLMSProgrammingExercise(IntegrationTestCase):
-	"""
-	Integration tests for LMSProgrammingExercise.
-	Use this class for testing interactions between multiple components.
-	"""
+    """
+    Integration tests for LMSProgrammingExercise.
+    Use this class for testing interactions between multiple components.
+    """
 
-	pass
+    pass

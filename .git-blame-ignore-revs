@@ -1,0 +1,6 @@
+# Revisions to ignore in `git blame` (bulk reformats, not authorship changes).
+# Enable locally with:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# style(backend): reformat with ruff (tabs->spaces, 120) + lint fixes
+06ec69b62d18c27b31d6cea0d1fc341656479c6f

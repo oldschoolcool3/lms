@@ -15,6 +15,16 @@ tasks:
     cmds:
       - npx nx run backend:format
 
+  typecheck:backend:
+    desc: Type-check the Frappe app (pyright, ratcheted against a baseline)
+    cmds:
+      - npx nx run backend:typecheck
+
+  deptry:backend:
+    desc: Check backend dependency hygiene (deptry)
+    cmds:
+      - npx nx run backend:deptry
+
   test:backend:
     desc: "Run server tests inside a bench (env: BENCH_DIR, SITE)"
     cmds:

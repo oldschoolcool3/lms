@@ -38,7 +38,7 @@ Note the division of labor: the pre-commit hook scans only the **staged diff** (
 
 ### Python (`ruff`)
 
-Two hooks from `ruff-pre-commit`: `ruff` (lint with `--fix --exit-non-zero-on-fix`) and `ruff-format`. Configuration lives in `pyproject.toml` -- line length 110, tab indentation (`indent-style = "tab"`), the Frappe house style inherited from upstream. The pinned hook version (`v0.13.3`) matches the `uvx ruff@0.13.3` commands in `lms/project.json`, so pre-commit, `task lint:backend`, and CI can never disagree.
+Two hooks from `ruff-pre-commit`: `ruff` (lint with `--fix --exit-non-zero-on-fix`) and `ruff-format`. Configuration lives in `pyproject.toml` -- line length 120, 4-space indentation, the org-standard ruff style the backend modernization adopted (a deliberate divergence from upstream's tabs, isolated in a `.git-blame-ignore-revs` reformat commit). The pinned hook `rev` must match the ruff version in `pyproject.toml` `[dependency-groups]`, which the Nx targets (`uv run --only-group lint ruff`) and CI resolve too, so pre-commit, `task lint:backend`, and CI can never disagree.
 
 ### JavaScript and Vue (`prettier`)
 

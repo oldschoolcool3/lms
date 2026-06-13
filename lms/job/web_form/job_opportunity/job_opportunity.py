@@ -1,6 +1,4 @@
-import frappe
-
-
 def get_context(context):
-	# do your magic here
-	pass
+    """Populate the render context for the Job Opportunity web form."""
+    # do your magic here
+    pass

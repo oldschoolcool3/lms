@@ -28,9 +28,11 @@ To keep upstream merges cheap:
 
 - Differentiating work attaches via **new DocTypes, new whitelisted methods,
   and new frontend pages/components** — not rewrites of upstream modules.
-- No mass reformatting of upstream code. Lint/format configs intentionally
-  match upstream conventions (tabs in Python, prettier with upstream-compatible
-  options in the frontend).
+- No mass reformatting of upstream code in routine changes (every gratuitous
+  diff is a future merge conflict). The frontend keeps upstream-compatible
+  prettier options; the backend made one deliberate, isolated exception — a
+  repo-wide ruff reformat to the org-standard spaces/120 style, recorded in
+  `.git-blame-ignore-revs`.
 - Repo-level tooling added by this fork (Nx, Taskfile, `.claude/`, `docs/`,
   stricter pre-commit) lives in files upstream doesn't own, so it merges
   cleanly.

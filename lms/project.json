@@ -3,23 +3,49 @@
   "projectType": "application",
   "targets": {
     "lint": {
-      "command": "uvx ruff@0.13.3 check lms",
+      "command": "uv run --only-group lint ruff check lms",
       "cache": true,
       "inputs": [
         "{projectRoot}/**/*.py",
-        "{workspaceRoot}/pyproject.toml"
+        "{workspaceRoot}/pyproject.toml",
+        "{workspaceRoot}/uv.lock",
+        "{workspaceRoot}/.python-version"
       ]
     },
     "format": {
-      "command": "uvx ruff@0.13.3 format lms",
+      "command": "uv run --only-group lint ruff format lms",
       "cache": false
     },
     "format-check": {
-      "command": "uvx ruff@0.13.3 format --check lms",
+      "command": "uv run --only-group lint ruff format --check lms",
       "cache": true,
       "inputs": [
         "{projectRoot}/**/*.py",
-        "{workspaceRoot}/pyproject.toml"
+        "{workspaceRoot}/pyproject.toml",
+        "{workspaceRoot}/uv.lock",
+        "{workspaceRoot}/.python-version"
+      ]
+    },
+    "typecheck": {
+      "command": "uv run --only-group typecheck python scripts/backend-typecheck.py",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/**/*.py",
+        "{workspaceRoot}/backend-typecheck-baseline.json",
+        "{workspaceRoot}/scripts/backend-typecheck.py",
+        "{workspaceRoot}/pyproject.toml",
+        "{workspaceRoot}/uv.lock",
+        "{workspaceRoot}/.python-version"
+      ]
+    },
+    "deptry": {
+      "command": "uv run --only-group lint deptry lms",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/**/*.py",
+        "{workspaceRoot}/pyproject.toml",
+        "{workspaceRoot}/uv.lock",
+        "{workspaceRoot}/.python-version"
       ]
     },
     "test": {

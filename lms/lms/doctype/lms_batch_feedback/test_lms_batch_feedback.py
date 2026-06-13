@@ -12,18 +12,18 @@ IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
 class UnitTestLMSBatchFeedback(UnitTestCase):
-	"""
-	Unit tests for LMSBatchFeedback.
-	Use this class for testing individual functions and methods.
-	"""
+    """
+    Unit tests for LMSBatchFeedback.
+    Use this class for testing individual functions and methods.
+    """
 
-	pass
+    pass
 
 
 class IntegrationTestLMSBatchFeedback(IntegrationTestCase):
-	"""
-	Integration tests for LMSBatchFeedback.
-	Use this class for testing interactions between multiple components.
-	"""
+    """
+    Integration tests for LMSBatchFeedback.
+    Use this class for testing interactions between multiple components.
+    """
 
-	pass
+    pass
