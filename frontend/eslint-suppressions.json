@@ -525,11 +525,6 @@
       "count": 1
     }
   },
-  "src/pages/Courses/CoursePublishSettings.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
   "src/pages/Courses/Courses.vue": {
     "vue/valid-v-for": {
       "count": 1

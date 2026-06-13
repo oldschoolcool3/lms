@@ -137,19 +137,23 @@
 import { FormControl, createResource } from 'frappe-ui'
 import Switch from '@/components/Controls/Switch.vue'
 import { computed, inject, ref } from 'vue'
+import type { ComputedRef } from 'vue'
 import CollapsibleSection from '@/components/CollapsibleSection.vue'
 import Link from '@/components/Controls/Link.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
+import type { LMSCourse } from '@/types/lms/LMSCourse'
 import type { CourseFormContext, Resource } from '@/types/api'
 
 const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
 const dayjs = inject('$dayjs') as typeof import('dayjs')
 
-const doc = computed(() => resource.doc)
+// CourseForm only mounts this section once `resource.doc` has loaded
+// (it renders a skeleton until then), so `doc` is non-null here.
+const doc = computed(() => resource.doc) as ComputedRef<LMSCourse>
 const evaluatorLinkRef = ref<{ reload: () => void } | null>(null)
 const showMemberModal = ref<boolean>(false)
 
-const publishedOnLabel = computed<string>(() =>
+const _publishedOnLabel = computed<string>(() =>
 	doc.value?.published_on
 		? dayjs(doc.value.published_on).format('DD MMM YYYY')
 		: ''
@@ -164,7 +168,7 @@ const selfEnrollment = computed<boolean>({
 	},
 })
 
-function setPaidCourse(val: boolean) {
+function setPaidCourse(val: number | boolean) {
 	if (!resource.doc) return
 	resource.doc.paid_course = val ? 1 : 0
 	// A paid course is already monetized — the paid-certificate flow only
@@ -173,7 +177,7 @@ function setPaidCourse(val: boolean) {
 	markDirty()
 }
 
-function setPaidCertificate(val: boolean) {
+function setPaidCertificate(val: number | boolean) {
 	if (!resource.doc) return
 	resource.doc.paid_certificate = val ? 1 : 0
 	markDirty()
