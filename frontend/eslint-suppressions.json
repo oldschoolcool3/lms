@@ -1061,14 +1061,6 @@
       "count": 1
     }
   },
-  "src/utils/markdownParser.js": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "no-useless-escape": {
-      "count": 4
-    }
-  },
   "src/utils/program.ts": {
     "prefer-const": {
       "count": 1
