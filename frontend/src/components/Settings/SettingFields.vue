@@ -25,14 +25,16 @@
 								{{ __(field.label) }}
 							</div>
 							<div class="text-p-sm text-ink-gray-5">
-								{{ __(field.description) }}
+								{{ __(field.description || '') }}
 							</div>
 						</div>
 						<FileUploader
 							v-if="!data[field.name]"
 							:fileTypes="['image/*']"
 							:validateFile="validateFile"
-							@success="(file) => (data[field.name] = file.file_url)"
+							@success="
+								(file: UploadedFile) => (data[field.name] = file.file_url)
+							"
 						>
 							<template
 								v-slot="{ file, progress, uploading, openFileSelector }"
@@ -123,7 +125,7 @@
 							<Link
 								v-else-if="field.type == 'Link'"
 								v-model="data[field.name]"
-								:doctype="field.doctype"
+								:doctype="field.doctype || ''"
 								:required="field.reqd"
 								class="w-48"
 							/>
@@ -151,18 +153,24 @@
 		</template>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { FormControl, FileUploader, Button, Select } from 'frappe-ui'
 import Switch from '@/components/Controls/Switch.vue'
 import { onMounted, watch } from 'vue'
+import type { PropType } from 'vue'
 import { validateFile } from '@/utils'
 import { X } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import CodeEditor from '@/components/Controls/CodeEditor.vue'
+import type { SettingsField, SettingsSection } from '@/types/api'
+
+interface UploadedFile {
+	file_url: string
+}
 
 const props = defineProps({
 	sections: {
-		type: Array,
+		type: Array as PropType<SettingsSection[]>,
 		required: true,
 	},
 	data: {
@@ -171,7 +179,7 @@ const props = defineProps({
 	},
 })
 
-const resolveInitialValue = (field, dataValue) => {
+const resolveInitialValue = (field: SettingsField, dataValue: unknown) => {
 	if (dataValue !== null && dataValue !== undefined && dataValue !== '') {
 		return field.type === 'checkbox' ? !!dataValue : dataValue
 	}
@@ -185,7 +193,10 @@ onMounted(() => {
 	props.sections.forEach((section) => {
 		section.columns.forEach((column) => {
 			column.fields.forEach((field) => {
-				field.value = resolveInitialValue(field, props.data[field.name])
+				field.value = resolveInitialValue(
+					field,
+					props.data[field.name]
+				) as SettingsField['value']
 			})
 		})
 	})

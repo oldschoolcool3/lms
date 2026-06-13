@@ -316,7 +316,7 @@
   },
   "src/components/Settings/Categories.vue": {
     "@typescript-eslint/no-unused-vars": {
-      "count": 2
+      "count": 1
     },
     "vue/no-use-v-if-with-v-for": {
       "count": 1

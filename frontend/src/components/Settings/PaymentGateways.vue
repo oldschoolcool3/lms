@@ -19,9 +19,7 @@
 				row-key="name"
 				:options="{
 					showTooltip: false,
-					onRowClick: (row) => {
-						openForm(row.name)
-					},
+					onRowClick: handleRowClick,
 				}"
 			>
 				<ListHeader
@@ -86,7 +84,7 @@
 		@updateStep="(step) => (view = step)"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Badge,
 	Button,
@@ -109,8 +107,8 @@ import { cleanError } from '@/utils'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 
-const view = ref('list')
-const currentGateway = ref(null)
+const view = ref<'list' | 'form'>('list')
+const currentGateway = ref<string | null>(null)
 
 const props = defineProps({
 	label: {
@@ -130,12 +128,16 @@ const paymentGateways = createListResource({
 	orderBy: 'modified desc',
 })
 
-const openForm = (gatewayID) => {
+const handleRowClick = (row: { name: string }) => {
+	openForm(row.name)
+}
+
+const openForm = (gatewayID: string) => {
 	currentGateway.value = gatewayID
 	view.value = 'form'
 }
 
-const removeAccount = (selections, unselectAll) => {
+const removeAccount = (selections: Set<string>, unselectAll: () => void) => {
 	call('lms.lms.api.delete_documents', {
 		doctype: 'Payment Gateway',
 		documents: Array.from(selections),
@@ -145,7 +147,7 @@ const removeAccount = (selections, unselectAll) => {
 			toast.success(__('Payment gateways deleted successfully'))
 			unselectAll()
 		})
-		.catch((err) => {
+		.catch((err: { messages: string[] }) => {
 			toast.error(
 				cleanError(err.messages[0]) || __('Error deleting payment gateways')
 			)

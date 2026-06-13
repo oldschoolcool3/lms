@@ -1,4 +1,4 @@
-import type { Ref } from 'vue'
+import type { Component, Ref } from 'vue'
 import type { LMSCourse } from './lms/LMSCourse'
 
 export interface Resource<T = unknown> {
@@ -113,4 +113,45 @@ export interface CourseFormContext {
 	relatedCourses: Ref<string[]>
 	meta: CourseFormMeta
 	markDirty: () => void
+}
+
+export interface SettingsField {
+	label: string
+	name: string
+	type: string
+	description?: string
+	options?: string[]
+	doctype?: string
+	reqd?: boolean
+	default?: unknown
+	rows?: number
+	placeholder?: string
+	size?: string
+	mode?: string
+	value?: number | boolean | null
+}
+
+export interface SettingsColumn {
+	fields: SettingsField[]
+}
+
+export interface SettingsSection {
+	label?: string
+	columns: SettingsColumn[]
+}
+
+export interface SettingsTabItem {
+	label: string
+	description?: string
+	icon?: string
+	hideLabel?: boolean
+	sections?: SettingsSection[]
+	template?: Component
+	condition?: () => unknown
+}
+
+export interface SettingsTabGroup {
+	label: string
+	hideLabel: boolean
+	items: SettingsTabItem[]
 }
