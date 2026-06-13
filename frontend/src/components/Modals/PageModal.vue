@@ -8,9 +8,7 @@
 				{
 					label: 'Add',
 					variant: 'solid',
-					onClick: (close) => {
-						addWebPage(close)
-					},
+					onClick: addWebPage,
 				},
 			],
 		}"
@@ -30,13 +28,13 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Dialog, createResource, toast } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
 import { reactive, watch } from 'vue'
 import IconPicker from '@/components/Controls/IconPicker.vue'
 
-const sidebar = defineModel('reloadSidebar')
+const sidebar = defineModel<{ reload: () => void }>('reloadSidebar')
 const show = defineModel()
 const page = reactive({
 	icon: '',
@@ -52,7 +50,7 @@ const props = defineProps({
 
 const webPage = createResource({
 	url: 'lms.lms.api.update_sidebar_item',
-	makeParams(values) {
+	makeParams() {
 		return {
 			webpage: page.webpage,
 			icon: page.icon,
@@ -71,16 +69,16 @@ watch(
 	{ immediate: true }
 )
 
-const addWebPage = (close) => {
+const addWebPage = (close: () => void) => {
 	webPage.submit(
 		{},
 		{
 			onSuccess() {
-				sidebar.value.reload()
+				sidebar.value?.reload()
 				close()
 				toast.success(__('Web page added to sidebar'))
 			},
-			onError(err) {
+			onError(err: { message: string[] }) {
 				toast.error(err.message[0] || err)
 				close()
 			},

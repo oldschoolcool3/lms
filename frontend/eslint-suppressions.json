@@ -173,19 +173,11 @@
     }
   },
   "src/components/Modals/EvaluationModal.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
     "vue/require-v-for-key": {
       "count": 2
     },
     "vue/require-valid-default-prop": {
       "count": 1
-    }
-  },
-  "src/components/Modals/Event.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 6
     }
   },
   "src/components/Modals/ExplanationVideos.vue": {
@@ -202,9 +194,6 @@
     }
   },
   "src/components/Modals/JobApplicationModal.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
     "prefer-const": {
       "count": 1
     },
@@ -229,17 +218,11 @@
     }
   },
   "src/components/Modals/PageModal.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
     "vue/no-dupe-keys": {
       "count": 1
     }
   },
   "src/components/Modals/Question.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 3
-    },
     "prefer-const": {
       "count": 1
     },

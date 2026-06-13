@@ -25,7 +25,7 @@
 						</label>
 						<TextEditor
 							:content="question.question"
-							@change="(val) => (question.question = val)"
+							@change="onQuestionChange"
 							:editable="true"
 							:fixedMenu="true"
 							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
@@ -76,7 +76,10 @@
 								size="sm"
 								:label="__('Correct Answer')"
 								:description="__('Mark this option as a correct answer.')"
-								v-model="question[`is_correct_${n}`]"
+								:modelValue="!!question[`is_correct_${n}`]"
+								@update:modelValue="
+									(val) => (question[`is_correct_${n}`] = val)
+								"
 							/>
 						</div>
 					</div>
@@ -114,7 +117,7 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Dialog,
 	FormControl,
@@ -127,20 +130,40 @@ import Switch from '@/components/Controls/Switch.vue'
 import { watch, reactive, ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { useOnboarding } from 'frappe-ui/frappe'
+import type { PropType } from 'vue'
+import type { SessionUser } from '@/types/api'
+
+interface QuestionDetail {
+	question: string
+	marks: number
+	name: string
+}
 
 const show = defineModel()
-const quiz = defineModel('quiz')
+const quiz = defineModel<{ doc: { name: string }; reload: () => void }>('quiz')
 const chooseFromExisting = ref(false)
 const editMode = ref(false)
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const { updateOnboardingStep } = useOnboarding('learning')
 
-const existingQuestion = reactive({
+interface ExistingQuestion {
+	question: string
+	marks: number
+}
+
+interface Question {
+	question: string
+	type: string
+	marks: number
+	[key: string]: string | number | boolean | null
+}
+
+const existingQuestion = reactive<ExistingQuestion>({
 	question: '',
 	marks: 1,
 })
 
-const question = reactive({
+const question = reactive<Question>({
 	question: '',
 	type: 'Choices',
 	marks: 1,
@@ -159,13 +182,17 @@ const populateFields = () => {
 
 populateFields()
 
+const onQuestionChange = (val: string) => {
+	question.question = val
+}
+
 const props = defineProps({
 	title: {
 		type: String,
 		default: __('Add new question'),
 	},
 	questionDetail: {
-		type: [Object, null],
+		type: [Object, null] as PropType<QuestionDetail>,
 		required: true,
 	},
 })
@@ -179,7 +206,7 @@ const questionData = createResource({
 		}
 	},
 	auto: false,
-	onSuccess(data) {
+	onSuccess(data: Record<string, string | number | boolean | null>) {
 		let counter = 1
 		editMode.value = true
 		Object.keys(data).forEach((key) => {
@@ -215,11 +242,11 @@ watch(show, () => {
 
 const questionRow = createResource({
 	url: 'frappe.client.insert',
-	makeParams(values) {
+	makeParams(values: { question: string; marks: number }) {
 		return {
 			doc: {
 				doctype: 'LMS Quiz Question',
-				parent: quiz.value.doc.name,
+				parent: quiz.value?.doc.name,
 				parentfield: 'questions',
 				parenttype: 'LMS Quiz',
 				...values,
@@ -230,7 +257,7 @@ const questionRow = createResource({
 
 const questionCreation = createResource({
 	url: 'frappe.client.insert',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doc: {
 				doctype: 'LMS Question',
@@ -255,13 +282,13 @@ const addQuestion = () => {
 		questionCreation.submit(
 			{},
 			{
-				onSuccess(data) {
+				onSuccess(data: { name: string }) {
 					addQuestionRow({
 						question: data.name,
 						marks: question.marks,
 					})
 				},
-				onError(err) {
+				onError(err: { messages?: string[] }) {
 					toast.error(err.messages?.[0] || err)
 				},
 			}
@@ -269,7 +296,7 @@ const addQuestion = () => {
 	}
 }
 
-const addQuestionRow = (question) => {
+const addQuestionRow = (question: { question: string; marks: number }) => {
 	questionRow.submit(
 		{
 			...question,
@@ -281,10 +308,10 @@ const addQuestionRow = (question) => {
 
 				show.value = false
 				toast.success(__('Question added successfully'))
-				quiz.value.reload()
+				quiz.value?.reload()
 				show.value = false
 			},
-			onError(err) {
+			onError(err: { messages?: string[] }) {
 				toast.error(err.messages?.[0] || err)
 				show.value = false
 			},
@@ -295,7 +322,7 @@ const addQuestionRow = (question) => {
 const questionUpdate = createResource({
 	url: 'frappe.client.set_value',
 	auto: false,
-	makeParams(values) {
+	makeParams() {
 		return {
 			doctype: 'LMS Question',
 			name: questionData.data?.name,
@@ -309,7 +336,7 @@ const questionUpdate = createResource({
 const marksUpdate = createResource({
 	url: 'frappe.client.set_value',
 	auto: false,
-	makeParams(values) {
+	makeParams() {
 		return {
 			doctype: 'LMS Quiz Question',
 			name: props.questionDetail.name,
@@ -331,12 +358,12 @@ const updateQuestion = () => {
 						onSuccess() {
 							show.value = false
 							toast.success(__('Question updated successfully'))
-							quiz.value.reload()
+							quiz.value?.reload()
 						},
 					}
 				)
 			},
-			onError(err) {
+			onError(err: { messages?: string[] }) {
 				toast.error(err.messages?.[0] || err)
 			},
 		}
