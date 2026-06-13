@@ -1040,11 +1040,6 @@
       "count": 1
     }
   },
-  "src/router.js": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
   "src/tests/SettingFields.test.ts": {
     "@typescript-eslint/no-unused-vars": {
       "count": 3
