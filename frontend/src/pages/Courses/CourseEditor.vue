@@ -68,7 +68,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { createResource } from 'frappe-ui'
@@ -78,13 +78,23 @@ import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import LessonForm from '@/pages/LessonForm.vue'
 import Lesson from '@/pages/Lesson.vue'
+import type { OutlineChapter } from '@/types/api'
+
+interface SelectedLesson {
+	chapterNumber: string
+	lessonNumber: string
+	number: string
+	title?: string
+}
 
 const props = defineProps({
 	course: { type: Object, required: true },
 })
 
-const selected = defineModel('selected', { default: null })
-const mode = defineModel('mode', { default: 'edit' })
+const selected = defineModel<SelectedLesson | null>('selected', {
+	default: null,
+})
+const mode = defineModel<string>('mode', { default: 'edit' })
 const route = useRoute()
 const router = useRouter()
 
@@ -92,7 +102,7 @@ const router = useRouter()
 // tab-switch round-trip, or shared URL lands on the same lesson in the same
 // mode. Guard against route-watcher → selected-watcher loops by comparing
 // values before replacing.
-function syncSelectedToUrl(number) {
+function syncSelectedToUrl(number: string) {
 	if (!number) return
 	const nextLessonMode = mode.value
 	if (
@@ -106,7 +116,7 @@ function syncSelectedToUrl(number) {
 	})
 }
 
-function syncModeToUrl(newMode) {
+function syncModeToUrl(newMode: string) {
 	if (!selected.value || !newMode) return
 	if (route.query.lessonMode === newMode) return
 	router.replace({
@@ -117,13 +127,13 @@ function syncModeToUrl(newMode) {
 
 const STORAGE_KEY = 'lms-course-editor-last-lesson'
 
-function lessonExists(chapters, number) {
+function lessonExists(chapters: OutlineChapter[], number: string | null) {
 	return !!(
 		number && chapters?.some((c) => c.lessons?.some((l) => l.number === number))
 	)
 }
 
-function getStoredLesson(courseName) {
+function getStoredLesson(courseName: string): string | null {
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY)
 		if (!raw) return null
@@ -134,7 +144,7 @@ function getStoredLesson(courseName) {
 	}
 }
 
-function storeLesson(courseName, number) {
+function storeLesson(courseName: string, number: string) {
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY)
 		const map = raw ? JSON.parse(raw) : {}
@@ -145,7 +155,7 @@ function storeLesson(courseName, number) {
 	}
 }
 
-function setSelectedFromNumber(number) {
+function setSelectedFromNumber(number: string) {
 	const [chapterNumber, lessonNumber] = number.split('-')
 	if (!chapterNumber || !lessonNumber) return
 	selected.value = {
@@ -157,7 +167,13 @@ function setSelectedFromNumber(number) {
 	syncSelectedToUrl(number)
 }
 
-function onSelectLesson({ chapterNumber, lessonNumber }) {
+function onSelectLesson({
+	chapterNumber,
+	lessonNumber,
+}: {
+	chapterNumber: string
+	lessonNumber: string
+}) {
 	const number = `${chapterNumber}-${lessonNumber}`
 	selected.value = { chapterNumber, lessonNumber, number, title: '' }
 	if (props.course?.data?.name) {
@@ -188,18 +204,18 @@ const outline = createResource({
 let initialPickDone = false
 function pickInitialLesson() {
 	if (initialPickDone) return
-	const chapters = outline.data
+	const chapters = outline.data as OutlineChapter[] | undefined
 	if (!chapters?.length) return
 	initialPickDone = true
 	const routeLesson = route.query.editLesson
-	if (routeLesson) {
+	if (typeof routeLesson === 'string' && routeLesson) {
 		setSelectedFromNumber(routeLesson)
 		return
 	}
 	if (selected.value) return
 	const courseName = props.course?.data?.name
 	const stored = courseName ? getStoredLesson(courseName) : null
-	if (lessonExists(chapters, stored)) {
+	if (stored && lessonExists(chapters, stored)) {
 		setSelectedFromNumber(stored)
 		return
 	}
@@ -226,7 +242,7 @@ watch(
 watch(
 	() => route.query.editLesson,
 	(number) => {
-		if (!number) return
+		if (typeof number !== 'string' || !number) return
 		setSelectedFromNumber(number)
 	}
 )
@@ -247,23 +263,36 @@ watch(mode, (next) => {
 // save_progress success or a realtime `update_lesson_progress` event.
 // Prefer it over the stale `course.data.membership.progress` snapshot,
 // which is fetched once and never refreshed in this view.
-const liveProgress = ref(null)
+const liveProgress = ref<number | null>(null)
 const progressPercent = computed(() => {
 	const p = liveProgress.value ?? props.course?.data?.membership?.progress
 	return p ? Math.ceil(p) : 0
 })
 
-const lessonFormRef = ref(null)
-const lessonViewRef = ref(null)
+interface LessonFormExpose {
+	saveLesson?: () => void
+	isDirty?: boolean
+}
+interface LessonViewExpose {
+	canGoZen?: () => boolean
+	switchLesson?: (direction: 'prev' | 'next') => void
+	goFullScreen?: () => void
+}
+interface CourseOutlineExpose {
+	openChapterModal?: (chapter: unknown) => void
+}
+
+const lessonFormRef = ref<LessonFormExpose | null>(null)
+const lessonViewRef = ref<LessonViewExpose | null>(null)
 
 // Lesson name that the embedded preview just marked complete — passed to
 // StudentLessonSidebar so its green tick flips immediately instead of
 // only after a refetch of the outline.
-const completedLesson = ref(null)
-function onLessonCompleted(name) {
+const completedLesson = ref<string | undefined>()
+function onLessonCompleted(name: string) {
 	completedLesson.value = name
 }
-function onProgressUpdated(value) {
+function onProgressUpdated(value: unknown) {
 	if (typeof value === 'number') liveProgress.value = value
 }
 
@@ -279,7 +308,9 @@ const isDirty = computed(() => Boolean(lessonFormRef.value?.isDirty))
 // the embedded Lesson child — otherwise the buttons flicker out on every
 // navigation while the child remounts and refetches.
 const flatLessonNumbers = computed(() =>
-	(outline.data ?? []).flatMap((c) => c.lessons?.map((l) => l.number) ?? [])
+	((outline.data ?? []) as OutlineChapter[]).flatMap(
+		(c) => c.lessons?.map((l) => l.number) ?? []
+	)
 )
 const selectedIndex = computed(() =>
 	selected.value?.number
@@ -303,7 +334,7 @@ function previewZen() {
 	lessonViewRef.value?.goFullScreen?.()
 }
 
-const courseOutlineRef = ref(null)
+const courseOutlineRef = ref<CourseOutlineExpose | null>(null)
 function openAddChapter() {
 	courseOutlineRef.value?.openChapterModal?.(null)
 }

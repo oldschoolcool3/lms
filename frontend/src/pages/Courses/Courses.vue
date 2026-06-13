@@ -100,7 +100,7 @@
 		v-model="showCourseImportModal"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Breadcrumbs,
 	Button,
@@ -123,21 +123,27 @@ import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import { useRouter } from 'vue-router'
 import NewCourseModal from '@/pages/Courses/NewCourseModal.vue'
 import CourseImportModal from '@/pages/Courses/CourseImportModal.vue'
+import type { SessionUser } from '@/types/api'
 
-const user = inject('$user')
-const dayjs = inject('$dayjs')
+interface CourseListItem {
+	name: string
+	category?: string | null
+}
+
+const user = inject<SessionUser>('$user')!
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
 const start = ref(0)
 const pageLength = ref(30)
-const categories = ref([
+const categories = ref<{ label: string; value: string | null }[]>([
 	{
 		label: '',
 		value: null,
 	},
 ])
-const currentCategory = ref(null)
+const currentCategory = ref<string | null>(null)
 const title = ref('')
-const certification = ref(false)
-const filters = ref({})
+const certification = ref<string | boolean>(false)
+const filters = ref<Record<string, unknown>>({})
 const currentTab = ref('live')
 const { brand } = sessionStore()
 const courseCount = ref(0)
@@ -169,7 +175,7 @@ const courses = createListResource({
 	start: start.value,
 })
 
-const setCategories = (data) => {
+const setCategories = (data: CourseListItem[]) => {
 	let allCategories = data.map((course) => course.category)
 	allCategories = allCategories.filter(
 		(category, index) => allCategories.indexOf(category) === index && category
@@ -184,7 +190,7 @@ const getCourseCount = () => {
 	if (!user.data.is_moderator) return
 	call('frappe.client.get_count', {
 		doctype: 'LMS Course',
-	}).then((data) => {
+	}).then((data: number) => {
 		courseCount.value = data
 	})
 }
@@ -194,7 +200,7 @@ const updateCourses = () => {
 	courses.update({
 		filters: filters.value,
 	})
-	courses.reload().then((data) => {
+	courses.reload().then((data: CourseListItem[]) => {
 		setCategories(data)
 	})
 }
@@ -279,9 +285,10 @@ const setQueryParams = () => {
 		certification: certification.value,
 	}
 
-	Object.keys(filterKeys).forEach((key) => {
-		if (filterKeys[key]) {
-			queries.set(key, filterKeys[key])
+	;(Object.keys(filterKeys) as (keyof typeof filterKeys)[]).forEach((key) => {
+		const value = filterKeys[key]
+		if (value) {
+			queries.set(key, String(value))
 		} else {
 			queries.delete(key)
 		}
@@ -295,7 +302,7 @@ const setQueryParams = () => {
 	history.replaceState({}, '', `${location.pathname}${queryString}`)
 }
 
-const updateCategories = (data) => {
+const updateCategories = (data: CourseListItem[]) => {
 	data.forEach((course) => {
 		if (
 			course.category &&

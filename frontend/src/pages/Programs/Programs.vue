@@ -59,7 +59,7 @@
 		v-model:programs="programs"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Breadcrumbs, Button, usePageMeta, createListResource } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
 import { BookOpen, Plus, User } from 'lucide-vue-next'
@@ -68,11 +68,12 @@ import ProgramForm from '@/pages/Programs/ProgramForm.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import StudentPrograms from '@/pages/Programs/StudentPrograms.vue'
+import type { SessionUser } from '@/types/api'
 
 const { brand } = sessionStore()
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const showForm = ref(false)
-const currentProgram = ref(null)
+const currentProgram = ref<string | null>(null)
 const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
@@ -105,7 +106,7 @@ const canCreateProgram = () => {
 	return false
 }
 
-const openForm = (programName) => {
+const openForm = (programName: string) => {
 	if (!canCreateProgram()) return
 	currentProgram.value = programName
 	showForm.value = true

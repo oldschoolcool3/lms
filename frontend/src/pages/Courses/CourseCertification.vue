@@ -34,19 +34,21 @@
 		</div>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { computed, inject, onMounted, ref } from 'vue'
 import { Breadcrumbs, call, createResource, usePageMeta } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../../stores/session'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
+import type { SessionUser } from '@/types/api'
+import type { BatchCourse } from '@/types/lms/BatchCourse'
 
-const courseTitle = ref(null)
-const evaluator = ref(null)
+const courseTitle = ref<string | null>(null)
+const evaluator = ref<string | null>(null)
 const { brand } = sessionStore()
-const courses = ref([])
-const user = inject('$user')
-const dayjs = inject('$dayjs')
+const courses = ref<BatchCourse[]>([])
+const user = inject<SessionUser>('$user')!
+const dayjs = inject<typeof import('@/utils/dayjs').default>('$dayjs')!
 const router = useRouter()
 
 const props = defineProps({
@@ -79,7 +81,7 @@ const fetchEnrollmentDetails = () => {
 		doctype: 'LMS Enrollment',
 		filters: { member: user.data?.name, course: props.courseName },
 		fieldname: ['purchased_certificate'],
-	}).then((data) => {
+	}).then((data: { purchased_certificate?: 0 | 1 | boolean }) => {
 		if (data.purchased_certificate) {
 			certificate.reload()
 		} else {
@@ -96,24 +98,26 @@ const fetchCourseDetails = () => {
 		doctype: 'LMS Course',
 		filters: { name: props.courseName },
 		fieldname: ['title', 'evaluator'],
-	}).then((data) => {
-		courseTitle.value = data.title
-		evaluator.value = data.evaluator
+	}).then((data: { title?: string; evaluator?: string }) => {
+		courseTitle.value = data.title ?? null
+		evaluator.value = data.evaluator ?? null
 		populateCourses()
 	})
 }
 
 const populateCourses = () => {
+	// UpcomingEvaluations reads only `course`/`title`/`evaluator`; build that
+	// partial and present it as BatchCourse[] (the prop's declared shape).
 	courses.value = [
 		{
 			course: props.courseName,
-			title: courseTitle.value,
-			evaluator: evaluator.value,
-		},
+			title: courseTitle.value ?? undefined,
+			evaluator: evaluator.value ?? undefined,
+		} as BatchCourse,
 	]
 }
 
-const openCertificate = (certificate) => {
+const openCertificate = (certificate: { name: string; template: string }) => {
 	window.open(
 		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 			certificate.name
