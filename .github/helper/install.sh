@@ -4,7 +4,7 @@ cd ~ || exit
 
 echo "Setting Up Bench..."
 
-pip install frappe-bench
+uv pip install --system frappe-bench
 bench -v init frappe-bench --skip-assets --python "$(which python)"
 cd ./frappe-bench || exit
 

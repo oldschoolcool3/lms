@@ -43,6 +43,9 @@ jobs:
         with:
           python-version: '3.14'
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v7
+
       - name: Check for valid Python & Merge Conflicts
         run: |
           python -m compileall -q -f "${GITHUB_WORKSPACE}"
@@ -59,15 +62,6 @@ jobs:
       - name: Add to Hosts
         run: |
           echo "127.0.0.1 lms.test" | sudo tee -a /etc/hosts
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-            ${{ runner.os }}-
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path

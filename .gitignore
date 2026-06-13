@@ -14,6 +14,7 @@ yarn-error.log
 .nx/
 .claude/worktrees/
 .ruff_cache/
+.venv/
 /tmp/
 lms/public/frontend
 lms/www/lms.html
