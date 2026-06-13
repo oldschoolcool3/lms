@@ -19,7 +19,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { Star } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 
@@ -42,7 +42,7 @@ const props = defineProps({
 	},
 })
 
-const iconClasses = (index) => {
+const iconClasses = (index: number) => {
 	let classes = [
 		{
 			sm: 'size-4',
@@ -63,11 +63,11 @@ const emit = defineEmits(['update:modelValue'])
 const rating = ref(props.modelValue)
 const hoveredRating = ref(0)
 
-let emitChange = (value) => {
+let emitChange = (value: number) => {
 	emit('update:modelValue', value)
 }
 
-function markRating(index) {
+function markRating(index: number) {
 	emitChange(index)
 	rating.value = index
 }

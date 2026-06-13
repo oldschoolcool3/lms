@@ -34,15 +34,22 @@
 		</template>
 	</Popover>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Popover, createResource } from 'frappe-ui'
 import { LayoutGrid, ChevronRight } from 'lucide-vue-next'
+
+interface AppInfo {
+	name: string
+	logo: string
+	title: string
+	route: string
+}
 
 const apps = createResource({
 	url: 'frappe.apps.get_apps',
 	cache: 'apps',
 	auto: true,
-	transform: (data) => {
+	transform: (data: AppInfo[]) => {
 		let _apps = [
 			{
 				name: 'frappe',

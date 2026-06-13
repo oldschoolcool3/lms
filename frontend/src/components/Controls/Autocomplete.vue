@@ -26,7 +26,7 @@
 										togglePopover()
 									}
 								"
-								:disabled="attrs.readonly"
+								:disabled="!!attrs.readonly"
 							>
 								<div class="flex items-center w-[90%]">
 									<slot name="prefix" />
@@ -55,11 +55,7 @@
 									ref="search"
 									class="form-input w-full"
 									type="text"
-									@change="
-										(e) => {
-											query = e.target.value
-										}
-									"
+									@change="onSearchChange"
 									:value="query"
 									autocomplete="off"
 									placeholder="Search"
@@ -150,7 +146,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
 	Combobox,
 	ComboboxInput,
@@ -160,6 +156,22 @@ import {
 import { Popover } from 'frappe-ui'
 import { ChevronDown, X } from 'lucide-vue-next'
 import { ref, computed, useAttrs, useSlots, watch, nextTick } from 'vue'
+
+interface AutocompleteOption {
+	label?: string
+	value?: string
+	description?: string
+	group?: string
+	hideLabel?: boolean
+	items?: AutocompleteOption[]
+}
+
+interface AutocompleteGroup {
+	key: number
+	group?: string
+	hideLabel: boolean
+	items: AutocompleteOption[]
+}
 
 const props = defineProps({
 	modelValue: {
@@ -199,18 +211,20 @@ const emit = defineEmits(['update:modelValue', 'update:query', 'change'])
 
 const query = ref('')
 const showOptions = ref(false)
-const search = ref(null)
+const search = ref<{ el: HTMLInputElement & { _value?: string } } | null>(null)
 
 const attrs = useAttrs()
 const slots = useSlots()
 
 const valuePropPassed = computed(() => 'value' in attrs)
 
-const selectedValue = computed({
+const selectedValue = computed<AutocompleteOption | string | null>({
 	get() {
-		return valuePropPassed.value ? attrs.value : props.modelValue
+		return valuePropPassed.value
+			? (attrs.value as AutocompleteOption | string | null)
+			: props.modelValue
 	},
-	set(val) {
+	set(val: AutocompleteOption | string | null) {
 		query.value = ''
 		if (val) {
 			showOptions.value = false
@@ -219,16 +233,19 @@ const selectedValue = computed({
 	},
 })
 
+const onSearchChange = (e: Event) => {
+	query.value = (e.target as HTMLInputElement).value
+}
+
 function close() {
 	showOptions.value = false
 }
 
-const groups = computed(() => {
-	if (!props.options || props.options.length == 0) return []
+const groups = computed((): AutocompleteGroup[] => {
+	const options = props.options as AutocompleteOption[]
+	if (!options || options.length == 0) return []
 
-	let groups = props.options[0]?.group
-		? props.options
-		: [{ group: '', items: props.options }]
+	let groups = options[0]?.group ? options : [{ group: '', items: options }]
 
 	return groups
 		.map((group, i) => {
@@ -236,13 +253,15 @@ const groups = computed(() => {
 				key: i,
 				group: group.group,
 				hideLabel: group.hideLabel || false,
-				items: props.filterable ? filterOptions(group.items) : group.items,
+				items: props.filterable
+					? filterOptions(group.items ?? [])
+					: (group.items ?? []),
 			}
 		})
 		.filter((group) => group.items.length > 0)
 })
 
-function filterOptions(options) {
+function filterOptions(options: AutocompleteOption[]) {
 	if (!query.value) {
 		return options
 	}
@@ -254,9 +273,9 @@ function filterOptions(options) {
 	})
 }
 
-function optionLines(option) {
+function optionLines(option: AutocompleteOption) {
 	const primary = option.label
-	let secondary = null
+	let secondary: string | null = null
 	if (option.description && option.description !== primary) {
 		secondary = option.description
 	} else if (option.value && option.value !== primary) {
@@ -265,7 +284,7 @@ function optionLines(option) {
 	return { primary, secondary }
 }
 
-function displayValue(option) {
+function displayValue(option: AutocompleteOption | string) {
 	if (typeof option === 'string') {
 		let allOptions = groups.value.flatMap((group) => group.items)
 		let selectedOption = allOptions.find((o) => o.value === option)
@@ -281,7 +300,7 @@ watch(query, (q) => {
 watch(showOptions, (val) => {
 	if (val) {
 		nextTick(() => {
-			search.value.el.focus()
+			search.value?.el.focus()
 		})
 	}
 })
