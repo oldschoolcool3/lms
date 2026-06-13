@@ -169,7 +169,7 @@
 									<div class="ms-auto">
 										{{
 											Math.round(
-												(row.value / (course.data?.enrollments ?? 0)) * 100
+												(row.value / (course.data?.enrollments || 1)) * 100
 											)
 										}}%
 									</div>
@@ -246,7 +246,7 @@
 									{{
 										Math.ceil(
 											(progress.completion_count /
-												(course.data?.enrollments ?? 0)) *
+												(course.data?.enrollments || 1)) *
 												100
 										)
 									}}%
