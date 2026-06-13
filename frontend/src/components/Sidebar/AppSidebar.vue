@@ -320,7 +320,7 @@ const showPageModal = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)
 const pageToEdit = ref<LMSSidebarItem>()
-const { sidebarSettings, activeTab, isSettingsOpen, programs } = useSettings()
+const { sidebarSettings, programs } = useSettings()
 const settingsStore = useSettings()
 const showOnboarding = ref(false)
 const showIntermediateModal = ref(false)
@@ -524,11 +524,8 @@ const steps = reactive([
 		completed: false,
 		onClick: () => {
 			minimize.value = true
-			// `activeTab`/`isSettingsOpen` are unwrapped values here (Pinia
-			// unwraps refs on destructure); these `.value` writes preserve the
-			// original runtime behaviour. Cast is type-only.
-			;(activeTab as unknown as { value: string | null }).value = 'Members'
-			;(isSettingsOpen as unknown as { value: boolean }).value = true
+			settingsStore.activeTab = 'Members'
+			settingsStore.isSettingsOpen = true
 		},
 	},
 	{
