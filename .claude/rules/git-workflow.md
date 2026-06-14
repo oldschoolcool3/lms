@@ -17,5 +17,8 @@
   by pre-commit `no-commit-to-branch`)
 - Use `git mv` (never plain `mv`) when moving tracked files — preserves history
 - Run `task lint` and let pre-commit pass before pushing
-- Keep upstream mergeable: no mass reformatting or drive-by refactors of
-  `frappe/lms` code (see working-posture.md, "Surgical changes")
+- **Hard fork — we don't track upstream.** Reformatting, refactoring, retyping,
+  and removing legacy `frappe/lms` code are all fair game (optimize for our
+  quality). Keep diffs surgical and commits atomic for *review/bisect* clarity,
+  not merge-avoidance (see working-posture.md, "Scoped changes"). Still
+  cherry-pick critical upstream *security* fixes (see security.md)

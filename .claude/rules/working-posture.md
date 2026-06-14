@@ -28,16 +28,18 @@ trivial changes, use judgment.
   frappe-ui components). Check before writing a new one.
 - Ask: "would a senior engineer call this overcomplicated?" If yes, cut it.
 
-## Surgical changes (fork hygiene)
+## Scoped changes (for review clarity, not merge-avoidance)
 
-- This repo is a fork of `frappe/lms` that intends to keep merging upstream.
-  Touch only what the task requires; don't refactor, reformat, or "improve"
-  upstream code in passing — every gratuitous diff is a future merge conflict.
-- Match the local style even if you'd write it differently (spaces in Python,
-  prettier in the frontend).
-- Remove only the imports/variables/functions *your* change orphaned. Flag
-  pre-existing dead code; don't delete it as part of unrelated work.
-- Every changed line should trace to the request.
+- We're an independent hard fork of `frappe/lms` — no longer kept mergeable. So
+  reformatting, refactoring, retyping, and removing legacy code are all
+  sanctioned; just do them as their *own* focused commits/PRs, not smuggled into
+  unrelated work.
+- Within a given change, stay scoped: every changed line should trace to that
+  change's stated goal, so diffs stay reviewable and bisectable.
+- Match the local style (spaces in Python, prettier in the frontend) — unless the
+  change *is* a deliberate, repo-wide restyle.
+- Don't delete code you merely suspect is dead as a drive-by; confirm it, then
+  remove it as a deliberate cleanup change (now allowed) with that as its goal.
 
 ## Goal-driven, verified
 
