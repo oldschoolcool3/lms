@@ -46,7 +46,10 @@ realtime, email) comes from the framework.
 
 ## Fork posture
 
-This is a fork of `frappe/lms`. Differentiating work (AI layer, analytics,
-interop) should attach via new DocTypes, new whitelisted methods, and new
-frontend pages/components — not by rewriting upstream modules — so upstream
-merges stay cheap. See `docs/000-overview/explanation/002-fork-strategy-and-roadmap.md`.
+This is an independent **hard fork** of `frappe/lms` — we no longer track or
+merge upstream, so there's no merge-cost reason to avoid touching upstream code.
+Differentiating work (AI layer, analytics, interop) still tends to attach cleanly
+via new DocTypes, new whitelisted methods, and new frontend pages/components, but
+rewriting or retyping upstream modules is now fair game when it improves our
+codebase. We still cherry-pick critical upstream *security* fixes. See
+`docs/000-overview/explanation/002-fork-strategy-and-roadmap.md`.
