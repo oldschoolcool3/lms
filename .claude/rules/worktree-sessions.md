@@ -42,3 +42,21 @@ Check `git rev-parse --show-toplevel`:
 - Don't rebase/reset a branch another worktree has checked out
 - Treat `develop` as shared state — pull before branching, never commit
   directly
+
+## Testing your changes (shared bench, per-worktree dev server)
+
+Worktrees do **not** each need a bench. Run **one shared Docker bench** as the
+backend and a **per-worktree Vite dev server** for the frontend — each serves its
+own code with HMR (no rebuild) and proxies to the shared bench. Full how-to:
+[Develop in a worktree](../../docs/002-development/how-to-guides/005-develop-in-a-worktree.md).
+
+- **Frontend (the common case):** `cd frontend && yarn install` (once) then
+  `yarn dev`. Open the printed port on the **`lms.localhost`** host (not
+  `localhost`) — e.g. `http://lms.localhost:8080/lms` — so the proxy resolves the
+  site by Host header. A second worktree's `yarn dev` auto-takes 8081, still
+  proxying to the one bench: parallel sessions test independently, no collisions.
+- **Backend:** run unit tests against the shared bench
+  (`bench --site lms.localhost run-tests --app lms`); one bench shares `apps/lms`,
+  so two *simultaneous* different backend versions need a second bench.
+- Don't `bench build` to test frontend edits — HMR already serves them; the build
+  only matters when baking assets into a bench.

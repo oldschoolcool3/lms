@@ -1,11 +1,31 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
+import fs from 'fs'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig(async ({ mode }) => {
 	const isDev = mode === 'development'
 	const frappeui = await importFrappeUIPlugin(isDev)
+
+	// socket.js statically imports the bench's sites/common_site_config.json by
+	// relative path. That resolves inside a bench (apps/lms/frontend) but NOT in a
+	// standalone checkout / git worktree, so the dev server can't load. When the
+	// bench config is absent, alias the import to a stub so a worktree's dev server
+	// runs against a shared bench (see how-to: develop in a worktree). A real bench
+	// has the file, so the alias is not applied and the real config is used.
+	const benchSiteConfig = path.resolve(
+		__dirname,
+		'../../../sites/common_site_config.json'
+	)
+	const socketConfigAlias = fs.existsSync(benchSiteConfig)
+		? {}
+		: {
+				'../../../../sites/common_site_config.json': path.resolve(
+					__dirname,
+					'dev/common_site_config.stub.json'
+				),
+			}
 
 	const config = {
 		define: {
@@ -65,6 +85,7 @@ export default defineConfig(async ({ mode }) => {
 		resolve: {
 			alias: {
 				'@': path.resolve(__dirname, 'src'),
+				...socketConfigAlias,
 			},
 		},
 		optimizeDeps: {

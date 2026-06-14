@@ -4,6 +4,11 @@ version: '3'
 
 tasks:
   dev:frontend:
+    # Serves THIS checkout's frontend with HMR, proxying to a running bench
+    # (the shared Docker bench on :8000 by default). Open the printed port on the
+    # lms.localhost host, e.g. http://lms.localhost:8080/lms. Parallel worktrees
+    # auto-take 8081, 8082, … all proxying to the one bench. See
+    # docs/002-development/how-to-guides/005-develop-in-a-worktree.md.
     desc: Start the Vite dev server (proxies to a running bench site)
     dir: frontend
     cmds:
