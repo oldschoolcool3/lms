@@ -3,7 +3,10 @@ default_stages: [pre-commit]
 fail_fast: false
 # Anchored: an unanchored 'node_modules|.git' would silently exclude all of
 # .github/, .gitignore, etc. from every hook (the `.` matches any character).
-exclude: '^(node_modules/|\.git/)|/node_modules/'
+# `typings/` is vendored `pyright --createstub frappe` output (trailing
+# whitespace / no final newline) — not ours to lint or rewrite (already excluded
+# from ruff via pyproject `extend-exclude`).
+exclude: '^(node_modules/|\.git/|typings/)|/node_modules/'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
