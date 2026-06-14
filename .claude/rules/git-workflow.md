@@ -20,5 +20,5 @@
 - **Hard fork — we don't track upstream.** Reformatting, refactoring, retyping,
   and removing legacy `frappe/lms` code are all fair game (optimize for our
   quality). Keep diffs surgical and commits atomic for *review/bisect* clarity,
-  not merge-avoidance (see working-posture.md, "Surgical changes"). Still
+  not merge-avoidance (see working-posture.md, "Scoped changes"). Still
   cherry-pick critical upstream *security* fixes (see security.md)
