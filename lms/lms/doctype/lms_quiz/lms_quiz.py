@@ -25,6 +25,32 @@ from lms.lms.utils import (
 
 
 class LMSQuiz(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        from lms.lms.doctype.lms_quiz_question.lms_quiz_question import LMSQuizQuestion
+
+        course: DF.Link | None
+        duration: DF.Data | None
+        enable_negative_marking: DF.Check
+        lesson: DF.Link | None
+        limit_questions_to: DF.Int
+        marks_to_cut: DF.Int
+        max_attempts: DF.Int
+        passing_percentage: DF.Int
+        questions: DF.Table[LMSQuizQuestion]
+        show_answers: DF.Check
+        show_submission_history: DF.Check
+        shuffle_questions: DF.Check
+        title: DF.Data
+        total_marks: DF.Int
+    # end: auto-generated types
+
     def validate(self):
         self.validate_duplicate_questions()
         self.validate_limit()

@@ -23,6 +23,29 @@ from ...md import find_macros
 
 
 class CourseLesson(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        body: DF.MarkdownEditor | None
+        chapter: DF.Link
+        content: DF.Text | None
+        course: DF.Link | None
+        file_type: DF.Literal["", "Image", "Document", "PDF"]
+        include_in_preview: DF.Check
+        instructor_content: DF.Text | None
+        instructor_notes: DF.MarkdownEditor | None
+        is_scorm_package: DF.Check
+        question: DF.SmallText | None
+        quiz_id: DF.Data | None
+        title: DF.Data
+        youtube: DF.Data | None
+    # end: auto-generated types
+
     def after_insert(self):
         self.validate_progress_recalculation()
 

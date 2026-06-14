@@ -7,6 +7,21 @@ from frappe.model.document import Document
 
 
 class LMSJobApplication(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        company: DF.Data | None
+        job: DF.Link
+        job_title: DF.Data | None
+        resume: DF.Attach
+        user: DF.Link
+    # end: auto-generated types
+
     def validate(self):
         self.validate_duplicate()
 

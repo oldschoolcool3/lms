@@ -9,6 +9,26 @@ from lms.lms.utils import guest_access_allowed
 
 
 class LMSProgram(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        from lms.lms.doctype.lms_program_course.lms_program_course import LMSProgramCourse
+        from lms.lms.doctype.lms_program_member.lms_program_member import LMSProgramMember
+
+        course_count: DF.Int
+        enforce_course_order: DF.Check
+        member_count: DF.Int
+        program_courses: DF.Table[LMSProgramCourse]
+        program_members: DF.Table[LMSProgramMember]
+        published: DF.Check
+        title: DF.Data
+    # end: auto-generated types
+
     def validate(self):
         self.validate_program_courses()
         self.validate_program_members()

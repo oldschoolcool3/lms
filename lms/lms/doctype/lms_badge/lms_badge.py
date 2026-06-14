@@ -9,6 +9,26 @@ from frappe.model.document import Document
 
 
 class LMSBadge(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        condition: DF.Code
+        description: DF.SmallText
+        enabled: DF.Check
+        event: DF.Literal["New", "Value Change", "Manual Assignment"]
+        field_to_check: DF.Literal[None]
+        grant_only_once: DF.Check
+        image: DF.AttachImage
+        reference_doctype: DF.Link
+        title: DF.Data
+        user_field: DF.Literal[None]
+    # end: auto-generated types
+
     def on_update(self):
         if self.event == "Manual Assignment" and self.condition:
             try:

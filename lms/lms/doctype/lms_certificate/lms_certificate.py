@@ -11,6 +11,28 @@ from frappe.utils.telemetry import capture
 
 
 class LMSCertificate(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        batch_name: DF.Link | None
+        batch_title: DF.Data | None
+        course: DF.Link | None
+        course_title: DF.Data | None
+        evaluator: DF.Link | None
+        evaluator_name: DF.Data | None
+        expiry_date: DF.Date | None
+        issue_date: DF.Date
+        member: DF.Link
+        member_name: DF.Data | None
+        published: DF.Check
+        template: DF.Link
+    # end: auto-generated types
+
     def validate(self):
         self.validate_criteria()
         self.validate_duplicate_certificate()

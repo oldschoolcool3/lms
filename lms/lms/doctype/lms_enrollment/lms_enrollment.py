@@ -8,6 +8,29 @@ from frappe.utils import ceil
 
 
 class LMSEnrollment(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        certificate: DF.Link | None
+        course: DF.Link
+        current_lesson: DF.Link | None
+        enrollment_from_batch: DF.Link | None
+        member: DF.Link
+        member_image: DF.AttachImage | None
+        member_name: DF.Data | None
+        member_type: DF.Literal["", "Student", "Mentor", "Staff"]
+        member_username: DF.Data | None
+        payment: DF.Link | None
+        progress: DF.Float
+        purchased_certificate: DF.Check
+        role: DF.Literal["", "Member", "Admin"]
+    # end: auto-generated types
+
     def before_insert(self):
         self.validate_duplicate_enrollment()
         self.validate_course_enrollment_eligibility()

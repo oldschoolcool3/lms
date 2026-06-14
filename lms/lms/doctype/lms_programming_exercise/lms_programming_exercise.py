@@ -7,6 +7,22 @@ from frappe.model.document import Document
 
 
 class LMSProgrammingExercise(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        from lms.lms.doctype.lms_test_case.lms_test_case import LMSTestCase
+
+        language: DF.Literal["Python", "JavaScript", "Rust", "Go"]
+        problem_statement: DF.TextEditor
+        test_cases: DF.Table[LMSTestCase]
+        title: DF.Data
+    # end: auto-generated types
+
     def validate(self):
         self.validate_test_cases()
 

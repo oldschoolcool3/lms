@@ -13,6 +13,29 @@ PRIVILEGED_ROLES = {"Moderator", "Course Creator", "Batch Evaluator", "System Ma
 
 
 class LMSAssignmentSubmission(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        answer: DF.TextEditor | None
+        assignment: DF.Link
+        assignment_attachment: DF.Attach | None
+        assignment_title: DF.Data | None
+        comments: DF.TextEditor | None
+        course: DF.Link | None
+        evaluator: DF.Link | None
+        lesson: DF.Link | None
+        member: DF.Link
+        member_name: DF.Data | None
+        question: DF.TextEditor | None
+        status: DF.Literal["Pass", "Fail", "Not Graded", "Not Applicable"]
+        type: DF.Literal["Document", "PDF", "URL", "Image", "Text"]
+    # end: auto-generated types
+
     def validate(self):
         self.enforce_member_ownership()
         self.validate_duplicates()

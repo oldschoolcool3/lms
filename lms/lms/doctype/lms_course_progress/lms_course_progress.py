@@ -9,6 +9,24 @@ from lms.lms.utils import recalculate_course_progress
 
 
 class LMSCourseProgress(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        chapter: DF.Link | None
+        course: DF.Link | None
+        is_scorm_chapter: DF.Check
+        lesson: DF.Link | None
+        member: DF.Link | None
+        member_name: DF.Data | None
+        scorm_content: DF.LongText | None
+        status: DF.Literal["Complete", "Partially Complete", "Incomplete"]
+    # end: auto-generated types
+
     def before_insert(self):
         if (
             self.member

@@ -11,6 +11,27 @@ from lms.lms.utils import generate_slug, validate_image
 
 
 class JobOpportunity(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        company_email_address: DF.Data
+        company_logo: DF.AttachImage
+        company_name: DF.Data
+        company_website: DF.Data
+        country: DF.Link
+        description: DF.TextEditor
+        job_title: DF.Data
+        location: DF.Data
+        status: DF.Literal["Open", "Closed"]
+        type: DF.Literal["Full Time", "Part Time", "Freelance", "Contract"]
+        work_mode: DF.Literal["", "Remote", "Hybrid", "On-site"]
+    # end: auto-generated types
+
     def validate(self):
         self.validate_urls()
         self.company_logo = validate_image(self.company_logo)

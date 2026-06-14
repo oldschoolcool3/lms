@@ -21,6 +21,51 @@ from ...utils import (
 
 
 class LMSCourse(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        from lms.lms.doctype.chapter_reference.chapter_reference import ChapterReference
+        from lms.lms.doctype.course_instructor.course_instructor import CourseInstructor
+        from lms.lms.doctype.related_courses.related_courses import RelatedCourses
+
+        amount_usd: DF.Currency
+        card_gradient: DF.Literal[
+            "Red", "Blue", "Green", "Amber", "Cyan", "Orange", "Pink", "Purple", "Teal", "Violet", "Yellow", "Gray"
+        ]
+        category: DF.Link | None
+        chapters: DF.Table[ChapterReference]
+        course_price: DF.Currency
+        currency: DF.Link | None
+        description: DF.TextEditor
+        disable_self_learning: DF.Check
+        enable_certification: DF.Check
+        enrollments: DF.Int
+        evaluator: DF.Link | None
+        featured: DF.Check
+        image: DF.AttachImage | None
+        instructors: DF.TableMultiSelect[CourseInstructor]
+        lessons: DF.Int
+        notification_sent: DF.Check
+        paid_certificate: DF.Check
+        paid_course: DF.Check
+        published: DF.Check
+        published_on: DF.Date | None
+        rating: DF.Data | None
+        related_courses: DF.Table[RelatedCourses]
+        short_introduction: DF.SmallText
+        status: DF.Literal["In Progress", "Under Review", "Approved"]
+        tags: DF.Data | None
+        timezone: DF.Data | None
+        title: DF.Data
+        upcoming: DF.Check
+        video_link: DF.Data | None
+    # end: auto-generated types
+
     def validate(self):
         self.validate_published()
         self.validate_instructors()
