@@ -48,6 +48,13 @@ resolve the site and for the auth cookie to line up. (`*.localhost` resolves to
 loopback automatically in browsers and on most Linux resolvers.) Log in at
 `/login` as `Administrator` / `admin`.
 
+> **Authenticated views work because the dev bench disables CSRF.** The Vite dev
+> server serves a raw `index.html` with no Frappe boot data, so it carries no
+> CSRF token — without help, every logged-in API call would `400`
+> (`CSRFTokenError`). The Docker dev bench sets `ignore_csrf` (dev-only; see
+> `docker/init.sh`), so Settings, Coupons, the profile editor, etc. are testable
+> through a worktree dev server. (Guest views never needed CSRF.)
+
 Edit files → HMR updates instantly. **No `bench build` needed** — that full Vue
 build only runs when baking assets into the bench (`bench build --app lms`).
 
