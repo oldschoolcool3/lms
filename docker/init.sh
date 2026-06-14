@@ -57,6 +57,11 @@ bench --site lms.localhost install-app payments
 bench --site lms.localhost install-app lms
 bench --site lms.localhost set-config developer_mode 1
 bench --site lms.localhost set-config mute_emails 1
+# Dev-only: the vite dev server serves a raw index.html with no Frappe boot data,
+# so it has no CSRF token and every authenticated API call 400s (CSRFTokenError).
+# Disabling CSRF on this throwaway local site lets logged-in views (Settings,
+# Coupons, …) be tested through a worktree dev server. NEVER for a real site.
+bench --site lms.localhost set-config ignore_csrf 1
 bench --site lms.localhost clear-cache
 bench use lms.localhost
 
