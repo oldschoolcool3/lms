@@ -28,38 +28,32 @@
 					<div class="space-y-4">
 						<div class="space-y-4">
 							<Uploader
-								v-model="profile.image"
+								v-model="form.image"
 								:label="__('Profile Image')"
 								:required="true"
 								shape="circle"
 							/>
 
 							<FormControl
-								v-model="profile.first_name"
+								v-model="form.first_name"
 								:label="__('First Name')"
 								:required="true"
 							/>
 							<FormControl
-								v-model="profile.last_name"
+								v-model="form.last_name"
 								:label="__('Last Name')"
 								:required="true"
 							/>
-							<FormControl v-model="profile.headline" :label="__('Headline')" />
+							<FormControl v-model="form.headline" :label="__('Headline')" />
 
-							<FormControl
-								v-model="profile.linkedin"
-								:label="__('LinkedIn ID')"
-							/>
-							<FormControl v-model="profile.github" :label="__('GitHub ID')" />
-							<FormControl
-								v-model="profile.twitter"
-								:label="__('Twitter ID')"
-							/>
+							<FormControl v-model="form.linkedin" :label="__('LinkedIn ID')" />
+							<FormControl v-model="form.github" :label="__('GitHub ID')" />
+							<FormControl v-model="form.twitter" :label="__('Twitter ID')" />
 						</div>
 					</div>
 					<div class="space-y-4">
 						<FormControl
-							v-model="profile.open_to"
+							v-model="form.open_to"
 							type="select"
 							:options="[' ', 'Work', 'Hiring']"
 							:label="__('Open to')"
@@ -67,7 +61,7 @@
 						/>
 						<Link
 							:label="__('Language')"
-							v-model="profile.language"
+							v-model="form.language"
 							doctype="Language"
 						/>
 						<div>
@@ -77,7 +71,7 @@
 							<TextEditor
 								:fixedMenu="true"
 								@change="setBio"
-								:content="profile.bio"
+								:content="form.bio"
 								:rows="15"
 								editorClass="prose-sm py-2 px-2 min-h-[280px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-md bg-surface-gray-3"
 							/>
@@ -111,7 +105,7 @@ const hasLanguageChanged = ref(false)
 const isDirty = ref(false)
 
 const setBio = (val: string) => {
-	profile.bio = val
+	form.bio = val
 }
 
 const props = defineProps({
@@ -121,7 +115,7 @@ const props = defineProps({
 	},
 })
 
-const profile = reactive({
+const form = reactive({
 	first_name: '',
 	last_name: '',
 	headline: '',
@@ -141,21 +135,24 @@ const updateProfile = createResource({
 			doctype: 'User',
 			name: props.profile.data.name,
 			fieldname: {
-				user_image: profile.image || null,
-				...profile,
+				user_image: form.image || null,
+				...form,
 			},
 		}
 	},
 	onSuccess(data: UserInfo) {
-		props.profile.data = data
+		// `reloadProfile` is the same resource the parent also passes as
+		// `:profile`, so write the optimistic update through the model
+		// instead of mutating the prop.
+		if (reloadProfile.value) reloadProfile.value.data = data
 	},
 })
 
 const validateMandatoryFields = () => {
 	const missingFields = []
-	if (!profile.first_name) missingFields.push(__('First Name'))
-	if (!profile.last_name) missingFields.push(__('Last Name'))
-	if (!profile.image) missingFields.push(__('Profile Image'))
+	if (!form.first_name) missingFields.push(__('First Name'))
+	if (!form.last_name) missingFields.push(__('Last Name'))
+	if (!form.image) missingFields.push(__('Profile Image'))
 	if (missingFields.length) {
 		toast.error(
 			__('Please fill the mandatory fields: {0}').format(
@@ -170,7 +167,7 @@ const validateMandatoryFields = () => {
 const saveProfile = () => {
 	const missingMandatoryFields = validateMandatoryFields()
 	if (missingMandatoryFields) return
-	profile.bio = sanitizeHTML(profile.bio)
+	form.bio = sanitizeHTML(form.bio)
 	updateProfile.submit(
 		{},
 		{
@@ -190,10 +187,10 @@ const saveProfile = () => {
 }
 
 watch(
-	() => profile,
+	() => form,
 	(newVal) => {
 		if (!props.profile.data) return
-		const keys = Object.keys(newVal) as (keyof typeof profile)[]
+		const keys = Object.keys(newVal) as (keyof typeof form)[]
 		keys.splice(keys.indexOf('image'), 1)
 		for (const key of keys) {
 			if (newVal[key] !== props.profile.data[key]) {
@@ -201,7 +198,7 @@ watch(
 				return
 			}
 		}
-		if (profile.image !== props.profile.data.user_image) {
+		if (form.image !== props.profile.data.user_image) {
 			isDirty.value = true
 			return
 		}
@@ -214,25 +211,25 @@ watch(
 	() => props.profile.data,
 	(newVal) => {
 		if (newVal) {
-			profile.first_name = newVal.first_name
-			profile.last_name = newVal.last_name
-			profile.headline = newVal.headline
-			profile.language = newVal.language
-			profile.bio = newVal.bio
-			profile.open_to = newVal.open_to
-			profile.linkedin = newVal.linkedin
-			profile.github = newVal.github
-			profile.twitter = newVal.twitter
-			profile.image = newVal.user_image
+			form.first_name = newVal.first_name
+			form.last_name = newVal.last_name
+			form.headline = newVal.headline
+			form.language = newVal.language
+			form.bio = newVal.bio
+			form.open_to = newVal.open_to
+			form.linkedin = newVal.linkedin
+			form.github = newVal.github
+			form.twitter = newVal.twitter
+			form.image = newVal.user_image
 			isDirty.value = false
 		}
 	}
 )
 
 watch(
-	() => profile.language,
+	() => form.language,
 	() => {
-		if (profile.language !== props.profile.data.language) {
+		if (form.language !== props.profile.data.language) {
 			hasLanguageChanged.value = true
 		}
 	}

@@ -9,7 +9,7 @@
 	<CouponDetails
 		v-else-if="step == 'details'"
 		:coupons="coupons"
-		:data="data!"
+		v-model:data="data!"
 		@updateStep="updateStep"
 	/>
 </template>

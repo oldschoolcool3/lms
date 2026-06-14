@@ -37,7 +37,7 @@
 					<ListView
 						v-if="allQuizzes.length"
 						:columns="columns"
-						:rows="allQuizzes"
+						:rows="sortedQuizzes"
 						row-key="quiz"
 						:options="{
 							showTooltip: false,
@@ -62,7 +62,7 @@
 						</ListHeader>
 
 						<ListRows>
-							<ListRow :row="row" v-for="row in allQuizzes" :key="row.quiz">
+							<ListRow :row="row" v-for="row in sortedQuizzes" :key="row.quiz">
 								<template #default="{ column }">
 									<ListRowItem
 										:item="row[column.key as keyof Quiz]"
@@ -123,8 +123,8 @@ import { formatTimestamp } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 
 type Quiz = {
-	// VideoBlock coerces stored timestamps to seconds (number) in place, so the
-	// shared quizzes array can hold either the raw "mm:ss" string or a number.
+	// A stored timestamp can be a "mm:ss" string, a seconds string, or a number,
+	// so coerce with Number() before doing any time math.
 	time: string | number
 	quiz: string
 }
@@ -137,6 +137,12 @@ type QuizForm = {
 
 const show = defineModel()
 const allQuizzes = ref<Quiz[]>([])
+// Display the saved quizzes time-sorted. (This list used to come out sorted
+// only because VideoBlock sorted the shared array in place; now that it no
+// longer mutates the prop, sort our own view here.)
+const sortedQuizzes = computed(() =>
+	[...allQuizzes.value].sort((a, b) => Number(a.time) - Number(b.time))
+)
 const quiz = reactive<QuizForm>({
 	time: '',
 	quiz: '',

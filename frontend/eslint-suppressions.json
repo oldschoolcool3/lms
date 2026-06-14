@@ -1,25 +1,2 @@
 {
-  "src/components/Modals/EditProfile.vue": {
-    "vue/no-dupe-keys": {
-      "count": 1
-    },
-    "vue/no-mutating-props": {
-      "count": 1
-    }
-  },
-  "src/components/Settings/Coupons/CouponDetails.vue": {
-    "vue/no-mutating-props": {
-      "count": 10
-    }
-  },
-  "src/components/Settings/SettingFields.vue": {
-    "vue/no-mutating-props": {
-      "count": 8
-    }
-  },
-  "src/components/VideoBlock.vue": {
-    "vue/no-mutating-props": {
-      "count": 1
-    }
-  }
 }
