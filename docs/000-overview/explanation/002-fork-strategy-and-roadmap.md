@@ -1,6 +1,6 @@
 ---
 title: Fork strategy and roadmap
-description: Why this is a fork of frappe/lms rather than a rebuild, what we change, and where future differentiating features attach.
+description: Why this is an independent hard fork of frappe/lms rather than a rebuild or a tracked soft-fork, and where future differentiating features attach.
 type: explanation
 tags: [fork, roadmap, strategy, ai]
 ---
@@ -22,20 +22,26 @@ AI-assisted development, which is direct evidence the codebase is amenable to
 it. The one real cost of forking is commitment to the Frappe Framework's
 opinionated stack (DocType/ORM system, bench tooling) — accepted deliberately.
 
-## Fork hygiene
+## Fork posture: independent hard fork
 
-To keep upstream merges cheap:
+**As of June 2026 this is a hard fork** — we no longer track or merge
+`frappe/lms` wholesale, and we optimize for our own code quality over
+merge-compatibility. The earlier "soft fork" hygiene (no reformatting/refactoring
+of upstream code, attach-only-via-new-DocTypes) **no longer applies**:
 
-- Differentiating work attaches via **new DocTypes, new whitelisted methods,
-  and new frontend pages/components** — not rewrites of upstream modules.
-- No mass reformatting of upstream code in routine changes (every gratuitous
-  diff is a future merge conflict). The frontend keeps upstream-compatible
-  prettier options; the backend made one deliberate, isolated exception — a
-  repo-wide ruff reformat to the org-standard spaces/120 style, recorded in
-  `.git-blame-ignore-revs`.
-- Repo-level tooling added by this fork (Nx, Taskfile, `.claude/`, `docs/`,
-  stricter pre-commit) lives in files upstream doesn't own, so it merges
-  cleanly.
+- Reformatting, refactoring, **retyping**, and removing dead/legacy upstream
+  surfaces are all sanctioned — do them as focused, reviewable changes.
+- Differentiating work still *often* attaches cleanly via new DocTypes, new
+  whitelisted methods, and new frontend pages/components, but rewriting upstream
+  modules is fair game when it improves the codebase.
+- Repo-level tooling this fork added (Nx, Taskfile, `.claude/`, `docs/`, stricter
+  pre-commit, ratcheted type-checks) is ours to evolve freely.
+
+**The one obligation cutting the cord creates:** we own app security
+maintenance. The Frappe *framework* is a separate bench-installed dependency and
+still updates normally, but `frappe/lms` (the app) no longer feeds us fixes — so
+**watch upstream for security advisories and manually cherry-pick critical ones**
+(e.g. the SCORM/media path-traversal hardening). See `.claude/rules/security.md`.
 
 ## What upstream already gives us (don't rebuild these)
 

@@ -17,8 +17,12 @@
   Frontend rendering of user content goes through DOMPurify (already a
   dependency); keep it that way.
 - **File serving stays hardened** — SCORM/media endpoints have had path
-  traversal fixes upstream; preserve their validation when touching them and
-  keep their tests green.
+  traversal fixes; preserve their validation when touching them and keep their
+  tests green.
+- **We own security maintenance (hard fork).** Upstream `frappe/lms` no longer
+  feeds us app fixes automatically, so watch it for security advisories and
+  manually cherry-pick critical ones. (The Frappe *framework* is a separate
+  bench-installed dependency and still updates normally.)
 - Validate all external input at API boundaries (request args, webhook
   payloads, uploaded files); trust only data already inside the permission
   boundary.

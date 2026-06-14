@@ -1,8 +1,10 @@
 # LMS
 
-A fork of [frappe/lms](https://github.com/frappe/lms) — an open-source Learning
-Management System — being extended toward AI-era features (tutor, authoring,
-analytics, interop). The fork stays close to upstream; see
+An independent **hard fork** of [frappe/lms](https://github.com/frappe/lms) — an
+open-source Learning Management System — being extended toward AI-era features
+(tutor, authoring, analytics, interop). We no longer track upstream wholesale and
+optimize for our own code quality, not merge-compatibility — though we still
+cherry-pick critical upstream *security* fixes. See
 `docs/000-overview/explanation/002-fork-strategy-and-roadmap.md`.
 
 ## Services
