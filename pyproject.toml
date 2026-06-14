@@ -49,6 +49,8 @@ packages = [
 [tool.ruff]
 target-version = "py312"
 line-length = 120
+# Vendored frappe type stubs (pyright --createstub) — not our code to lint/format.
+extend-exclude = ["typings"]
 
 [tool.ruff.lint]
 # Matches the org-standard ruff rule set (power). All four docstring rules from
@@ -79,6 +81,10 @@ ignore = [
     "B008",   # function call in default argument (FastAPI-style; harmless here)
     "S608",   # hardcoded SQL — frappe.db.sql with %()s params is idiomatic Frappe
 ]
+# Treat Frappe's DocType-field alias as a typing module so ruff reads
+# `DF.Literal["A", "B"]` in auto-generated controller type blocks as Literal
+# values, not forward-reference annotations (matches frappe's own ruff config).
+typing-modules = ["frappe.types.DF"]
 
 [tool.ruff.lint.pydocstyle]
 ignore-decorators = ["override"]

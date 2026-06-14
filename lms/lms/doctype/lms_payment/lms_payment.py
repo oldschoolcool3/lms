@@ -11,6 +11,36 @@ from lms.lms.utils import get_lms_route
 
 
 class LMSPayment(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        address: DF.Link
+        amount: DF.Currency
+        amount_with_gst: DF.Currency
+        billing_name: DF.Data
+        coupon: DF.Link | None
+        coupon_code: DF.Data | None
+        currency: DF.Link
+        discount_amount: DF.Currency
+        gstin: DF.Data | None
+        member: DF.Link
+        member_consent: DF.Check
+        order_id: DF.Data | None
+        original_amount: DF.Currency
+        pan: DF.Data | None
+        payment_for_certificate: DF.Check
+        payment_for_document: DF.DynamicLink
+        payment_for_document_type: DF.Literal["", "LMS Course", "LMS Batch"]
+        payment_id: DF.Data | None
+        payment_received: DF.Check
+        source: DF.Link
+    # end: auto-generated types
+
     pass
 
 

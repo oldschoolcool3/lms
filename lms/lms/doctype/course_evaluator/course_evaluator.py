@@ -11,6 +11,25 @@ from lms.lms.utils import get_evaluator
 
 
 class CourseEvaluator(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        from lms.lms.doctype.evaluator_schedule.evaluator_schedule import EvaluatorSchedule
+
+        evaluator: DF.Link
+        full_name: DF.Data | None
+        schedule: DF.Table[EvaluatorSchedule]
+        unavailable_from: DF.Date | None
+        unavailable_to: DF.Date | None
+        user_image: DF.AttachImage | None
+        username: DF.Data | None
+    # end: auto-generated types
+
     def validate(self):
         self.validate_evaluator_role()
         self.validate_time_slots()

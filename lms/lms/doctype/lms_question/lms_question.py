@@ -15,6 +15,35 @@ QUESTION_POSSIBILITY_FIELDS = [f"possibility_{i}" for i in range(1, 5)]
 
 
 class LMSQuestion(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        explanation_1: DF.SmallText | None
+        explanation_2: DF.SmallText | None
+        explanation_3: DF.SmallText | None
+        explanation_4: DF.SmallText | None
+        is_correct_1: DF.Check
+        is_correct_2: DF.Check
+        is_correct_3: DF.Check
+        is_correct_4: DF.Check
+        multiple: DF.Check
+        option_1: DF.SmallText | None
+        option_2: DF.SmallText | None
+        option_3: DF.SmallText | None
+        option_4: DF.SmallText | None
+        possibility_1: DF.SmallText | None
+        possibility_2: DF.SmallText | None
+        possibility_3: DF.SmallText | None
+        possibility_4: DF.SmallText | None
+        question: DF.TextEditor | None
+        type: DF.Literal["Choices", "User Input", "Open Ended"]
+    # end: auto-generated types
+
     def validate(self):
         validate_correct_answers(self)
         update_question_title(self)

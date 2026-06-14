@@ -10,6 +10,24 @@ from frappe.model.document import Document
 
 
 class LMSBatchEnrollment(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        batch: DF.Link
+        confirmation_email_sent: DF.Check
+        member: DF.Link
+        member_image: DF.AttachImage | None
+        member_name: DF.Data | None
+        member_username: DF.Data | None
+        payment: DF.Link | None
+        source: DF.Link | None
+    # end: auto-generated types
+
     def after_insert(self):
         send_confirmation_email(self)
         self.add_member_to_live_class()

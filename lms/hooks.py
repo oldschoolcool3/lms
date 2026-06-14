@@ -10,6 +10,11 @@ app_icon_route = "/lms"
 app_color = "grey"
 app_email = "jannat@frappe.io"
 app_license = "AGPL"
+
+# Regenerate the `# begin: auto-generated types` blocks in DocType controllers on
+# save, so our Document subclasses declare their fields and pyright/editors can
+# type `self.<field>` and `doc.<field>` access.
+export_python_type_annotations = True
 required_apps = ["frappe/payments"]
 
 

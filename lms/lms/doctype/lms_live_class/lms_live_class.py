@@ -13,6 +13,35 @@ from lms.lms.doctype.lms_batch.lms_batch import authenticate
 
 
 class LMSLiveClass(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        attendees: DF.Int
+        auto_recording: DF.Literal["No Recording", "Local", "Cloud"]
+        batch_name: DF.Link | None
+        conferencing_provider: DF.Literal["Zoom", "Google Meet"]
+        date: DF.Date
+        description: DF.Text | None
+        duration: DF.Int
+        event: DF.Link | None
+        google_meet_account: DF.Link | None
+        host: DF.Link
+        join_url: DF.SmallText | None
+        meeting_id: DF.Data | None
+        password: DF.Password | None
+        start_url: DF.SmallText | None
+        time: DF.Time
+        timezone: DF.Data
+        title: DF.Data
+        uuid: DF.Data | None
+        zoom_account: DF.Link | None
+    # end: auto-generated types
+
     def after_insert(self):
         self.create_calendar_event()
 

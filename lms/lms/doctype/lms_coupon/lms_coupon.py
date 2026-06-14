@@ -8,6 +8,27 @@ from frappe.utils import cint, nowdate
 
 
 class LMSCoupon(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        from lms.lms.doctype.lms_coupon_item.lms_coupon_item import LMSCouponItem
+
+        applicable_items: DF.Table[LMSCouponItem]
+        code: DF.Data
+        discount_type: DF.Literal["Percentage", "Fixed Amount"]
+        enabled: DF.Check
+        expires_on: DF.Date | None
+        fixed_amount_discount: DF.Int
+        percentage_discount: DF.Int
+        redemption_count: DF.Int
+        usage_limit: DF.Int
+    # end: auto-generated types
+
     def validate(self):
         self.convert_to_uppercase()
         self.validate_expiry_date()

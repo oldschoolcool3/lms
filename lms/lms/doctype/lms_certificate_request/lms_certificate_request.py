@@ -22,6 +22,31 @@ from lms.lms.utils import get_evaluator
 
 
 class LMSCertificateRequest(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        batch_name: DF.Link | None
+        batch_title: DF.Data | None
+        course: DF.Link
+        course_title: DF.Data | None
+        date: DF.Date
+        day: DF.Literal["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        end_time: DF.Time
+        evaluator: DF.Link | None
+        evaluator_name: DF.Data | None
+        google_meet_link: DF.Data | None
+        member: DF.Link
+        member_name: DF.Data | None
+        start_time: DF.Time
+        status: DF.Literal["Upcoming", "Completed", "Cancelled"]
+        timezone: DF.Data | None
+    # end: auto-generated types
+
     def validate(self):
         self.set_evaluator()
         self.validate_unavailability()

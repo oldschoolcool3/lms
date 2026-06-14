@@ -9,6 +9,28 @@ from frappe.utils import cint
 
 
 class LMSQuizSubmission(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        from lms.lms.doctype.lms_quiz_result.lms_quiz_result import LMSQuizResult
+
+        course: DF.Link | None
+        member: DF.Link | None
+        member_name: DF.Data | None
+        passing_percentage: DF.Int
+        percentage: DF.Int
+        quiz: DF.Link | None
+        quiz_title: DF.Data | None
+        result: DF.Table[LMSQuizResult]
+        score: DF.Int
+        score_out_of: DF.Int
+    # end: auto-generated types
+
     def validate(self):
         self.validate_if_max_attempts_exceeded()
         self.validate_marks()

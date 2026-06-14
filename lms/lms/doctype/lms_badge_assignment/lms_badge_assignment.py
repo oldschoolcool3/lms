@@ -9,6 +9,24 @@ from lms.lms.doctype.lms_badge.lms_badge import eval_condition
 
 
 class LMSBadgeAssignment(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        badge: DF.Link
+        badge_description: DF.SmallText
+        badge_image: DF.Attach
+        issued_on: DF.Date
+        member: DF.Link
+        member_image: DF.AttachImage | None
+        member_name: DF.Data | None
+        member_username: DF.Data | None
+    # end: auto-generated types
+
     def validate(self):
         self.validate_duplicate_badge_assignment()
         self.validate_badge_criteria()

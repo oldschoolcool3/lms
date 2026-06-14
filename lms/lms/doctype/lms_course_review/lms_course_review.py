@@ -7,6 +7,19 @@ from frappe.model.document import Document
 
 
 class LMSCourseReview(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        course: DF.Link
+        rating: DF.Rating
+        review: DF.SmallText | None
+    # end: auto-generated types
+
     def validate(self):
         self.validate_enrollment()
         self.validate_if_already_reviewed()

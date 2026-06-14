@@ -10,6 +10,28 @@ from lms.lms.utils import has_moderator_role
 
 
 class LMSCertificateEvaluation(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        batch_name: DF.Link | None
+        course: DF.Link
+        date: DF.Date
+        end_time: DF.Time | None
+        evaluator: DF.Link | None
+        evaluator_name: DF.Data | None
+        member: DF.Link
+        member_name: DF.Data | None
+        rating: DF.Rating
+        start_time: DF.Time
+        status: DF.Literal["Pending", "In Progress", "Pass", "Fail"]
+        summary: DF.SmallText | None
+    # end: auto-generated types
+
     def validate(self):
         self.validate_rating()
 

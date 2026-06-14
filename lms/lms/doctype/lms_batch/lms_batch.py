@@ -26,6 +26,60 @@ from lms.lms.utils import (
 
 
 class LMSBatch(Document):
+    # begin: auto-generated types
+    # This code is auto-generated. Do not modify anything in this block.
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        from lms.lms.doctype.batch_course.batch_course import BatchCourse
+        from lms.lms.doctype.course_instructor.course_instructor import CourseInstructor
+        from lms.lms.doctype.lms_assessment.lms_assessment import LMSAssessment
+        from lms.lms.doctype.lms_batch_timetable.lms_batch_timetable import LMSBatchTimetable
+        from lms.lms.doctype.lms_timetable_legend.lms_timetable_legend import LMSTimetableLegend
+
+        allow_future: DF.Check
+        allow_self_enrollment: DF.Check
+        amount: DF.Currency
+        amount_usd: DF.Currency
+        assessment: DF.Table[LMSAssessment]
+        batch_details: DF.TextEditor
+        batch_details_raw: DF.HTMLEditor | None
+        category: DF.Link | None
+        certification: DF.Check
+        conferencing_provider: DF.Literal["", "Zoom", "Google Meet"]
+        confirmation_email_template: DF.Link | None
+        courses: DF.Table[BatchCourse]
+        currency: DF.Link | None
+        custom_component: DF.Code | None
+        custom_script: DF.Code | None
+        description: DF.SmallText
+        end_date: DF.Date
+        end_time: DF.Time
+        evaluation: DF.Check
+        evaluation_end_date: DF.Date | None
+        google_meet_account: DF.Link | None
+        instructors: DF.TableMultiSelect[CourseInstructor]
+        medium: DF.Literal["Online", "Offline"]
+        meta_image: DF.AttachImage | None
+        notification_sent: DF.Check
+        paid_batch: DF.Check
+        published: DF.Check
+        seat_count: DF.Int
+        show_live_class: DF.Check
+        start_date: DF.Date
+        start_time: DF.Time
+        timetable: DF.Table[LMSBatchTimetable]
+        timetable_legends: DF.Table[LMSTimetableLegend]
+        timetable_template: DF.Link | None
+        timezone: DF.Data
+        title: DF.Data
+        video_link: DF.Attach | None
+        zoom_account: DF.Link | None
+    # end: auto-generated types
+
     def validate(self):
         self._validate_mandatory()
         self.validate_seats_left()
