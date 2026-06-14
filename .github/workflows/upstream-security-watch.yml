@@ -1,0 +1,98 @@
+name: Upstream security watch
+
+# We are a hard fork of frappe/lms and no longer merge upstream wholesale, so
+# upstream's *app* security fixes don't reach us automatically. This weekly job
+# surfaces frappe/lms security signals (published advisories, security-shaped
+# commits, new releases) and opens a triage issue so we can manually cherry-pick
+# anything critical. See .claude/rules/security.md and
+# docs/000-overview/explanation/002-fork-strategy-and-roadmap.md.
+#
+# The Frappe *framework* is a separate bench-installed dependency and updates
+# normally; this watch is only for the forked lms *app*.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      UPSTREAM: frappe/lms
+      WINDOW_DAYS: '8' # weekly run + 1-day overlap so nothing slips between runs
+    steps:
+      - name: Collect upstream security signals
+        id: collect
+        run: |
+          set -euo pipefail
+          since=$(date -u -d "${WINDOW_DAYS} days ago" +%Y-%m-%dT%H:%M:%SZ)
+          : > report.md
+
+          # Untrusted upstream text (advisory summaries, commit messages) is only
+          # ever handled as data (jq / printf) — never interpolated into a shell
+          # command — to avoid script injection.
+
+          # 1) Published GitHub security advisories.
+          gh api "/repos/${UPSTREAM}/security-advisories?per_page=100" 2>/dev/null \
+            | jq -r --arg since "$since" \
+                '[.[] | select((.published_at // "") >= $since)]
+                   | map("- **\(.severity // "?")** [\(.ghsa_id)](\(.html_url)) — \(.summary)")[]' \
+            > advisories.txt || true
+          if [ -s advisories.txt ]; then
+            { echo "### Published security advisories"; cat advisories.txt; echo; } >> report.md
+          fi
+
+          # 2) Releases in the window (notes routinely call out security fixes).
+          gh api "/repos/${UPSTREAM}/releases?per_page=30" 2>/dev/null \
+            | jq -r --arg since "$since" \
+                '[.[] | select((.published_at // "") >= $since)]
+                   | map("- [\(.tag_name)](\(.html_url)) — \(.published_at)")[]' \
+            > releases.txt || true
+          if [ -s releases.txt ]; then
+            { echo "### New releases"; cat releases.txt; echo; } >> report.md
+          fi
+
+          # 3) Security-shaped commits on upstream develop (keyword heuristic).
+          gh api "/repos/${UPSTREAM}/commits?sha=develop&since=${since}&per_page=100" 2>/dev/null \
+            | jq -r '.[] | "\(.sha) \(.commit.message | split("\n")[0])"' \
+            | grep -iE 'secur|CVE|vuln|XSS|SSRF|traversal|inject|sanitiz|escap|auth|permission|leak' \
+            > seccommits.txt || true
+          if [ -s seccommits.txt ]; then
+            echo "### Security-shaped commits on upstream develop (heuristic — review)" >> report.md
+            while IFS=' ' read -r sha rest; do
+              printf -- '- [`%s`](https://github.com/%s/commit/%s) %s\n' \
+                "${sha:0:9}" "$UPSTREAM" "$sha" "$rest" >> report.md
+            done < seccommits.txt
+            echo >> report.md
+          fi
+
+          if [ -s report.md ]; then
+            {
+              echo "Upstream \`${UPSTREAM}\` security signals since ${since}:"
+              echo
+              cat report.md
+              echo "---"
+              echo "We are a hard fork and do **not** merge upstream automatically — triage each"
+              echo "item and manually cherry-pick anything security-critical (see"
+              echo "\`.claude/rules/security.md\`)."
+              echo
+              echo "_Automated by \`.github/workflows/upstream-security-watch.yml\`._"
+            } > issue-body.md
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No upstream security signals in the last ${WINDOW_DAYS} days."
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open triage issue
+        if: steps.collect.outputs.found == 'true'
+        run: |
+          set -euo pipefail
+          title="Upstream security watch: review frappe/lms ($(date -u +%Y-%m-%d))"
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file issue-body.md
