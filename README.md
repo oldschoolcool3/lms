@@ -126,26 +126,23 @@ The script will set up a production-ready instance of Frappe Learning with all t
 
 ### Docker
 
-You need Docker, docker-compose and git setup on your machine. Refer [Docker documentation](https://docs.docker.com/). After that, follow below steps:
+You need Docker (with Compose) and git. The dev stack installs **this fork's**
+code from your checkout and serves it at `lms.localhost`.
 
-**Step 1**: Setup folder and download the required files
+**Step 1**: Clone the repo
 
-    mkdir frappe-learning
-    cd frappe-learning
+    git clone https://github.com/oldschoolcool3/lms.git
+    cd lms
 
-    # Download the docker-compose file
-    wget -O docker-compose.yml https://raw.githubusercontent.com/frappe/lms/develop/docker/docker-compose.yml
+**Step 2**: Bring up the stack and daemonize it (first run provisions the bench, apps, site and SPA — a few minutes)
 
-    # Download the setup script
-    wget -O init.sh https://raw.githubusercontent.com/frappe/lms/develop/docker/init.sh
-
-**Step 2**: Run the container and daemonize it
-
-    docker compose up -d
+    docker compose -f docker/docker-compose.yml up -d
 
 **Step 3**: The site [http://lms.localhost:8000/lms](http://lms.localhost:8000/lms) should now be available. The default credentials are:
 - Username: Administrator
 - Password: admin
+
+See [Install with Docker](docs/002-development/how-to-guides/004-install-with-docker.md) for demo data, backend tests, and teardown.
 
 ### Local
 
