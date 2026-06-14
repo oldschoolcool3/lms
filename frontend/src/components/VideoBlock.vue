@@ -8,11 +8,15 @@
 				)
 			}}
 
-			<div v-for="(quiz, index) in quizzes" :key="index" class="ps-3 mt-1">
+			<div
+				v-for="(quiz, index) in normalizedQuizzes"
+				:key="index"
+				class="ps-3 mt-1"
+			>
 				<span>
 					{{ index + 1 }}. <span class="font-semibold"> {{ quiz.quiz }} </span>
 				</span>
-				{{ __('at {0} minutes').format(formatTimestamp(Number(quiz.time))) }}
+				{{ __('at {0} minutes').format(formatTimestamp(quiz.time)) }}
 			</div>
 		</div>
 		<div
@@ -77,7 +81,7 @@
 					<!-- QUIZ MARKERS -->
 					<div class="absolute top-0 start-0 w-full h-full pointer-events-none">
 						<div
-							v-for="(quiz, index) in quizzes"
+							v-for="(quiz, index) in normalizedQuizzes"
 							:key="index"
 							:style="getQuizMarkerStyle(quiz.time)"
 							class="absolute top-0 h-full w-2 bg-surface-amber-3"
@@ -216,6 +220,24 @@ const props = defineProps({
 	},
 })
 
+// Stored timestamps may be a "mm:ss" string or a seconds value; coerce to
+// seconds for display and scheduling.
+const toSeconds = (time: string | number) => {
+	if (typeof time === 'string' && time.includes(':')) {
+		const [minutes, seconds] = time.split(':')
+		return parseInt(minutes) * 60 + parseInt(seconds)
+	}
+	return Number(time)
+}
+
+// Normalised, time-sorted view of the quizzes. Derived (not mutated in place)
+// so the parent-owned `quizzes` prop stays untouched.
+const normalizedQuizzes = computed(() =>
+	props.quizzes
+		.map((quiz) => ({ ...quiz, time: toSeconds(quiz.time) }))
+		.sort((a, b) => a.time - b.time)
+)
+
 onMounted(() => {
 	updateCurrentTime()
 	updateNextQuiz()
@@ -266,26 +288,12 @@ const resumeVideo = (restart = false) => {
 }
 
 const updateNextQuiz = () => {
-	if (!props.quizzes.length) return
-
-	props.quizzes.forEach((quiz) => {
-		if (typeof quiz.time == 'string' && quiz.time.includes(':')) {
-			const time = quiz.time.split(':')
-			const timeInSeconds = parseInt(time[0]) * 60 + parseInt(time[1])
-			quiz.time = timeInSeconds
-		}
-	})
-
-	props.quizzes.sort((a, b) => Number(a.time) - Number(b.time))
-
-	const nextQuizIndex = props.quizzes.findIndex(
-		(quiz) => Number(quiz.time) > currentTime.value
+	// `normalizedQuizzes` is already sorted ascending, so the first quiz past
+	// the current playhead is the next one to surface.
+	const next = normalizedQuizzes.value.find(
+		(quiz) => quiz.time > currentTime.value
 	)
-	if (nextQuizIndex !== -1) {
-		nextQuiz.value = props.quizzes[nextQuizIndex]
-	} else {
-		nextQuiz.value = {}
-	}
+	nextQuiz.value = next ?? {}
 }
 
 const fileURL = computed(() => {

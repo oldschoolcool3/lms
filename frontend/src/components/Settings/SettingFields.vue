@@ -171,11 +171,11 @@ const props = defineProps({
 		type: Array as PropType<SettingsSection[]>,
 		required: true,
 	},
-	data: {
-		type: Object,
-		required: true,
-	},
 })
+
+// The edited document, exposed as a model: field edits write back through this
+// ref (and the shared object the parent passes) instead of mutating a prop.
+const data = defineModel<Record<string, any>>('data', { required: true })
 
 const resolveInitialValue = (field: SettingsField, dataValue: unknown) => {
 	if (dataValue !== null && dataValue !== undefined && dataValue !== '') {
@@ -193,7 +193,7 @@ onMounted(() => {
 			column.fields.forEach((field) => {
 				field.value = resolveInitialValue(
 					field,
-					props.data[field.name]
+					data.value[field.name]
 				) as SettingsField['value']
 			})
 		})
@@ -211,8 +211,8 @@ watch(
 			section.columns.forEach((column) => {
 				column.fields.forEach((field) => {
 					if (field.type !== 'checkbox') return
-					if (props.data[field.name] != field.value) {
-						props.data[field.name] = field.value
+					if (data.value[field.name] != field.value) {
+						data.value[field.name] = field.value
 					}
 				})
 			})

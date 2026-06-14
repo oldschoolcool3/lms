@@ -15,7 +15,7 @@
 		<SettingFields
 			v-if="gatewayID != 'new' && paymentGateway.data"
 			:sections="paymentGateway.data.sections"
-			:data="paymentGateway.data.data"
+			v-model:data="paymentGateway.data.data"
 		/>
 		<div v-else>
 			<div class="flex items-center justify-between gap-4 py-3">
@@ -40,7 +40,7 @@
 			<SettingFields
 				v-if="newGateway"
 				:sections="newGatewayFields"
-				:data="newGatewayData"
+				v-model:data="newGatewayData"
 			/>
 		</div>
 	</SettingsLayout>

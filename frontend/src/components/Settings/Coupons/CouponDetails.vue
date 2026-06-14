@@ -95,13 +95,16 @@ import Select from '@/components/Controls/Select.vue'
 const couponItems = ref<any>(null)
 const emit = defineEmits(['updateStep'])
 
+// The parent owns the coupon draft; this form edits it in place via v-model
+// (`data.value.*`), so the edits flow back through the shared object.
+const data = defineModel<Coupon>('data', { required: true })
+
 const props = defineProps<{
 	coupons: Coupons
-	data: Coupon
 }>()
 
 const saveCoupon = () => {
-	if (props.data?.name) {
+	if (data.value?.name) {
 		editCoupon()
 	} else {
 		createCoupon()
@@ -111,7 +114,7 @@ const saveCoupon = () => {
 const editCoupon = () => {
 	props.coupons.setValue.submit(
 		{
-			...props.data,
+			...data.value,
 		},
 		{
 			onSuccess(_data: Coupon) {
@@ -126,16 +129,16 @@ const editCoupon = () => {
 const createCoupon = () => {
 	if (couponItems.value) {
 		const rows = couponItems.value.saveItems()
-		props.data.applicable_items = rows
+		data.value.applicable_items = rows
 	}
 	props.coupons.insert.submit(
 		{
-			...props.data,
+			...data.value,
 		},
 		{
-			onSuccess(data: Coupon) {
+			onSuccess(createdCoupon: Coupon) {
 				toast.success(__('Coupon created successfully'))
-				emit('updateStep', 'details', { ...data })
+				emit('updateStep', 'details', { ...createdCoupon })
 			},
 			onError(err: any) {
 				toast.error(err.messages?.[0] || err.message || err)
