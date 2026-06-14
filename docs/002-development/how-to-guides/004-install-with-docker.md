@@ -1,6 +1,6 @@
 ---
 title: Install with Docker
-description: How to run the LMS app locally with docker-compose, including demo data and teardown.
+description: How to run this fork's LMS app locally with Docker, including demo data, backend tests, and teardown.
 type: how-to
 module: null
 tags: [docker, docker-compose, installation, setup, development]
@@ -8,50 +8,86 @@ tags: [docker, docker-compose, installation, setup, development]
 
 # Install with Docker
 
-**Step 1:** Clone the repo
+The Docker setup runs **this fork's** code (mounted from your checkout) on a
+local Frappe bench — MariaDB + Redis + the `lms` app on a site at
+`lms.localhost`. It is the quickest way to exercise the backend and SPA end to
+end without installing a bench natively (see
+[Install with bench](003-install-with-bench.md) for the native path).
 
-```
-$ git clone https://github.com/frappe/lms.git
+> It installs the app from your **local checkout**, not the published
+> `frappe/lms` — so it always reflects your branch.
 
+**Step 1:** Clone the fork and enter it
+
+```bash
+$ git clone https://github.com/oldschoolcool3/lms.git
 $ cd lms
-
-$ cd docker
 ```
 
-**Step 2:** Run docker-compose
+**Step 2:** Bring up the stack (from the repo root)
+
+```bash
+$ docker compose -f docker/docker-compose.yml up -d
+$ docker compose -f docker/docker-compose.yml logs -f frappe   # watch provisioning
+```
+
+The first run provisions everything — `bench init`, the `lms`/`payments` apps,
+the `lms.localhost` site, and the Vue SPA build — so it takes a few minutes.
+Wait for `init complete — starting bench` in the logs.
+
+**Step 3:** Open the app at **http://lms.localhost:8000/lms**
+
+Chrome resolves `*.localhost` to `127.0.0.1` automatically; if your browser does
+not, map it in `/etc/hosts`:
 
 ```
-$ docker-compose up
+127.0.0.1 lms.localhost
 ```
 
-**Step 3:** Visit the website at http://localhost:8000/
-
-You'll have to go through the setup wizard to setup the website for the first time you access it. Login using the following credentials to complete the setup wizard.
+Log in for full access (the SPA is otherwise guest-limited):
 
 ```
 Username: Administrator
-password: admin
+Password: admin
 ```
 
-These credentials are intended for local development only. Change the administrator password before using the site outside a local test environment.
+These credentials and the MariaDB root password (`123`) are for local
+development only — never reuse them outside a local test environment.
 
 ## Loading demo data
 
-The LMS app creates demo data when the setup wizard completes. If you need to recreate the demo course after clearing it, run the following command from another terminal while the Docker services are running:
+A fresh site has no courses. To populate the sample course, instructor,
+learners, lessons, quizzes, and progress:
 
+```bash
+$ docker compose -f docker/docker-compose.yml exec frappe \
+    bash -lc "cd frappe-bench && bench --site lms.localhost execute lms.demo.demo_data.create_demo_data"
 ```
-$ docker-compose exec frappe bash -lc "cd frappe-bench && bench --site lms.localhost execute lms.demo.demo_data.create_demo_data"
+
+To remove it later, open the user menu in the LMS interface and choose **Clear
+Demo Data**.
+
+## Running backend tests
+
+The bench-only server tests run inside the container:
+
+```bash
+$ docker compose -f docker/docker-compose.yml exec frappe \
+    bash -lc "cd frappe-bench && bench --site lms.localhost run-tests --app lms"
 ```
 
-This creates the sample course, instructor, learners, lessons, quizzes, and progress records used for local evaluation. To remove the demo course later, open the user menu in the LMS interface and choose **Clear Demo Data**.
+Scope to a module with `--module lms.lms.test_utils`.
 
-## Stopping the server
+## Stopping and resetting
 
-Press `ctrl+c` in the terminal to stop the server. You can also run `docker-compose down` in another terminal to stop it.
-
-To completely reset the instance, do the following:
-
+```bash
+$ docker compose -f docker/docker-compose.yml stop    # pause (bench preserved)
+$ docker compose -f docker/docker-compose.yml start   # resume — no re-provision
 ```
-$ docker-compose down --volumes
-$ docker-compose up
+
+`stop`/`start` keep the bench. A full reset (re-provisions on the next `up`):
+
+```bash
+$ docker compose -f docker/docker-compose.yml down --volumes
+$ docker compose -f docker/docker-compose.yml up -d
 ```

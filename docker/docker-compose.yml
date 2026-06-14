@@ -1,5 +1,12 @@
-version: "3.7"
-name: lms
+# Local dev bench for THIS fork (oldschoolcool3/lms), not upstream frappe/lms.
+# Brings up MariaDB + Redis + a Frappe bench that installs the lms app from the
+# mounted checkout and serves it at http://lms.localhost:8000/lms.
+#
+#   docker compose -f docker/docker-compose.yml up -d
+#   docker compose -f docker/docker-compose.yml logs -f frappe
+#
+# See docs/002-development/how-to-guides/004-install-with-docker.md.
+name: lms-dev
 services:
   mariadb:
     image: mariadb:10.8
@@ -7,26 +14,41 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --skip-character-set-client-handshake
-      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
+      - --skip-innodb-read-only-compressed
     environment:
-      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: "123"
     volumes:
       - mariadb-data:/var/lib/mysql
+    healthcheck:
+      # root requires a password (MYSQL_ROOT_PASSWORD), so the stock
+      # healthcheck.sh --connect (passwordless) is denied; ping with creds.
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -p123 --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
 
   redis:
     image: redis:alpine
 
   frappe:
     image: frappe/bench:latest
-    command: bash /workspace/init.sh
+    command: bash /workspace/lms-src/docker/init.sh
     environment:
       - SHELL=/bin/bash
     working_dir: /home/frappe
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_started
     volumes:
-      - .:/workspace
+      - ..:/workspace/lms-src
     ports:
-      - 8000:8000
-      - 9000:9000
+      - "8000:8000"
+      - "9000:9000"
 
+# The bench lives in the container layer (not a named volume): a named volume
+# pre-creates /home/frappe/frappe-bench, which makes `bench init` refuse. It
+# survives `stop`/`start`; only `down` discards it (then it re-provisions).
 volumes:
   mariadb-data:
