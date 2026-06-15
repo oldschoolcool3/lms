@@ -27,12 +27,11 @@
       ]
     },
     "typecheck": {
-      "command": "uv run --only-group typecheck python scripts/backend-typecheck.py",
+      "command": "uv run --only-group typecheck pyright",
       "cache": true,
       "inputs": [
         "{projectRoot}/**/*.py",
-        "{workspaceRoot}/backend-typecheck-baseline.json",
-        "{workspaceRoot}/scripts/backend-typecheck.py",
+        "{workspaceRoot}/typings/**",
         "{workspaceRoot}/pyproject.toml",
         "{workspaceRoot}/uv.lock",
         "{workspaceRoot}/.python-version"

@@ -147,6 +147,7 @@ def quiz_renderer(quiz_name):
 
     no_of_attempts = frappe.db.count("LMS Quiz Submission", {"owner": frappe.session.user, "quiz": quiz_name})
 
+    all_submissions = None
     if quiz.show_submission_history:
         all_submissions = frappe.get_all(
             "LMS Quiz Submission",

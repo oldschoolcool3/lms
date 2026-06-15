@@ -64,6 +64,7 @@ class LMSCertificate(Document):
             "template": self.template,
         }
 
+        content = None
         if custom_template:
             email_template = get_email_template(custom_template, args)
             subject = email_template.get("subject")

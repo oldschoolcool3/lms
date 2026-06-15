@@ -16,7 +16,7 @@ tasks:
       - npx nx run backend:format
 
   typecheck:backend:
-    desc: Type-check the Frappe app (pyright, ratcheted against a baseline)
+    desc: Type-check the Frappe app (pyright standard mode, hard zero — no baseline)
     cmds:
       - npx nx run backend:typecheck
 

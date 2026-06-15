@@ -39,7 +39,7 @@ tasks:
       - npx nx run-many -t lint
 
   typecheck:
-    desc: Type-check all projects (frontend vue-tsc + backend pyright, both ratcheted)
+    desc: Type-check all projects (backend pyright = hard zero; frontend vue-tsc = ratcheted)
     cmds:
       - npx nx run-many -t typecheck
 
