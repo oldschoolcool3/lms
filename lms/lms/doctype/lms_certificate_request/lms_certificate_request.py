@@ -114,7 +114,7 @@ class LMSCertificateRequest(Document):
         for req in existing_requests:
             if (
                 req.date == getdate(self.date)
-                or getdate() < getdate(req.date)  # type: ignore[reportOperatorIssue]  # getdate() (no arg) and a DocType Date field are non-None at runtime; stub types getdate as Optional
+                or getdate() < getdate(req.date)
                 or (getdate() == getdate(req.date) and get_time(nowtime()) < get_time(req.start_time))
             ):
                 course_title = frappe.db.get_value("LMS Course", req.course, "title")
@@ -133,7 +133,7 @@ class LMSCertificateRequest(Document):
             evaluation_end_date = frappe.db.get_value("LMS Batch", self.batch_name, "evaluation_end_date")
 
             if evaluation_end_date:
-                if getdate(self.date) > getdate(evaluation_end_date):  # type: ignore[reportOperatorIssue]  # self.date and the guarded evaluation_end_date are non-None dates at runtime; stub types getdate as Optional
+                if getdate(self.date) > getdate(evaluation_end_date):
                     frappe.throw(
                         _("You cannot schedule evaluations after {0}.").format(
                             format_date(evaluation_end_date, "medium")
