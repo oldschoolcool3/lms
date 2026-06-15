@@ -1,10 +1,4 @@
 {
-  "total": 5,
-  "signatures": {
-    "lms/lms/api.py | reportArgumentType | Argument of type \"str | None\" cannot be assigned to parameter \"abs_path\" of type \"str\" in function \"_scorm_url\" Type \"str | None\" is not assignable to type \"str\" \"None\" is not assignable to \"str\"": 1,
-    "lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py | reportArgumentType | Argument of type \"TextEditor | None\" cannot be assigned to parameter \"markup\" of type \"_IncomingMarkup\" in function \"__init__\" Type \"TextEditor | None\" is not assignable to type \"_IncomingMarkup\" Type \"None\" is not assignable to type \"_IncomingMarkup\" \"None\" is not assignable to \"str\" \"None\" is not assignable to \"bytes\" \"None\" is not assignable to \"IO[str]\" \"None\" is not assignable to \"IO[bytes]\"": 1,
-    "lms/lms/md.py | reportOptionalMemberAccess | \"children\" is not a known attribute of \"None\"": 1,
-    "lms/unsplash.py | reportOptionalMemberAccess | \"get\" is not a known attribute of \"None\"": 1,
-    "lms/unsplash.py | reportOptionalMemberAccess | \"items\" is not a known attribute of \"None\"": 1
-  }
+  "total": 0,
+  "signatures": {}
 }

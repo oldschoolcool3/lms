@@ -9,7 +9,7 @@ base_url = "https://api.unsplash.com"
 def get_by_keyword(keyword):
     """Return Unsplash photo search results matching the given keyword."""
     data = make_unsplash_request(f"/search/photos?query={keyword}")
-    return data.get("results")
+    return data.get("results") if data else None
 
 
 def get_list():
@@ -19,6 +19,7 @@ def get_list():
 
 def get_random(params=None):
     """Return a random Unsplash photo filtered by the given query parameters."""
+    params = params or {}
     query_string = ""
     for key, value in params.items():
         query_string += f"{key}={value}&"

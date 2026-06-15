@@ -1117,12 +1117,17 @@ def upsert_chapter(
         scorm_package = frappe._dict(scorm_package)
         extract_path = extract_package(course, title, scorm_package)
 
+        manifest_file = get_manifest_file(extract_path)
+        launch_file = get_launch_file(extract_path)
+        if not manifest_file or not launch_file:
+            frappe.throw(_("Invalid SCORM package: missing imsmanifest.xml or a launchable SCO file."))
+
         values.update(
             {
                 "scorm_package": scorm_package.name,  # type: ignore[reportOptionalMemberAccess]  # reassigned to frappe._dict(...) above (never None); pyright keeps the parameter's declared | None
                 "scorm_package_path": _scorm_url(extract_path),
-                "manifest_file": _scorm_url(get_manifest_file(extract_path)),
-                "launch_file": _scorm_url(get_launch_file(extract_path)),
+                "manifest_file": _scorm_url(manifest_file),
+                "launch_file": _scorm_url(launch_file),
             }
         )
 

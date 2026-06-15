@@ -8,6 +8,7 @@ from lms.lms.doctype.lms_certificate.lms_certificate import is_certified
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import (
     create_user,
+    get_assessments,
     get_average_rating,
     get_batch_details,
     get_chapters,
@@ -256,3 +257,36 @@ class TestLMSUtils(BaseTestUtils):
             self.assertIsNone(as_student.get("instructor_content"))
         finally:
             frappe.session.user = "Administrator"
+
+    def test_get_assessments_includes_exercise_details(self):
+        """get_assessments returns programming-exercise rows fully populated.
+
+        Regression test for get_exercise_details: it now returns the assessment
+        dict (like its assignment/quiz siblings) instead of None, so the row that
+        get_assessments yields carries the exercise title, status, and edit_url.
+        """
+        batch = frappe.get_doc("LMS Batch", self.batch.name)
+        batch.append(
+            "assessment",
+            {
+                "assessment_type": "LMS Programming Exercise",
+                "assessment_name": self.programming_exercise.name,
+            },
+        )
+        batch.save()
+
+        frappe.session.user = self.student1.email
+        try:
+            assessments = get_assessments(self.batch.name)
+        finally:
+            frappe.session.user = "Administrator"
+
+        exercise = next(
+            assessment for assessment in assessments if assessment.assessment_type == "LMS Programming Exercise"
+        )
+        self.assertEqual(exercise.assessment_name, self.programming_exercise.name)
+        self.assertEqual(exercise.title, self.programming_exercise.title)
+        # student1 has a passing submission seeded by _add_student_progress.
+        self.assertTrue(exercise.completed)
+        self.assertEqual(exercise.status, "Passed")
+        self.assertIn(self.programming_exercise.name, exercise.edit_url)

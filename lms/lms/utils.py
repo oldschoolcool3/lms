@@ -1641,7 +1641,7 @@ def get_quiz_details(assessment: "frappe._dict", member: str) -> dict:
     return assessment
 
 
-def get_exercise_details(assessment: "frappe._dict", member: str) -> None:
+def get_exercise_details(assessment: "frappe._dict", member: str) -> dict:
     """Populate a programming exercise assessment with the member's submission status and URL."""
     assessment.title = frappe.db.get_value("LMS Programming Exercise", assessment.assessment_name, "title")
     filters = {"member": member, "exercise": assessment.assessment_name}
@@ -1661,6 +1661,8 @@ def get_exercise_details(assessment: "frappe._dict", member: str) -> None:
         assessment.color = "red"
         assessment.completed = False
         assessment.edit_url = f"/exercises/{assessment.assessment_name}/submission/new"
+
+    return assessment
 
 
 @frappe.whitelist()

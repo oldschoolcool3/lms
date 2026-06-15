@@ -134,7 +134,7 @@ class LearningSearch(SQLiteSearch):
         try:
             super().build_index()
         except Exception as e:
-            frappe.throw(e)
+            frappe.throw(str(e))
 
     def get_search_filters(self):
         """Return the metadata filters applied to every search query."""

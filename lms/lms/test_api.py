@@ -1,4 +1,5 @@
 import glob
+import io
 import os
 import re
 import zipfile
@@ -10,6 +11,7 @@ from lms.lms.api import (
     get_certified_participants,
     get_course_assessment_progress,
     import_course_from_zip,
+    upsert_chapter,
 )
 from lms.lms.course_import_export import sanitize_string
 from lms.lms.test_helpers import BaseTestUtils
@@ -161,6 +163,35 @@ class TestLMSAPI(BaseTestUtils):
         imported_assessment = frappe.db.get_value(doctype, {"title": doc.title, "name": ["!=", doc.name]}, "name")
         if imported_assessment:
             self.cleanup_items.append((doctype, imported_assessment))
+
+    def test_upsert_chapter_rejects_scorm_package_without_manifest(self):
+        # A SCORM zip with no imsmanifest.xml (and therefore no launchable SCO)
+        # used to reach _scorm_url(None) and raise TypeError. It must now be
+        # rejected with a clear user-facing error instead. This is the
+        # security-sensitive SCORM ingest path, so the guard must hold.
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as zf:
+            zf.writestr("index.html", "<html><body>no manifest here</body></html>")
+
+        scorm_file = frappe.new_doc("File")
+        scorm_file.file_name = "manifestless.zip"
+        scorm_file.is_private = 1
+        scorm_file.content = buffer.getvalue()
+        scorm_file.insert()
+        self.cleanup_items.append(("File", scorm_file.name))
+
+        frappe.set_user(self.admin.email)
+        try:
+            with self.assertRaises(frappe.ValidationError) as ctx:
+                upsert_chapter(
+                    title=f"SCORM Chapter {frappe.generate_hash()}",
+                    course=self.course.name,
+                    is_scorm_package=True,
+                    scorm_package={"name": scorm_file.name},
+                )
+            self.assertIn("Invalid SCORM package", str(ctx.exception))
+        finally:
+            frappe.set_user("Administrator")
 
     def test_sanitize_string_filename_behavior(self):
         result = sanitize_string(

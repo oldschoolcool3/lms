@@ -51,7 +51,10 @@ from frappe.utils.print_utils import attach_print, get_print
 from frappe.utils.redis_wrapper import ClientCache, RedisWrapper
 from frappe.utils.response import redirect_to_message, respond_as_web_page
 from frappe.utils.task_queue import enqueue_task, get_current_task
-from frappe.utils.messages import clear_last_message, clear_messages, get_message_log, msgprint, throw, throw_permission_error, toast
+from frappe.utils.messages import clear_last_message, clear_messages, get_message_log, msgprint, throw_permission_error, toast
+# Explicit re-export (PEP 484 `as`) so `frappe.throw`'s NoReturn type is preserved
+# and `if not x: frappe.throw(...)` narrows x afterwards (it always raises).
+from frappe.utils.messages import throw as throw
 
 """
 Frappe - Low Code Open Source Framework in Python and JS

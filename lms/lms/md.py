@@ -112,7 +112,7 @@ def sanitize_html(html, macro):
     before passing to the etree parser.
     """
     soup = BeautifulSoup(html, features="lxml")
-    nodes = soup.body.children
+    nodes = soup.body.children if soup.body else []
     classname = ""
     if macro == "YouTubeVideo":
         classname = "lesson-video"

@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 
 from lms.lms.utils import (
     complete_enrollment,
@@ -23,9 +24,9 @@ def get_controller(payment_gateway):
 def validate_currency(payment_gateway, currency):
     """Validate the transaction currency against the payment gateway controller."""
     controller = get_controller(payment_gateway)
-    # get_controller returns None only when the payments app is uninstalled; this flow
-    # is unreachable in that case (callers gate on a configured gateway).
-    controller().validate_transaction_currency(currency)  # type: ignore[reportOptionalCall]
+    if not controller:
+        frappe.throw(_("Payment gateway {0} is not configured.").format(payment_gateway))
+    controller().validate_transaction_currency(currency)
 
 
 @frappe.whitelist()
@@ -73,6 +74,8 @@ def get_payment_link(
         return redirect_to
 
     controller = get_controller(payment_gateway)
+    if not controller:
+        frappe.throw(_("Payment gateway {0} is not configured.").format(payment_gateway))
 
     payment_details = {
         "amount": total_amount,
@@ -89,8 +92,7 @@ def get_payment_link(
     }
 
     create_order(payment_gateway, payment_details, controller)
-    # controller is non-None here (see validate_currency note); payments app types are bench-injected.
-    url = controller.get_payment_url(**payment_details)  # type: ignore[reportOptionalMemberAccess]
+    url = controller.get_payment_url(**payment_details)
 
     return url
 

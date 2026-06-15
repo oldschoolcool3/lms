@@ -80,7 +80,7 @@ class LMSAssignmentSubmission(Document):
         if self.type == "Text":
             from bs4 import BeautifulSoup
 
-            soup = BeautifulSoup(self.answer, "html.parser")
+            soup = BeautifulSoup(self.answer or "", "html.parser")
             images = soup.find_all("img")
             self.attach_images_to_document(images)
 
