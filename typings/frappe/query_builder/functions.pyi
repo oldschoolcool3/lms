@@ -6,6 +6,12 @@ from enum import Enum
 from pypika.functions import *
 from pypika.terms import ArithmeticExpression, Function
 
+# pypika is bench-injected and has no stub, so `from pypika.functions import *`
+# re-exports nothing for pyright. Declare the aggregate functions the app imports
+# by name (e.g. `from frappe.query_builder.functions import Count`).
+class Count(Function):
+	def __init__(self, param, alias=...) -> None: ...
+
 class Concat_ws(Function):
 	def __init__(self, *terms, **kwargs) -> None:
 		...

@@ -112,6 +112,10 @@ ignore-decorators = ["override"]
 # bench-injected at runtime (see [tool.bench.frappe-dependencies]); they are not
 # in [project.dependencies], so deptry must treat them as provided, not missing.
 per_rule_ignores.DEP001 = ["frappe", "payments", "pypika", "requests", "werkzeug"]
+# requests is part of frappe's stack; depending on what's installed in the lint
+# env, deptry classifies it as missing (DEP001) or transitive (DEP003) — ignore
+# both so the gate is stable across environments.
+per_rule_ignores.DEP003 = ["requests"]
 # Declared runtime deps used indirectly (by frappe, or for SVG/PDF certificate
 # rendering) rather than imported in the app code deptry scans.
 per_rule_ignores.DEP002 = ["cairocffi", "lxml", "razorpay", "websocket_client"]

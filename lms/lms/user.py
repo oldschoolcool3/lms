@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING, cast
+
 import frappe
 from frappe import _
 from frappe.model.naming import append_number_if_name_exists
@@ -5,6 +7,9 @@ from frappe.utils import cint, escape_html, random_string
 from frappe.website.utils import cleanup_page_name, is_signup_disabled
 
 from lms.lms.utils import get_country_code, get_lms_route
+
+if TYPE_CHECKING:
+    from frappe.auth import LoginManager
 
 
 def validate_username_duplicates(doc, method):
@@ -76,14 +81,14 @@ def sign_up(email: str, full_name: str, verify_terms: bool, user_category: str):
         return 2, _("Please ask your administrator to verify your sign-up")
 
 
-def set_country_from_ip(login_manager: object = None, user: str = None):
+def set_country_from_ip(login_manager: "LoginManager | None" = None, user: "str | None" = None):
     """Set the user's country from their IP geolocation when it is not already set."""
     if not user and login_manager:
-        user = login_manager.user
+        user = cast("str", login_manager.user)  # type: ignore[reportAttributeAccessIssue]  # LoginManager.user is set at runtime; absent from stub
     user_country = frappe.db.get_value("User", user, "country")
     if user_country:
         return
-    frappe.db.set_value("User", user, "country", get_country_code())
+    frappe.db.set_value("User", cast("str", user), "country", get_country_code())
     return
 
 

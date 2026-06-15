@@ -1,6 +1,8 @@
 # Copyright (c) 2021, Frappe and contributors
 # For license information, please see license.txt
 
+from typing import TYPE_CHECKING, cast
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -8,6 +10,9 @@ from frappe.utils import add_months, get_link_to_form, getdate, validate_url
 from frappe.utils.user import get_system_managers
 
 from lms.lms.utils import generate_slug, validate_image
+
+if TYPE_CHECKING:
+    from frappe.utils.data import DateTimeLikeObject
 
 
 class JobOpportunity(Document):
@@ -47,7 +52,7 @@ class JobOpportunity(Document):
 def update_job_openings():
     old_jobs = frappe.get_all(
         "Job Opportunity",
-        filters={"status": "Open", "creation": ["<=", add_months(getdate(), -3)]},
+        filters={"status": "Open", "creation": ["<=", add_months(cast("DateTimeLikeObject", getdate()), -3)]},
         pluck="name",
     )
 

@@ -424,6 +424,10 @@ class Document(BaseDocument):
 		"""Publish realtime that the current document is modified"""
 		...
 	
+	def _validate_mandatory(self) -> None:
+		"""Validate that all mandatory fields have a value (runtime Document method)."""
+		...
+
 	def db_set(self, fieldname, value=..., update_modified=..., notify=..., commit=...): # -> None:
 		"""Set a value in the document object, update the timestamp and update the database.
 

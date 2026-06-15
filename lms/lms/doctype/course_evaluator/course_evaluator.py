@@ -2,12 +2,17 @@
 # For license information, please see license.txt
 
 
+from typing import TYPE_CHECKING, cast
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, get_time, getdate, nowdate
 
 from lms.lms.utils import get_evaluator
+
+if TYPE_CHECKING:
+    import datetime
 
 
 class CourseEvaluator(Document):
@@ -79,7 +84,7 @@ class CourseEvaluator(Document):
 
 
 @frappe.whitelist()
-def get_schedule(course: str, batch: str = None):
+def get_schedule(course: str, batch: "str | None" = None):
     evaluator = get_evaluator(course, batch)
     start_date = nowdate()
     end_date = get_schedule_range_end_date(start_date, batch)
@@ -93,12 +98,12 @@ def get_all_slots(evaluator, start_date, end_date):
     schedule = get_evaluator_schedule(evaluator)
     unavailable_dates = get_unavailable_dates(evaluator)
     all_slots = []
-    current_date = getdate(start_date)
+    current_date: datetime.date = getdate(start_date)
     end_date = getdate(end_date)
 
     while current_date <= end_date:
         if current_date in unavailable_dates:
-            current_date = add_days(current_date, 1)
+            current_date = cast("datetime.date", add_days(current_date, 1))
             continue
         day_of_week = current_date.strftime("%A")
         slots_for_day = [x for x in schedule if x.day == day_of_week]
@@ -113,7 +118,7 @@ def get_all_slots(evaluator, start_date, end_date):
                     }
                 )
             )
-        current_date = add_days(current_date, 1)
+        current_date = cast("datetime.date", add_days(current_date, 1))
     return all_slots
 
 
@@ -182,12 +187,12 @@ def get_unavailable_dates(evaluator):
     availability = get_evaluator_availability(evaluator)
     unavailable_dates = []
     if availability.unavailable_from and availability.unavailable_to:
-        current_date = getdate(availability.unavailable_from)
+        current_date: datetime.date = getdate(availability.unavailable_from)
         end_date = getdate(availability.unavailable_to)
 
         while current_date <= end_date:
             unavailable_dates.append(current_date)
-            current_date = add_days(current_date, 1)
+            current_date = cast("datetime.date", add_days(current_date, 1))
     return unavailable_dates
 
 

@@ -1,6 +1,8 @@
 # Copyright (c) 2021, Frappe and contributors
 # For license information, please see license.txt
 
+from typing import cast
+
 import frappe
 from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
@@ -64,7 +66,8 @@ class LMSAssignmentSubmission(Document):
             frappe.throw(_("Assignment for Lesson {0} by {1} already exists.").format(lesson_title, self.member_name))
 
     def validate_url(self):
-        if self.type == "URL" and not validate_url(self.answer, True, ["http", "https"]):
+        # answer is mandatory_depends_on `type == "URL"`, so it is non-None on this branch.
+        if self.type == "URL" and not validate_url(cast("str", self.answer), True, ["http", "https"]):
             frappe.throw(_("Please enter a valid URL."))
 
     def validate_status(self):

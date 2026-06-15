@@ -1,6 +1,8 @@
 # Copyright (c) 2021, FOSS United and contributors
 # For license information, please see license.txt
 
+from typing import cast
+
 import frappe
 from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
@@ -67,7 +69,9 @@ class LMSQuizSubmission(Document):
 
     def set_percentage(self):
         if self.score and self.score_out_of:
-            self.percentage = (self.score / self.score_out_of) * 100
+            # percentage is a DF.Int field; Frappe coerces on save. cast keeps the
+            # in-memory float value unchanged (cast is a no-op at runtime).
+            self.percentage = cast("int", (self.score / self.score_out_of) * 100)
 
     def notify_member(self):
         if self.score != 0 and self.has_value_changed("score"):

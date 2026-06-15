@@ -106,7 +106,7 @@ def get_app_source_path(app_name, *joins): # -> str:
 	"""Return source path of given app."""
 	...
 
-def get_site_path(*joins):
+def get_site_path(*joins) -> str:
 	"""Return path of current site."""
 	...
 

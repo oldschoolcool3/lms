@@ -1,3 +1,5 @@
+from typing import cast
+
 import frappe
 
 app_name = "frappe_lms"
@@ -21,7 +23,7 @@ required_apps = ["frappe/payments"]
 def get_lms_path():
     path = "lms"
     if frappe.conf and frappe.conf.get("lms_path"):
-        path = frappe.conf.get("lms_path")
+        path = cast("str", frappe.conf.get("lms_path"))
     return path.strip("/")
 
 

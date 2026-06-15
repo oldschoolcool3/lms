@@ -22,7 +22,7 @@ class EducationDetail(Document):
             "Point of Score (e.g. 70)",
             "Letter Grade (e.g. A, B-)",
             "UK Grading  (e.g. 1st, 2:2)",
-            "French (e.g. Distinction)",
+            "French (e.g. Distinction)",  # type: ignore[reportUndefinedVariable]  # DF.Literal option, not a forward ref
             "CGPA/4",
         ]
         institution_name: DF.Data

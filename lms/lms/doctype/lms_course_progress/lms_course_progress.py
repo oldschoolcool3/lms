@@ -1,6 +1,8 @@
 # Copyright (c) 2021, FOSS United and contributors
 # For license information, please see license.txt
 
+from typing import cast
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -39,7 +41,7 @@ class LMSCourseProgress(Document):
             )
 
     def on_update(self):
-        recalculate_course_progress(self.course, self.member)
+        recalculate_course_progress(cast("str", self.course), cast("str", self.member))
 
     def after_delete(self):
-        recalculate_course_progress(self.course, self.member)
+        recalculate_course_progress(cast("str", self.course), cast("str", self.member))

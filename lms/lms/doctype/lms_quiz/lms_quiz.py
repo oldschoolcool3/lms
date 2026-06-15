@@ -4,6 +4,7 @@
 import json
 import re
 from binascii import Error as BinasciiError
+from typing import cast
 
 import frappe
 from frappe import _, safe_decode
@@ -130,8 +131,8 @@ def set_total_marks(questions: list) -> int:
 
 
 @frappe.whitelist()
-def submit_quiz(quiz: str, results: str | None = None):
-    results = json.loads(results) if results else []
+def submit_quiz(quiz: str, results: "str | list | None" = None):
+    results = json.loads(cast("str", results)) if results else []
 
     quiz_details = frappe.db.get_value(
         "LMS Quiz",
@@ -148,7 +149,7 @@ def submit_quiz(quiz: str, results: str | None = None):
         as_dict=1,
     )
 
-    data = process_results(results, quiz_details)
+    data = process_results(cast("list", results), quiz_details)
     is_open_ended = data["is_open_ended"]
 
     # Score and percentage are the submission's responsibility — its validate()
@@ -168,7 +169,7 @@ def submit_quiz(quiz: str, results: str | None = None):
     }
 
 
-def process_results(results: list, quiz_details: dict):
+def process_results(results: list, quiz_details: "frappe._dict"):
     is_open_ended = False
 
     for result in results:
@@ -287,7 +288,7 @@ def create_submission(quiz: str, results: list, score_out_of: int, passing_perce
     return submission
 
 
-def save_progress_after_quiz(quiz_details: dict, percentage: float):
+def save_progress_after_quiz(quiz_details: "frappe._dict", percentage: float):
     if not quiz_details.lesson or not quiz_details.course:
         return
 
@@ -312,7 +313,7 @@ def check_answer(quiz: str, question: str, question_type: str, answers: str):
 
     answers = answers and json.loads(answers)
     if question_type == "Choices":
-        return check_choice_answers(question, answers)
+        return check_choice_answers(question, cast("list", answers))
     else:
         return check_input_answers(question, answers[0])
 

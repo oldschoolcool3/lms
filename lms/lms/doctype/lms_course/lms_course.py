@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import random
+from typing import Any, cast
 
 import frappe
 from frappe import _
@@ -74,7 +75,7 @@ class LMSCourse(Document):
         self.validate_payments_app()
         self.validate_certification()
         self.validate_amount_and_currency()
-        self.image = validate_image(self.image)
+        self.image = validate_image(cast("str", self.image))
         self.validate_card_gradient()
 
     def validate_published(self):
@@ -149,7 +150,7 @@ class LMSCourse(Document):
                 "Gray",
                 "Purple",
             ]
-            self.card_gradient = random.choice(colors)  # noqa: S311 — cosmetic card color, not security-sensitive
+            self.card_gradient = cast("Any", random.choice(colors))  # noqa: S311 — cosmetic card color, not security-sensitive
 
     def on_update(self):
         if not self.upcoming and self.has_value_changed("upcoming"):
@@ -157,7 +158,7 @@ class LMSCourse(Document):
 
     def on_payment_authorized(self, payment_status):
         if payment_status in ["Authorized", "Completed"]:
-            update_payment_record("LMS Course", self.name)
+            update_payment_record("LMS Course", cast("str", self.name))
 
     def send_email_to_interested_users(self):
         interested_users = frappe.get_all("LMS Course Interest", {"course": self.name}, ["name", "user"])

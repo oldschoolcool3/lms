@@ -23,14 +23,16 @@ def get_controller(payment_gateway):
 def validate_currency(payment_gateway, currency):
     """Validate the transaction currency against the payment gateway controller."""
     controller = get_controller(payment_gateway)
-    controller().validate_transaction_currency(currency)
+    # get_controller returns None only when the payments app is uninstalled; this flow
+    # is unreachable in that case (callers gate on a configured gateway).
+    controller().validate_transaction_currency(currency)  # type: ignore[reportOptionalCall]
 
 
 @frappe.whitelist()
 def get_payment_link(
     doctype: str,
     docname: str,
-    address: dict,
+    address: "frappe._dict",
     payment_for_certificate: int,
     coupon_code: str | None = None,
     country: str | None = None,
@@ -87,7 +89,8 @@ def get_payment_link(
     }
 
     create_order(payment_gateway, payment_details, controller)
-    url = controller.get_payment_url(**payment_details)
+    # controller is non-None here (see validate_currency note); payments app types are bench-injected.
+    url = controller.get_payment_url(**payment_details)  # type: ignore[reportOptionalMemberAccess]
 
     return url
 
@@ -97,7 +100,8 @@ def create_order(payment_gateway: str, payment_details: dict, controller: object
     if payment_gateway != "Razorpay":
         return
 
-    order = controller.create_order(**payment_details)
+    # controller is the bench-injected payments-app gateway controller (no resolvable type here).
+    order = controller.create_order(**payment_details)  # type: ignore[reportAttributeAccessIssue]
     payment_details.update({"order_id": order.get("id")})
 
 
@@ -111,7 +115,7 @@ def get_amount_with_gst(amount: float, gst_amount: float) -> float:
 
 
 def record_payment(
-    address: dict,
+    address: "frappe._dict",
     doctype: str,
     docname: str,
     amount: float,

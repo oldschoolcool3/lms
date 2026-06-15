@@ -46,7 +46,7 @@ def is_invalid_date_string(date_string: str) -> bool:
 	"""Return True if the date string is invalid or None or empty."""
 	...
 
-def getdate(string_date: DateTimeLikeObject | None = ..., parse_day_first: bool = ...) -> datetime.date | None:
+def getdate(string_date: DateTimeLikeObject | None = ..., parse_day_first: bool = ...) -> datetime.date:
 	"""
 	Convert string date (yyyy-mm-dd) to datetime.date object.
 	If no input is provided, current date is returned.
