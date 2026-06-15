@@ -114,7 +114,7 @@ class LMSCertificateRequest(Document):
         for req in existing_requests:
             if (
                 req.date == getdate(self.date)
-                or getdate() < getdate(req.date)
+                or getdate() < getdate(req.date)  # type: ignore[reportOperatorIssue]  # getdate() (no arg) and a DocType Date field are non-None at runtime; stub types getdate as Optional
                 or (getdate() == getdate(req.date) and get_time(nowtime()) < get_time(req.start_time))
             ):
                 course_title = frappe.db.get_value("LMS Course", req.course, "title")
@@ -133,7 +133,7 @@ class LMSCertificateRequest(Document):
             evaluation_end_date = frappe.db.get_value("LMS Batch", self.batch_name, "evaluation_end_date")
 
             if evaluation_end_date:
-                if getdate(self.date) > getdate(evaluation_end_date):
+                if getdate(self.date) > getdate(evaluation_end_date):  # type: ignore[reportOperatorIssue]  # self.date and the guarded evaluation_end_date are non-None dates at runtime; stub types getdate as Optional
                     frappe.throw(
                         _("You cannot schedule evaluations after {0}.").format(
                             format_date(evaluation_end_date, "medium")
@@ -216,7 +216,7 @@ def setup_calendar_event(eval_name: str):
         update_meeting_details(evaluation, event, calendar)
 
 
-def create_event(evaluation: dict):
+def create_event(evaluation: "frappe._dict"):
     event = frappe.get_doc(
         {
             "doctype": "Event",
@@ -229,7 +229,7 @@ def create_event(evaluation: dict):
     return event
 
 
-def add_participants(evaluation: dict, event: Document):
+def add_participants(evaluation: "frappe._dict", event: Document):
     participants = [evaluation.member, evaluation.evaluator]
     for participant in participants:
         contact_name = frappe.db.get_value("Contact", {"email_id": participant}, "name")
@@ -246,7 +246,7 @@ def add_participants(evaluation: dict, event: Document):
         ).save()
 
 
-def update_meeting_details(evaluation: dict, event: Document, calendar: str):
+def update_meeting_details(evaluation: "frappe._dict", event: Document, calendar: str):
     event.reload()
     event.update(
         {
@@ -258,11 +258,11 @@ def update_meeting_details(evaluation: dict, event: Document, calendar: str):
 
     event.save()
     event.reload()
-    frappe.db.set_value("LMS Certificate Request", evaluation.name, "google_meet_link", event.google_meet_link)
+    frappe.db.set_value("LMS Certificate Request", evaluation.name, "google_meet_link", event.google_meet_link)  # type: ignore[reportAttributeAccessIssue]  # Event.google_meet_link is a DocType field absent from the Document stub
 
 
 @frappe.whitelist()
-def create_lms_certificate_evaluation(source_name: str, target_doc: dict = None):
+def create_lms_certificate_evaluation(source_name: str, target_doc: "dict | None" = None):
     frappe.only_for(["Moderator", "Batch Evaluator", "System Manager"])
     doc = get_mapped_doc(
         "LMS Certificate Request",

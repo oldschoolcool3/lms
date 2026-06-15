@@ -1,11 +1,23 @@
 # Copyright (c) 2021, FOSS United and contributors
 # For license information, please see license.txt
 
+from typing import TYPE_CHECKING
+
 import frappe
 from frappe.model.document import Document
 
 
 class LMSSection(Document):
+    # This controller has no committed DocType JSON, so bench never generated the
+    # auto-typed fields block; the fields below are real DocType fields at runtime.
+    if TYPE_CHECKING:
+        from frappe.types import DF
+
+        contents: DF.Text
+        id: DF.Data
+        label: DF.Data
+        type: DF.Data
+
     def __repr__(self):
         return f"<LMSSection {self.label!r}>"
 

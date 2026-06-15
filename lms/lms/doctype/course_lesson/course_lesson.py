@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import json
+from typing import cast
 from urllib.parse import unquote
 
 import frappe
@@ -75,7 +76,7 @@ class CourseLesson(Document):
 
     def recalculate_progress(self, enrollments):
         for enrollment in enrollments:
-            recalculate_course_progress(self.course, enrollment.member)
+            recalculate_course_progress(cast("str", self.course), enrollment.member)
 
     def validate_quiz_id(self):
         if self.quiz_id and not frappe.db.exists("LMS Quiz", self.quiz_id):
@@ -88,7 +89,7 @@ class CourseLesson(Document):
             self.save_lesson_details_in_quiz(self.instructor_content)
 
     def save_lesson_details_in_quiz(self, content):
-        content = json.loads(self.content)
+        content = json.loads(cast("str", self.content))
         for block in content.get("blocks"):
             if block.get("type") == "quiz":
                 quiz = block.get("data").get("quiz")
@@ -223,7 +224,7 @@ def apply_enforcement_flags(quiz_done: bool, assignment_done: bool, settings: di
 
 
 @frappe.whitelist()
-def save_progress(lesson: str, course: str, scorm_details: dict = None):
+def save_progress(lesson: str, course: str, scorm_details: "frappe._dict | None" = None):
     """
     Note: Pass the argument scorm_details as a dict if it is SCORM related save_progress
     """

@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 from datetime import timedelta
+from typing import TYPE_CHECKING, cast
 
 import frappe
 import requests
@@ -10,6 +11,9 @@ from frappe.model.document import Document
 from frappe.utils import cint, format_date, format_time, get_datetime, nowdate
 
 from lms.lms.doctype.lms_batch.lms_batch import authenticate
+
+if TYPE_CHECKING:
+    import datetime
 
 
 class LMSLiveClass(Document):
@@ -89,7 +93,7 @@ class LMSLiveClass(Document):
 
         event.subject = f"Live Class on {self.title}"
         event.starts_on = start
-        event.ends_on = get_datetime(start) + timedelta(minutes=cint(self.duration))
+        event.ends_on = cast("datetime.datetime", get_datetime(start)) + timedelta(minutes=cint(self.duration))
         event.description = self.build_event_description()
 
         event.save(ignore_permissions=True)
@@ -124,7 +128,7 @@ class LMSLiveClass(Document):
                 "subject": f"Live Class on {self.title}",
                 "event_type": "Public",
                 "starts_on": start,
-                "ends_on": get_datetime(start) + timedelta(minutes=cint(self.duration)),
+                "ends_on": cast("datetime.datetime", get_datetime(start)) + timedelta(minutes=cint(self.duration)),
             }
         )
 
@@ -239,7 +243,7 @@ def get_attendance(live_class):
         "content-type": "application/json",
     }
 
-    encoded_uuid = requests.utils.quote(live_class.uuid, safe="")
+    encoded_uuid = requests.utils.quote(live_class.uuid, safe="")  # type: ignore[reportPrivateImportUsage]  # requests.utils re-exports quote at runtime; typeshed omits it from __all__
     response = requests.get(
         f"https://api.zoom.us/v2/past_meetings/{encoded_uuid}/participants",
         headers=headers,

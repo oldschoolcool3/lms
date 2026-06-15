@@ -6,6 +6,7 @@ import shutil
 import tempfile
 import zipfile
 from datetime import date, datetime, timedelta
+from typing import cast
 
 import frappe
 from frappe import _
@@ -585,7 +586,7 @@ def get_chapter_name_for_lesson(zip_file, lesson_data, chapter_docs):
     """Return the name of the newly created chapter that a lesson belongs to, or None."""
     for file in zip_file.namelist():
         if file.startswith("chapters/") and file.endswith(".json"):
-            chapter_data = read_json_from_zip(zip_file, file)
+            chapter_data = cast("dict", read_json_from_zip(zip_file, file))
             if chapter_data.get("name") == lesson_data.get("chapter"):
                 title = chapter_data.get("title")
                 chapter_doc = next((c for c in chapter_docs if c.title == title), None)
@@ -602,7 +603,7 @@ def get_assessment_map():
 def get_assessment_title(zip_file, assessment_name, assessment_type):
     """Return the title of an assessment read from its JSON file in the ZIP, or None."""
     assessment_map = get_assessment_map()
-    doctype = "_".join(assessment_map.get(assessment_type).lower().split(" "))
+    doctype = "_".join(cast("str", assessment_map.get(assessment_type)).lower().split(" "))
     assessment_name = "_".join(assessment_name.split(" "))
     file_name = f"assessments/{doctype}_{assessment_name}.json"
     try:
@@ -623,7 +624,7 @@ def replace_assessment_names(zip_file, content):
             data_field = "exercise" if block.get("type") == "program" else block.get("type")
             assessment_name = block.get("data", {}).get(data_field)
             assessment_title = get_assessment_title(zip_file, assessment_name, block.get("type"))
-            doctype = get_assessment_map().get(block.get("type"))
+            doctype = cast("str", get_assessment_map().get(block.get("type")))
             current_assessment_name = frappe.db.get_value(doctype, {"title": assessment_title}, "name")
             if current_assessment_name:
                 block["data"][data_field] = current_assessment_name
@@ -789,7 +790,7 @@ def get_lesson_title(zip_file, lesson_name):
     """Return the title of the lesson with the given name from the ZIP, or None."""
     for file in zip_file.namelist():
         if file.startswith("lessons/") and file.endswith(".json"):
-            lesson_data = read_json_from_zip(zip_file, file)
+            lesson_data = cast("dict", read_json_from_zip(zip_file, file))
             if lesson_data.get("name") == lesson_name:
                 return lesson_data.get("title")
     return None
@@ -799,7 +800,7 @@ def add_lessons_to_chapters(zip_file, course_name, chapter_docs):
     """Append each imported lesson to its chapter based on the chapter data in the ZIP."""
     for file in zip_file.namelist():
         if file.startswith("chapters/") and file.endswith(".json"):
-            chapter_data = read_json_from_zip(zip_file, file)
+            chapter_data = cast("dict", read_json_from_zip(zip_file, file))
             chapter_doc = next((c for c in chapter_docs if c.title == chapter_data.get("title")), None)
             if not chapter_doc:
                 continue

@@ -6,6 +6,7 @@ import re
 import shutil
 import zipfile
 from datetime import timedelta
+from typing import TYPE_CHECKING, cast
 from xml.dom.minidom import parseString
 
 import frappe
@@ -25,7 +26,9 @@ from frappe.utils import (
     getdate,
     now,
 )
-from frappe.utils.response import Response
+from frappe.utils.response import (
+    Response,  # type: ignore[reportAttributeAccessIssue]  # Response is re-exported at runtime; stub imports it from werkzeug without re-export
+)
 from pypika import functions as fn
 
 from lms.lms.course_import_export import export_course_zip, import_course_zip
@@ -45,6 +48,11 @@ from lms.lms.utils import (
     has_lms_role,
     has_moderator_role,
 )
+
+if TYPE_CHECKING:
+    import datetime
+
+    from frappe.utils.data import DateTimeLikeObject
 
 
 @frappe.whitelist()
@@ -282,12 +290,12 @@ def sanitize_job_filters(filters, or_filters):
 # Guest-safe (reviewed): public jobs; filters sanitized.
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_job_opportunities(
-    filters: dict = None,
-    or_filters: dict = None,
+    filters: "dict | None" = None,
+    or_filters: "dict | None" = None,
     start: int = 0,
     page_length: int = 40,
-    limit_start: int = None,
-    limit_page_length: int = None,
+    limit_start: "int | None" = None,
+    limit_page_length: "int | None" = None,
 ):
     """Return a paginated list of job opportunities matching the sanitized filters."""
     if limit_page_length is not None:
@@ -325,7 +333,7 @@ def get_job_opportunities(
 
 # Guest-safe (reviewed): public count; filters sanitized.
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
-def get_job_opportunities_count(filters: dict = None, or_filters: dict = None):
+def get_job_opportunities_count(filters: "dict | None" = None, or_filters: "dict | None" = None):
     """Return the count of job opportunities matching the sanitized filters."""
     filters, or_filters = sanitize_job_filters(filters, or_filters)
     return frappe.db.count("Job Opportunity", filters, or_filters)
@@ -377,14 +385,14 @@ def get_branding():
 
 
 @frappe.whitelist()
-def get_unsplash_photos(keyword: str = None):
+def get_unsplash_photos(keyword: "str | None" = None):
     """Return Unsplash photos matching a keyword, or a cached default list."""
     from lms.unsplash import get_by_keyword, get_list
 
     if keyword:
         return get_by_keyword(keyword)
 
-    return frappe.cache().get_value("unsplash_photos", generator=get_list)
+    return frappe.cache().get_value("unsplash_photos", generator=get_list)  # type: ignore[reportOptionalCall]  # frappe.cache is a callable at runtime; stub types it as RedisWrapper | None
 
 
 @frappe.whitelist()
@@ -418,11 +426,11 @@ def get_evaluator_details(evaluator: str):
 
 @frappe.whitelist()
 def get_certified_participants(
-    filters: dict = None,
+    filters: "dict | None" = None,
     start: int = 0,
     page_length: int = 40,
-    limit_start: int = None,
-    limit_page_length: int = None,
+    limit_start: "int | None" = None,
+    limit_page_length: "int | None" = None,
 ):
     """Return a paginated list of certified participants with their profile details."""
     if limit_page_length is not None:
@@ -453,7 +461,7 @@ def get_certified_participant_details(member: str):
     return details
 
 
-def get_certification_query(filters: dict = None):
+def get_certification_query(filters: "dict | None" = None):
     """Build the query for published certificates grouped by member, applying optional filters."""
     Certificate = frappe.qb.DocType("LMS Certificate")
     User = frappe.qb.DocType("User")
@@ -484,7 +492,7 @@ def get_certification_query(filters: dict = None):
 
 
 @frappe.whitelist()
-def get_count_of_certified_members(filters: dict = None):
+def get_count_of_certified_members(filters: "dict | None" = None):
     """Return the number of certified members matching the filters."""
     query = get_certification_query(filters)
     result = query.run(as_dict=True)
@@ -707,7 +715,7 @@ def update_chapter_index(chapter: str, course: str, idx: int):
 
 
 @frappe.whitelist()
-def get_members(start: int = 0, search: str = None, role: str = "All"):
+def get_members(start: int = 0, search: "str | None" = None, role: str = "All"):
     """Return a paginated list of users with their LMS roles, filtered by role and search query."""
     frappe.only_for(["Moderator"])
 
@@ -772,9 +780,9 @@ def save_evaluation_details(
     start_time: str,
     end_time: str,
     status: str,
-    batch_name: str = None,
+    batch_name: "str | None" = None,
     rating: float = 0,
-    summary: str = None,
+    summary: "str | None" = None,
 ):
     """Save evaluation details for a member against a course."""
     frappe.only_for(["Batch Evaluator", "Moderator"])
@@ -820,14 +828,14 @@ def save_certificate_details(
     member: str,
     issue_date: str,
     template: str,
-    course: str = None,
-    batch_name: str = None,
-    expiry_date: str = None,
+    course: "str | None" = None,
+    batch_name: "str | None" = None,
+    expiry_date: "str | None" = None,
     published: bool = True,
 ):
     """Save certificate details for a member against a course."""
     frappe.only_for(["Batch Evaluator", "Moderator"])
-    assigned_evaluator = get_evaluator(course, batch_name)
+    assigned_evaluator = get_evaluator(cast("str", course), batch_name)
     if not has_moderator_role() and frappe.session.user != assigned_evaluator:
         frappe.throw(
             _("You are not the assigned evaluator for this course and batch."),
@@ -909,7 +917,7 @@ def get_payment_gateway_details(payment_gateway: str):
     }
 
 
-def get_transformed_fields(meta: list, data: dict = None):
+def get_transformed_fields(meta: list, data: "dict | None" = None):
     """Return doctype field metadata transformed into frontend form-field descriptors."""
     transformed_fields = []
     for row in meta:
@@ -1085,7 +1093,13 @@ def give_discussions_permission():
 
 
 @frappe.whitelist()
-def upsert_chapter(title: str, course: str, is_scorm_package: bool, scorm_package: dict = None, name: str = None):
+def upsert_chapter(
+    title: str,
+    course: str,
+    is_scorm_package: bool,
+    scorm_package: "frappe._dict | None" = None,
+    name: "str | None" = None,
+):
     """Create or update a course chapter, extracting and linking its SCORM package when present."""
     if not isinstance(title, str):
         frappe.throw(_("title must be a string"))
@@ -1105,7 +1119,7 @@ def upsert_chapter(title: str, course: str, is_scorm_package: bool, scorm_packag
 
         values.update(
             {
-                "scorm_package": scorm_package.name,
+                "scorm_package": scorm_package.name,  # type: ignore[reportOptionalMemberAccess]  # reassigned to frappe._dict(...) above (never None); pyright keeps the parameter's declared | None
                 "scorm_package_path": _scorm_url(extract_path),
                 "manifest_file": _scorm_url(get_manifest_file(extract_path)),
                 "launch_file": _scorm_url(get_launch_file(extract_path)),
@@ -1146,7 +1160,7 @@ def _scorm_url(abs_path: str) -> str:
     return "/" + rel.replace(os.sep, "/")
 
 
-def extract_package(course: str, title: str, scorm_package: dict):
+def extract_package(course: str, title: str, scorm_package: "frappe._dict"):
     """Extract a SCORM zip into the course/chapter directory, guarding against path traversal."""
     package = frappe.get_doc("File", scorm_package.name)
     zip_path = package.get_full_path()
@@ -1278,7 +1292,7 @@ def delete_chapter(chapter: str):
 
         i = 1
         for chapter in chapters:
-            frappe.db.set_value("Chapter Reference", chapter.name, "idx", i)
+            frappe.db.set_value("Chapter Reference", cast("frappe._dict", chapter).name, "idx", i)
             i += 1
 
 
@@ -1324,11 +1338,11 @@ def get_heatmap_data(member: str, base_days: int = 200):
 def calculate_date_ranges(base_days: int):
     """Return the base date, week-aligned start date, day span, and day list for the heatmap window."""
     today = format_date(now(), "YYYY-MM-dd")
-    day_today = get_datetime(today).strftime("%w")
+    day_today = cast("datetime.datetime", get_datetime(today)).strftime("%w")
     padding_end = 6 - cint(day_today)
 
     base_date = add_days(today, -base_days)
-    day_of_base_date = cint(get_datetime(base_date).strftime("%w"))
+    day_of_base_date = cint(cast("datetime.datetime", get_datetime(base_date)).strftime("%w"))
     start_date = add_days(base_date, -day_of_base_date)
     number_of_days = base_days + day_of_base_date + padding_end
     days = [add_days(start_date, i) for i in range(number_of_days + 1)]
@@ -1341,7 +1355,7 @@ def initialize_date_count(days: list):
     return {format_date(day, "YYYY-MM-dd"): 0 for day in days}
 
 
-def fetch_activity_data(member: str, start_date: str):
+def fetch_activity_data(member: str, start_date: "DateTimeLikeObject"):
     """Return a member's lesson completions, quiz submissions, and assignment submissions since a date."""
     lesson_completions = frappe.get_all(
         "LMS Course Progress",
@@ -1372,19 +1386,19 @@ def count_dates(data: list, date_count: dict):
             date_count[date_value] += 1
 
 
-def prepare_heatmap_data(start_date: str, number_of_days: int, date_count: dict):
+def prepare_heatmap_data(start_date: "DateTimeLikeObject", number_of_days: int, date_count: dict):
     """Return per-weekday heatmap series, month labels, total activities, and week count."""
     days_of_week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     heatmap_data = {day: [] for day in days_of_week}
     week_count = -(number_of_days // -7)
-    labels = [None] * week_count
+    labels: list[str | None] = [None] * week_count
     last_seen_month = None
     sorted_dates = sorted(date_count.keys())
 
     for date_value in sorted_dates:
         activity_count = date_count[date_value]
-        day_of_week = get_datetime(date_value).strftime("%a")
-        current_month = get_datetime(date_value).strftime("%b")
+        day_of_week = cast("datetime.datetime", get_datetime(date_value)).strftime("%a")
+        current_month = cast("datetime.datetime", get_datetime(date_value)).strftime("%b")
         column_index = get_week_difference(start_date, date_value)
 
         if 0 <= column_index < week_count:
@@ -1410,17 +1424,19 @@ def prepare_heatmap_data(start_date: str, number_of_days: int, date_count: dict)
     return formatted_heatmap_data, labels, total_activities, week_count
 
 
-def get_week_difference(start_date: str, current_date: str) -> int:
+def get_week_difference(start_date: "DateTimeLikeObject", current_date: "DateTimeLikeObject") -> int:
     """Return the number of whole weeks between the start date and the current date."""
     diff_in_days = date_diff(current_date, start_date)
     return diff_in_days // 7
 
 
 @frappe.whitelist()
-def get_notifications(filters: dict = None):
+def get_notifications(filters: "dict | None" = None):
     """Return the current user's notification logs enriched with document and sender details."""
     filters = frappe._dict(filters or {})
-    filters.for_user = frappe.session.user
+    # frappe._dict exposes keys as attributes at runtime; the param's declared `dict | None`
+    # type pins `filters`, so pyright sees plain-dict attribute assignment.
+    filters.for_user = frappe.session.user  # type: ignore[reportAttributeAccessIssue, reportOptionalMemberAccess]
     notifications = frappe.get_all(
         "Notification Log",
         filters,
@@ -1446,7 +1462,7 @@ def get_notifications(filters: dict = None):
     return notifications
 
 
-def update_user_details(notification: dict) -> dict:
+def update_user_details(notification: "frappe._dict") -> dict:
     """Attach sender details to a notification, preferring the instructor for non-mention events."""
     if (
         notification.document_details
@@ -1460,7 +1476,7 @@ def update_user_details(notification: dict) -> dict:
     return notification
 
 
-def is_mention(notification: dict) -> bool:
+def is_mention(notification: "frappe._dict") -> bool:
     """Return whether a notification represents a mention of the user."""
     if notification.type == "Mention":
         return True
@@ -1469,7 +1485,7 @@ def is_mention(notification: dict) -> bool:
     return False
 
 
-def update_document_details(notification: dict) -> dict:
+def update_document_details(notification: "frappe._dict") -> dict:
     """Attach course or batch details and instructors to a notification's referenced document."""
     if notification.document_type == "LMS Course":
         details = frappe.db.get_value(
@@ -1527,7 +1543,7 @@ def get_lms_settings():
 
 
 @frappe.whitelist()
-def cancel_evaluation(evaluation: dict):
+def cancel_evaluation(evaluation: "frappe._dict"):
     """Cancel the current user's certificate request and remove its calendar event and communication."""
     evaluation = frappe._dict(evaluation)
     if evaluation.member != frappe.session.user:
@@ -2050,7 +2066,7 @@ def calculate_current_streak(all_dates: list, streak: int):
         return 0
 
     last_date = all_dates[-1]
-    today = getdate()
+    today = cast("datetime.date", getdate())
 
     ref_day = today
     while ref_day.weekday() in (5, 6):
@@ -2558,7 +2574,7 @@ def search_users_by_role(
     if isinstance(names, str):
         names = json.loads(names)
 
-    invalid_roles = set(roles) - set(LMS_ROLES)
+    invalid_roles = set(cast("list", roles)) - set(LMS_ROLES)
     if invalid_roles:
         frappe.throw(_("Cannot search for roles: {0}").format(", ".join(invalid_roles)))
 

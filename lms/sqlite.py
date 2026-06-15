@@ -1,6 +1,11 @@
+from typing import TYPE_CHECKING, cast
+
 import frappe
 from frappe.search.sqlite_search import SQLiteSearch, SQLiteSearchIndexMissingError
 from frappe.utils import get_datetime, getdate, nowdate
+
+if TYPE_CHECKING:
+    import datetime
 
 
 class LearningSearch(SQLiteSearch):
@@ -188,7 +193,7 @@ class LearningSearch(SQLiteSearch):
         elif doctype == "LMS Batch":
             document["start_date"] = getdate(modified_value)
 
-        document["modified"] = modified_value.timestamp()
+        document["modified"] = cast("datetime.datetime", modified_value).timestamp()
 
     @SQLiteSearch.scoring_function
     def get_doctype_boost(self, row, query, query_words):
@@ -219,7 +224,7 @@ def build_index():
 
 def build_index_in_background():
     """Enqueue a learning search index rebuild unless one is already running."""
-    if not frappe.cache().get_value("learning_search_indexing_in_progress"):
+    if not frappe.cache().get_value("learning_search_indexing_in_progress"):  # type: ignore[reportOptionalCall]  # frappe.cache is a callable at runtime; stub types it as RedisWrapper | None
         frappe.enqueue(build_index, queue="long")
 
 

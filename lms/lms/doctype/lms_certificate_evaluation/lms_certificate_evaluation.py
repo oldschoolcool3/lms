@@ -47,7 +47,7 @@ def has_website_permission(doc, ptype, user, verbose=False):
 
 
 @frappe.whitelist()
-def create_lms_certificate(source_name: str, target_doc: dict = None):
+def create_lms_certificate(source_name: str, target_doc: "dict | None" = None):
     doc = get_mapped_doc(
         "LMS Certificate Evaluation",
         source_name,

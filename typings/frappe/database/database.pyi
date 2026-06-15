@@ -163,7 +163,7 @@ class Database:
 		"""Return `get_value` with fieldname='*'."""
 		...
 	
-	def get_value(self, doctype: str, filters: FilterValue | dict | list | None = ..., fieldname: str | list[str] = ..., ignore: bool = ..., as_dict: bool = ..., debug: bool = ..., order_by: str = ..., cache: bool = ..., for_update: bool = ..., *, run: bool = ..., pluck: bool = ..., distinct: bool = ..., skip_locked: bool = ..., wait: bool = ...): # -> list[Any] | list[_dict[Any, Any]] | list[list[Any | None]] | dict[Any, Any] | _dict[Any, Any] | list[Any | None] | None:
+	def get_value(self, doctype: str, filters: FilterValue | dict | list | None = ..., fieldname: str | list[str] = ..., ignore: bool = ..., as_dict: bool | int = ..., debug: bool = ..., order_by: str = ..., cache: bool = ..., for_update: bool = ..., *, run: bool = ..., pluck: bool = ..., distinct: bool = ..., skip_locked: bool = ..., wait: bool = ...): # -> list[Any] | list[_dict[Any, Any]] | list[list[Any | None]] | dict[Any, Any] | _dict[Any, Any] | list[Any | None] | None:
 		"""Return a document property or list of properties.
 
 		:param doctype: DocType name.
@@ -280,7 +280,7 @@ class Database:
 		"""Alias for get_single_value"""
 		...
 	
-	def set_value(self, dt: str, dn: FilterValue | dict, field: str, val=..., modified=..., modified_by=..., update_modified=..., debug=...): # -> None:
+	def set_value(self, dt: str, dn: FilterValue | dict | None, field: str | dict, val=..., modified=..., modified_by=..., update_modified=..., debug=...): # -> None:
 		"""Set a single value in the database, do not call the ORM triggers
 		but update the modified timestamp (unless specified not to).
 
@@ -500,7 +500,7 @@ class Database:
 		"""
 		...
 	
-	def delete(self, doctype: str, filters: dict | list | None = ..., debug=..., **kwargs):
+	def delete(self, doctype: str, filters: FilterValue | dict | list | None = ..., debug=..., **kwargs):
 		"""Delete rows from a table in site which match the passed filters. This
 		does not trigger DocType hooks. Simply runs a DELETE query in the database.
 

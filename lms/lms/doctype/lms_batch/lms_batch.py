@@ -3,7 +3,8 @@
 
 import base64
 import json
-from datetime import timedelta
+from datetime import date, timedelta
+from typing import cast
 
 import frappe
 import requests
@@ -102,7 +103,7 @@ class LMSBatch(Document):
             self.name = generate_slug(self.title, "LMS Batch")
 
     def validate_batch_end_date(self):
-        if self.end_date < self.start_date:
+        if cast(date, self.end_date) < cast(date, self.start_date):
             frappe.throw(_("Batch end date cannot be before the batch start date"))
 
     def validate_batch_time(self):
@@ -140,7 +141,7 @@ class LMSBatch(Document):
                 frappe.throw(_("Assessment {0} has already been added to this batch.").format(frappe.bold(title)))
 
     def validate_evaluation_end_date(self):
-        if self.evaluation_end_date and self.evaluation_end_date < self.end_date:
+        if self.evaluation_end_date and cast(date, self.evaluation_end_date) < cast(date, self.end_date):
             frappe.throw(_("Evaluation end date cannot be less than the batch end date."))
 
     def validate_seats_left(self):
@@ -171,7 +172,9 @@ class LMSBatch(Document):
                 ):
                     frappe.throw(_("Row #{0} End time cannot be outside the batch duration.").format(schedule.idx))
 
-            if schedule.date < self.start_date or schedule.date > self.end_date:
+            if cast(date, schedule.date) < cast(date, self.start_date) or cast(date, schedule.date) > cast(
+                date, self.end_date
+            ):
                 frappe.throw(_("Row #{0} Date cannot be outside the batch duration.").format(schedule.idx))
 
     def validate_conferencing_provider(self):
@@ -197,7 +200,7 @@ class LMSBatch(Document):
 
     def on_payment_authorized(self, payment_status):
         if payment_status in ["Authorized", "Completed"]:
-            update_payment_record("LMS Batch", self.name)
+            update_payment_record("LMS Batch", cast("str", self.name))
 
 
 def send_notification_for_published_batch(batch):
@@ -281,7 +284,7 @@ def create_live_class(
     time: str,
     timezone: str,
     auto_recording: str,
-    description: str = None,
+    description: "str | None" = None,
 ):
     roles = frappe.get_roles()
     if not any(role in roles for role in ["Moderator", "Batch Evaluator"]):
@@ -345,7 +348,7 @@ def create_google_meet_live_class(
     date: str,
     time: str,
     timezone: str,
-    description: str = None,
+    description: "str | None" = None,
 ):
     frappe.only_for(["Moderator", "Batch Evaluator"])
 
