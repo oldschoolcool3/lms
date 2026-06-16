@@ -70,3 +70,20 @@ class TestLMSAssignmentSubmission(BaseTestUtils):
         doc.member = self.student_b.name
         doc.save()
         self.assertEqual(doc.member, self.student_b.name)
+
+    def test_text_submission_with_no_answer_saves(self):
+        # The fixture assignment is type "Text", which triggers
+        # validate_private_attachments() on update. A Text submission may have
+        # no answer (answer is only mandatory for type "URL"), and parsing a
+        # None answer must not raise.
+        frappe.set_user(self.student_a.name)
+        doc = self._new_submission(member=self.student_a.name, answer=None)
+        doc.insert()
+        self.cleanup_items.append(("LMS Assignment Submission", doc.name))
+        self.assertEqual(doc.type, "Text")
+        self.assertIsNone(doc.answer)
+        attached_files = frappe.db.count(
+            "File",
+            {"attached_to_doctype": doc.doctype, "attached_to_name": doc.name},
+        )
+        self.assertEqual(attached_files, 0)
