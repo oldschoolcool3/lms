@@ -129,6 +129,7 @@ def send_mail(payment):
         ),
     }
 
+    content = None
     if custom_template:
         email_template = get_email_template(custom_template, args)
         subject = email_template.get("subject")

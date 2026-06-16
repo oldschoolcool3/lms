@@ -596,6 +596,7 @@ def notify_mentions_via_email(doc: Document, topic: "frappe._dict"):
     subject = _("{0} mentioned you in a comment").format(sender_fullname)
     template = "mention_template"
 
+    link = None
     if topic.reference_doctype == "LMS Batch":
         link = f"/batches/{topic.reference_docname}#discussions"
     if topic.reference_doctype == "Course Lesson":
@@ -1875,6 +1876,8 @@ def get_assessment_meta(assessment_type: str):
         docfield = "exercise"
         fields = ["status"]
         not_attempted = "Not Attempted"
+    else:
+        frappe.throw(_("Unknown assessment type: {0}").format(assessment_type))
 
     return doctype, docfield, fields, not_attempted
 
@@ -2135,6 +2138,7 @@ def get_lesson_creation_details(course: str, chapter: int, lesson: int) -> dict:
     chapter_name = frappe.db.get_value("Chapter Reference", {"parent": course, "idx": chapter}, "chapter")
     lesson_name = frappe.db.get_value("Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson")
 
+    lesson_details = None
     if lesson_name:
         lesson_details = frappe.db.get_value(
             "Course Lesson",

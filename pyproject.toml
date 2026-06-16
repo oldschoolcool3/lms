@@ -124,20 +124,29 @@ per_rule_ignores.DEP002 = ["cairocffi", "lxml", "razorpay", "websocket_client"]
 # Import name (bs4) differs from the distribution name (beautifulsoup4).
 beautifulsoup4 = ["bs4"]
 
-# --- pyright: ratcheted type-checking (see scripts/backend-typecheck.py) ---
-# Inherited frappe/lms code can't pass a clean pyright run (dynamic ORM,
-# bench-injected frappe), so the gate diffs against backend-typecheck-baseline.json
-# and fails only on NEW errors — net-new fork modules are type-checked while the
-# backlog is grandfathered. Mirrors the frontend's typecheck-baseline.json.
+# --- pyright: strict, hard-zero gate ---
+# The backend type migration reached a fully clean pyright run, so the gate is a
+# hard zero (no baseline/ratchet): `nx run backend:typecheck` runs pyright and
+# fails on ANY error. "standard" is the strictest tractable mode on a Frappe app
+# ("strict" floods with ~7900 reportUnknown* from the dynamic ORM); it adds
+# reportPossiblyUnbound (real UnboundLocalError risks) over "basic".
 [tool.pyright]
 include = ["lms"]
 exclude = ["**/test_*.py", "**/tests"]
 pythonVersion = "3.12"
-typeCheckingMode = "basic"
+# "strict" is unusable on a Frappe app (~7900 reportUnknown* from the dynamic
+# ORM); "standard" is the strictest tractable level — it adds reportPossiblyUnbound
+# (real UnboundLocalError risks) over "basic".
+typeCheckingMode = "standard"
 # frappe + payments are bench-injected and never resolvable in the uv tool env;
 # their import errors are pure noise (deptry already guards dependency hygiene).
 reportMissingImports = false
 reportMissingModuleSource = false
+# Auto-generated DocType type blocks legitimately re-declare `name` with the
+# autoname field's type, which "overrides" Document.name — expected on Frappe.
+reportIncompatibleVariableOverride = false
+# Keep `# type: ignore`s honest — flag any that become unnecessary as types improve.
+reportUnnecessaryTypeIgnoreComment = true
 
 [tool.bench.frappe-dependencies]
 frappe = ">=14.0.0,<=17.0.0-dev"

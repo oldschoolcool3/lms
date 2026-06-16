@@ -290,3 +290,11 @@ class TestLMSUtils(BaseTestUtils):
         self.assertTrue(exercise.completed)
         self.assertEqual(exercise.status, "Passed")
         self.assertIn(self.programming_exercise.name, exercise.edit_url)
+
+    def test_get_assessment_meta_rejects_unknown_type(self):
+        """get_assessment_meta validates its input instead of returning unbound locals."""
+        from lms.lms.utils import get_assessment_meta
+
+        self.assertEqual(get_assessment_meta("LMS Quiz")[0], "LMS Quiz Submission")
+        with self.assertRaises(frappe.exceptions.ValidationError):
+            get_assessment_meta("Not A Real Assessment Type")
